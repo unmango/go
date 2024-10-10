@@ -2,7 +2,7 @@
 
 # Go Source code for UnMango
 
-This is a monorepo containing various Go modules.
+This is a collection of random Go packages.
 
 ## iter
 
@@ -60,4 +60,6 @@ Currently only re-exports `Collect`.
 
 ## Addendum
 
-Idk if this repo structure is a good idea, but the short import is nice.
+~~Idk if this repo structure is a good idea, but the short import is nice.~~
+
+It wasn't, at least right away.
