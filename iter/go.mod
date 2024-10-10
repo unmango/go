@@ -5,6 +5,7 @@ go 1.23.2
 require (
 	github.com/onsi/ginkgo/v2 v2.20.2
 	github.com/onsi/gomega v1.34.2
+	github.com/unmango/go/slices v0.0.0-20241010025423-5053ba74f33f
 )
 
 require (

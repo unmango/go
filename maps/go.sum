@@ -18,8 +18,6 @@ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcU
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/unmango/go/iter v0.0.0-20241010025423-5053ba74f33f h1:VAUEHAwvYy/WEnCadZ3XAe5sSr9nr9jOUdHjqs13URM=
 github.com/unmango/go/iter v0.0.0-20241010025423-5053ba74f33f/go.mod h1:ceRO234Y2QnLRwDMl+AoLcYmIY5hQawfS4zx3Pq8uDw=
-github.com/unmango/go/result v0.0.0-20241010025423-5053ba74f33f h1:YR6n3NIL+JLwxo7TdfMLob1JLx1h8szVwHN3nalvjoU=
-github.com/unmango/go/result v0.0.0-20241010025423-5053ba74f33f/go.mod h1:+1yjUTikDZir+wT2hC1plyLjaeXcRXRCa1r5lEFX7fY=
 github.com/unmango/go/slices v0.0.0-20241010025423-5053ba74f33f h1:/oqGaogwgtLu11mDI2RsRZFXI1fCeXbMSUsUE3mAFxM=
 github.com/unmango/go/slices v0.0.0-20241010025423-5053ba74f33f/go.mod h1:cEyy9zJ1I1IlahjsjTv0OtX3Dr73CpBv/N848WCa2Hs=
 golang.org/x/net v0.28.0 h1:a9JDOJc5GMUJ0+UDqmLT86WiEy7iWyIhz8gz8E4e5hE=

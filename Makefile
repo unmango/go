@@ -29,7 +29,7 @@ $(addsuffix /report.json,${MODS}): %/report.json: $(GINKGO) $(wildcard %/*.go)
 $(addsuffix /go.mod,${MODS}): %/go.mod:
 	mkdir -p $* && go -C $* mod init ${REPO}/$*
 
-$(addsuffix /go.sum,${MODS}): %/go.sum: %/go.mod
+$(addsuffix /go.sum,${MODS}): %/go.sum: %/go.mod $(wildcard %/*.go)
 	go -C $* mod tidy
 
 %_suite_test.go: | $(GINKGO)
