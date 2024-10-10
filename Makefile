@@ -1,5 +1,5 @@
 REPO := github.com/unmango/go
-MODS := iter maps result seqs slices
+PKGS := iter maps result seqs slices
 
 WORKING_DIR := $(shell pwd)
 LOCALBIN    := ${WORKING_DIR}/bin
@@ -12,37 +12,25 @@ else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
 
-build: $(MODS)
-test: $(addsuffix /report.json,${MODS})
-tidy: $(addsuffix /go.sum,${MODS})
+build:
+	go build ./...
+
+tidy: go.mod
+	go mod tidy
+
+test: $(addsuffix /report.json,${PKGS})
 
 clean:
 	find . -name report.json -delete
 
-.PHONY: ${MODS}
-$(MODS):
-	go -C $@ build ./...
-
-$(addsuffix /report.json,${MODS}): %/report.json: $(GINKGO) $(wildcard %/*.go)
+$(addsuffix /report.json,${PKGS}): %/report.json: $(GINKGO) $(wildcard %/*.go)
 	$< run ${TEST_FLAGS} $*
-
-$(addsuffix /go.mod,${MODS}): %/go.mod:
-	mkdir -p $* && go -C $* mod init ${REPO}/$*
-
-$(addsuffix /go.sum,${MODS}): %/go.sum: %/go.mod $(wildcard %/*.go)
-	go -C $* mod tidy
 
 %_suite_test.go: | $(GINKGO)
 	cd $(dir $@) && $(GINKGO) bootstrap
 
 %_test.go: | $(GINKGO)
 	cd $(dir $@) && $(GINKGO) generate $(notdir $*)
-
-go.work: | $(addsuffix /go.mod,${MODS})
-	go work init ${MODS}
-
-go.work.sum: go.work $(addsuffix /go.mod,${MODS})
-	go work sync
 
 $(LOCALBIN):
 	mkdir -p $@
