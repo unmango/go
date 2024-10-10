@@ -1,6 +1,6 @@
 # All this crap for working with modules in case I decide to switch back to it
 
-MODS := iter maps result seqs slices
+MODS := iter maps result seqs slices signal monad
 
 build: $(MODS)
 test: $(addsuffix /report.json,${MODS})
