@@ -18,6 +18,8 @@ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcU
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/unmango/go/iter v0.0.0-20241010025423-5053ba74f33f h1:VAUEHAwvYy/WEnCadZ3XAe5sSr9nr9jOUdHjqs13URM=
 github.com/unmango/go/iter v0.0.0-20241010025423-5053ba74f33f/go.mod h1:ceRO234Y2QnLRwDMl+AoLcYmIY5hQawfS4zx3Pq8uDw=
+github.com/unmango/go/iter v0.0.0-20241010032228-b0b1f9190ab8 h1:oW7wSVI79dinSoVG3TdJJ+PYC/Gudr2zWgKqwg+iKN0=
+github.com/unmango/go/iter v0.0.0-20241010032228-b0b1f9190ab8/go.mod h1:od5OtPx3irx36a5IevvRIBZvDYGb7lvy5ei4xZELJSE=
 github.com/unmango/go/result v0.0.0-20241010025423-5053ba74f33f h1:YR6n3NIL+JLwxo7TdfMLob1JLx1h8szVwHN3nalvjoU=
 github.com/unmango/go/result v0.0.0-20241010025423-5053ba74f33f/go.mod h1:+1yjUTikDZir+wT2hC1plyLjaeXcRXRCa1r5lEFX7fY=
 github.com/unmango/go/slices v0.0.0-20241010025423-5053ba74f33f h1:/oqGaogwgtLu11mDI2RsRZFXI1fCeXbMSUsUE3mAFxM=
