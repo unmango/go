@@ -57,3 +57,7 @@ func Test(seq iter.Seq[int]) {
 ## slices
 
 Currently only re-exports `Collect`.
+
+## Addendum
+
+Idk if this repo structure is a good idea, but the short import is nice.
