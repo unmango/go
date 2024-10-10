@@ -6,15 +6,25 @@ LOCALBIN    := ${WORKING_DIR}/bin
 
 GINKGO := ${LOCALBIN}/ginkgo
 
-tidy: $(addsuffix /go.sum,${MODS})
+ifeq ($(CI),)
+TEST_FLAGS := --json-report report.json --keep-separate-reports
+else
+TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
+endif
+
+build: $(MODS)
 test: $(addsuffix /report.json,${MODS})
+tidy: $(addsuffix /go.sum,${MODS})
+
+clean:
+	find . -name report.json -delete
 
 .PHONY: ${MODS}
-iter:
+$(MODS):
 	go -C $@ build ./...
 
 $(addsuffix /report.json,${MODS}): %/report.json: $(GINKGO) $(wildcard %/*.go)
-	$< run $* --json-report --fail-on-empty=false
+	$< run ${TEST_FLAGS} $*
 
 $(addsuffix /go.mod,${MODS}): %/go.mod:
 	mkdir -p $* && go -C $* mod init ${REPO}/$*
