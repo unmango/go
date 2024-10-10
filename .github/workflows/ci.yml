@@ -12,5 +12,4 @@ jobs:
 
       - uses: actions/setup-go@v5
 
-      - run: make go.work
       - run: make build
