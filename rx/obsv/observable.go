@@ -1,4 +1,4 @@
-package obsv
+package obs
 
 import "github.com/unmango/go/rx"
 

@@ -1,4 +1,4 @@
-package obsv
+package obs
 
 import (
 	"github.com/unmango/go/iter"
@@ -35,7 +35,9 @@ func (s *subject[T]) OnNext(value T) {
 func (s *subject[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
 	s.subs = seqs.Append(s.subs, observer)
 
-	return func() {}
+	return func() {
+		s.subs = seqs.Remove(s.subs, observer)
+	}
 }
 
 func NewSubject[T any]() rx.Subject[T] {

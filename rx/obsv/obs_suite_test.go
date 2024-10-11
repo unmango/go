@@ -1,4 +1,4 @@
-package obsv_test
+package obs_test
 
 import (
 	"testing"
