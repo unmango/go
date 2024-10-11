@@ -5,8 +5,6 @@ import (
 	"github.com/unmango/go/rx/subject"
 )
 
-type Option[T any] func()
-
-func New[T any](options ...Option[T]) rx.Observable[T] {
-	return subject.New[T]()
+func New[T any](options ...subject.Option[T]) rx.Observable[T] {
+	return subject.New(options...)
 }
