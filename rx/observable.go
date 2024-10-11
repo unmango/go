@@ -2,6 +2,12 @@ package rx
 
 type Subscription func()
 
+type Subscriber[T any] interface {
+	Next(T)
+	Error(error)
+	Complete()
+}
+
 type NextObserver[T any] interface {
 	OnNext(T)
 }
