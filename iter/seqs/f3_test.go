@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/unmango/go/iter"
+	"github.com/unmango/go/iter/seqs"
 	"github.com/unmango/go/result"
-	"github.com/unmango/go/seqs"
 )
 
 var _ = Describe("Seq3", func() {
