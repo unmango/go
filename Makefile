@@ -1,5 +1,5 @@
 REPO := github.com/unmango/go
-PKGS := iter maps result seqs slices
+PKGS := iter maps result seqs slices rx
 
 WORKING_DIR := $(shell pwd)
 LOCALBIN    := ${WORKING_DIR}/bin
