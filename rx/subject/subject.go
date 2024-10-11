@@ -54,7 +54,3 @@ func New[T any](options ...Option[T]) rx.Subject[T] {
 
 	return subject
 }
-
-func WithAnonymous[T any](func(rx.Subscriber[T])) Option[T] {
-	return func(s *subject[T]) {} // TODO
-}
