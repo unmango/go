@@ -1,4 +1,4 @@
-package obs
+package subject
 
 import (
 	"github.com/unmango/go/iter"
@@ -8,6 +8,12 @@ import (
 
 type subject[T any] struct {
 	subs iter.Seq[rx.Observer[T]]
+}
+
+type Option[T any] func(*subject[T])
+
+func (option Option[T]) apply(s *subject[T]) {
+	option(s)
 }
 
 // OnComplete implements rx.Subject.
@@ -40,6 +46,15 @@ func (s *subject[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
 	}
 }
 
-func NewSubject[T any]() rx.Subject[T] {
-	return &subject[T]{}
+func New[T any](options ...Option[T]) rx.Subject[T] {
+	subject := &subject[T]{}
+	for _, opt := range options {
+		opt.apply(subject)
+	}
+
+	return subject
+}
+
+func WithAnonymous[T any](func(rx.Subscriber[T])) Option[T] {
+	return func(s *subject[T]) {} // TODO
 }

@@ -1,7 +1,12 @@
 package obs
 
-import "github.com/unmango/go/rx"
+import (
+	"github.com/unmango/go/rx"
+	"github.com/unmango/go/rx/subject"
+)
 
-func New[T any](func(rx.Subscriber[T])) rx.Observable[T] {
-	return &subject[T]{}
+type Option[T any] func()
+
+func New[T any](options ...Option[T]) rx.Observable[T] {
+	return subject.New[T]()
 }

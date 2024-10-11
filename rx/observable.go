@@ -2,6 +2,10 @@ package rx
 
 type Subscription func()
 
+func (s Subscription) Unsubscribe() {
+	s()
+}
+
 type Subscriber[T any] interface {
 	Next(T)
 	Error(error)
