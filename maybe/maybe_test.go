@@ -10,19 +10,19 @@ import (
 var _ = Describe("Maybe", func() {
 	Describe("None", func() {
 		It("should be None", func() {
-			Expect(maybe.None).To(Satisfy(maybe.IsNone[any]))
+			Expect(maybe.None[any]).To(Satisfy(maybe.IsNone[any]))
 		})
 
 		It("should not be ok", func() {
-			Expect(maybe.None).NotTo(Satisfy(maybe.IsOk[any]))
+			Expect(maybe.None[any]).NotTo(Satisfy(maybe.IsOk[any]))
 		})
 
 		It("should be nil", func() {
-			Expect(maybe.None()).To(BeNil())
+			Expect(maybe.None[any]()).To(BeNil())
 		})
 
 		It("should be ErrNone", func() {
-			_, err := maybe.None()
+			_, err := maybe.None[any]()
 
 			Expect(err).To(BeIdenticalTo(maybe.ErrNone))
 		})
@@ -37,6 +37,17 @@ var _ = Describe("Maybe", func() {
 			Entry("true should not be none", true),
 			func(x any) {
 				Expect(maybe.Ok(x)).NotTo(Satisfy(maybe.IsNone[any]))
+			},
+		)
+
+		DescribeTable("IsOk",
+			Entry("number should be ok", 1),
+			Entry("string should be ok", "thing"),
+			Entry("char should be ok", 't'),
+			Entry("false should be ok", false),
+			Entry("true should be ok", true),
+			func(x any) {
+				Expect(maybe.Ok(x)).To(Satisfy(maybe.IsOk[any]))
 			},
 		)
 	})
