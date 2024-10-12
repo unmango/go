@@ -1,7 +1,7 @@
 _ := $(shell mkdir -p .make bin)
 
 REPO := github.com/unmango/go
-PKGS := iter maps result iter/seqs slices rx rx/observable option
+PKGS := iter maps result iter/seqs slices rx rx/observable option maybe
 
 WORKING_DIR := $(shell pwd)
 LOCALBIN    := ${WORKING_DIR}/bin
