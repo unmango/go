@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestObs(t *testing.T) {
+func TestObservable(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Obs Suite")
+	RunSpecs(t, "Observable Suite")
 }
