@@ -1,5 +1,6 @@
 package option
 
+// Is there a cleaner way to do this?
 type ptr[T any] interface{ ~*T }
 
 type Option[T any] interface {
