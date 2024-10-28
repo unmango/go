@@ -2,7 +2,7 @@
 
 # Go Source code for UnMango
 
-This is a collection of random Go packages.
+A collection of random Go packages.
 
 ## iter
 
@@ -57,6 +57,17 @@ func Test(seq iter.Seq[int]) {
 ## slices
 
 Currently only re-exports `Collect`.
+
+## Inspiration
+
+I stand on the shoulders of giants.
+A lot of this is inspired by the works of others, be sure to check out these repos as well.
+
+<https://github.com/fogfish/golem>
+
+- [A Guide to Pure Combinators in Golang](https://medium.com/@dmkolesnikov/a-guide-to-pure-type-combinators-in-golang-or-how-to-stop-worrying-and-love-the-functional-e14f7f8cf35c)
+
+<https://github.com/IBM/fp-go>
 
 ## Addendum
 
