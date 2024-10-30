@@ -8,17 +8,19 @@ type Functor[
 	A, B any,
 	HKTA constraint.Type[A],
 	HKTB constraint.Type[B],
+	M constraint.Map[A, B],
 ] interface {
-	Map(HKTA, func(A) B) HKTB
+	Map(HKTA, M) HKTB
 }
 
 type functor[
 	A, B any,
 	HKTA constraint.Type[A],
 	HKTB constraint.Type[B],
-] func(HKTA, func(A) B) HKTB
+	M constraint.Map[A, B],
+] func(HKTA, M) HKTB
 
-func (f functor[A, B, HKTA, HKTB]) Map(a HKTA, fn func(A) B) HKTB {
+func (f functor[A, B, HKTA, HKTB, M]) Map(a HKTA, fn M) HKTB {
 	return f(a, fn)
 }
 
@@ -26,7 +28,8 @@ func Lift[
 	A, B any,
 	HKTA constraint.Type[A],
 	HKTB constraint.Type[B],
-	F constraint.Functor[A, B, HKTA, HKTB],
-](f F) Functor[A, B, HKTA, HKTB] {
-	return functor[A, B, HKTA, HKTB](f)
+	M constraint.Map[A, B],
+	F constraint.Functor[A, B, HKTA, HKTB, M],
+](f F) Functor[A, B, HKTA, HKTB, M] {
+	return functor[A, B, HKTA, HKTB, M](f)
 }
