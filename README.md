@@ -62,6 +62,7 @@ Currently only re-exports `Collect`.
 
 I stand on the shoulders of giants.
 A lot of this is inspired by the works of others, be sure to check out these repos as well.
+(They're much smarter than me)
 
 <https://github.com/fogfish/golem>
 
