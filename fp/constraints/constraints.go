@@ -1,7 +1,11 @@
 package constraints
 
-type Foldable[T, V any, M Monoid[T]] interface {
-	~func(M, V) T
+type Foldable[A, B any, M Monoid[A]] interface {
+	~func(M, B) A
+}
+
+type Functor[A, B, HKTA, HKTB any] interface {
+	~func(HKTA, func(A) B) HKTB
 }
 
 type Identity[T any] interface {
