@@ -1,7 +1,7 @@
 package monoid
 
 import (
-	"github.com/unmango/go/fp/constraints"
+	"github.com/unmango/go/fp/constraint"
 	S "github.com/unmango/go/fp/semigroup"
 )
 
@@ -23,6 +23,6 @@ func From[T any](empty T, combine S.Semigroup[T]) Monoid[T] {
 	return monoid[T]{combine, empty}
 }
 
-func Lift[T any, M constraints.Monoid[T]](monoid M) Monoid[T] {
+func Lift[T any, M constraint.Monoid[T]](monoid M) Monoid[T] {
 	return monoid
 }
