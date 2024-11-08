@@ -27,17 +27,17 @@ clean:
 %_suite_test.go: | bin/ginkgo
 	cd $(dir $@) && $(GINKGO) bootstrap
 
-%_test.go: | $(GINKGO)
+%_test.go: | bin/ginkgo
 	cd $(dir $@) && $(GINKGO) generate $(notdir $*)
 
-$(GINKGO): go.mod
+bin/ginkgo: go.mod
 	GOBIN=${LOCALBIN} go install github.com/onsi/ginkgo/v2/ginkgo
 
 # This recursive dependency works 90% of the time, and when it doesn't its easy to fix
-bin/devops: $(shell $(DEVOPS) list --go)
+bin/devops: $(shell $(DEVOPS) list --go --exclude-tests)
 	go build -o $@ cmd/devops/main.go
 
-.make/build: $(shell $(DEVOPS) list --go)
+.make/build: $(shell $(DEVOPS) list --go --exclude-tests)
 	go build ./...
 	@touch $@
 
