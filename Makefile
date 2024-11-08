@@ -16,7 +16,8 @@ TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
 
 build: bin/devops .make/build
-test: .make/test
+test: .make/test=
+tidy: go.sum
 
 test_all:
 	$(GINKGO) run -r ./
@@ -25,6 +26,9 @@ tidy: go.sum
 
 clean:
 	find . -name report.json -delete
+
+go.sum: go.mod
+	go mod tidy
 
 %_suite_test.go: | bin/ginkgo
 	cd $(dir $@) && $(GINKGO) bootstrap
