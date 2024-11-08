@@ -16,3 +16,4 @@ jobs:
           cache-dependency-path: go.sum
 
       - run: make build
+      - run: make test

@@ -1,9 +1,12 @@
+_ := $(shell mkdir -p .make bin)
+
 REPO := github.com/unmango/go
 PKGS := iter maps result iter/seqs slices rx rx/observable option
 
 WORKING_DIR := $(shell pwd)
 LOCALBIN    := ${WORKING_DIR}/bin
 
+DEVOPS := ${LOCALBIN}/devops
 GINKGO := ${LOCALBIN}/ginkgo
 
 ifeq ($(CI),)
@@ -12,28 +15,32 @@ else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
 
-build:
-	go build ./...
+build: bin/devops .make/build
+test: .make/test
 
 tidy: go.mod
 	go mod tidy
 
-test: $(addsuffix /report.json,${PKGS})
-
 clean:
 	find . -name report.json -delete
 
-$(addsuffix /report.json,${PKGS}): %/report.json: $(GINKGO) $(wildcard %/*.go)
-	$< run ${TEST_FLAGS} $*
-
-%_suite_test.go: | $(GINKGO)
+%_suite_test.go: | bin/ginkgo
 	cd $(dir $@) && $(GINKGO) bootstrap
 
-%_test.go: | $(GINKGO)
+%_test.go: | bin/ginkgo
 	cd $(dir $@) && $(GINKGO) generate $(notdir $*)
 
-$(LOCALBIN):
-	mkdir -p $@
+bin/ginkgo: go.mod
+	GOBIN=${LOCALBIN} go install github.com/onsi/ginkgo/v2/ginkgo
 
-$(GINKGO): .versions/ginkgo $(LOCALBIN)
-	GOBIN=${LOCALBIN} go install github.com/onsi/ginkgo/v2/ginkgo@v$(shell cat $<)
+# This recursive dependency works 90% of the time, and when it doesn't its easy to fix
+bin/devops: $(shell $(DEVOPS) list --go --exclude-tests)
+	go build -o $@ cmd/devops/main.go
+
+.make/build: $(shell $(DEVOPS) list --go --exclude-tests)
+	go build ./...
+	@touch $@
+
+.make/test: $(shell $(DEVOPS) list --go) | bin/ginkgo
+	$(GINKGO) run ${TEST_FLAGS} $(sort $(dir $?))
+	@touch $@
