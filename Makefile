@@ -27,7 +27,7 @@ tidy: go.sum
 clean:
 	find . -name report.json -delete
 
-go.sum: go.mod
+go.sum: go.mod $(shell $(DEVOPS) list --go)
 	go mod tidy
 
 %_suite_test.go: | bin/ginkgo
