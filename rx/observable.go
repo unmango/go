@@ -1,10 +1,8 @@
 package rx
 
-type Subscription func() error
+type Subscription func()
 
-func (s Subscription) Unsubscribe() error {
-	return s()
-}
+func (s Subscription) Unsubscribe() { s() }
 
 type Subscriber[T any] interface {
 	Next(T)

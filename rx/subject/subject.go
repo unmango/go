@@ -38,9 +38,8 @@ func (s *subject[T]) OnNext(value T) {
 func (s *subject[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
 	s.subs = seqs.Append(s.subs, observer)
 
-	return func() error {
+	return func() {
 		s.subs = seqs.Remove(s.subs, observer)
-		return nil
 	}
 }
 
