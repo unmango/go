@@ -1,18 +1,23 @@
 package github
 
-import "github.com/google/go-github/v66/github"
+import (
+	"context"
 
-type Option func(*GitHub)
+	"github.com/google/go-github/v66/github"
+)
+
+type Option func(*Fs)
 
 func WithClient(client *github.Client) Option {
-	return func(gh *GitHub) {
+	return func(gh *Fs) {
 		gh.Client = client
 	}
 }
 
-func WithRepository(owner, repository string) Option {
-	return func(gh *GitHub) {
-		gh.owner = owner
-		gh.repo = repository
+func WithContext(ctx context.Context) Option {
+	return func(f *Fs) {
+		f.ContextAccessor = func() context.Context {
+			return ctx
+		}
 	}
 }

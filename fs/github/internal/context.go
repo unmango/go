@@ -2,17 +2,12 @@ package internal
 
 import "context"
 
-type ctxval struct{ ctx context.Context }
+type ContextAccessor func() context.Context
 
-// Context implements ContextAccessor.
-func (b *ctxval) Context() context.Context {
-	return b.ctx
-}
-
-type ContextAccessor interface {
-	Context() context.Context
+func (c ContextAccessor) Context() context.Context {
+	return c()
 }
 
 func BackgroundContext() ContextAccessor {
-	return &ctxval{context.Background()}
+	return context.Background
 }

@@ -1,8 +1,8 @@
 package internal
 
-type Fs struct {
-	ContextAccessor
+import "github.com/spf13/afero"
 
-	Owner string
-	Repo  string
+type Fs struct {
+	afero.Fs
+	*State
 }

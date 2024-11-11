@@ -112,6 +112,34 @@ func (r *release) getAsset(name string) (*github.ReleaseAsset, error) {
 	return asset, nil
 }
 
+func (r *release) getAssetId(name string) (id int64, err error) {
+	id, err = strconv.ParseInt(filepath.Base(name), 10, 64)
+	if err == nil {
+		return
+	}
+
+	ctx := r.Context()
+	assets, _, err := r.client.ListReleaseAssets(
+		ctx,
+		r.Owner,
+		r.Repo,
+		69,
+		nil,
+	)
+	if err != nil {
+		return
+	}
+
+	for _, a := range assets {
+		if a.GetName() == name {
+			return a.GetID(), nil
+		}
+	}
+
+	err = fmt.Errorf("asset not found: %s", name)
+	return
+}
+
 func New(owner, repo, name string, client *github.RepositoriesService) afero.Fs {
 	return &release{
 		Fs: internal.Fs{
