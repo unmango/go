@@ -29,7 +29,7 @@ func (a Anonymous[T]) OnNext(x T) {
 	}
 }
 
-func Lift[F rx.Anonymous[T], T any](fn F) rx.Observer[T] {
+func Lift[F rx.AnonymousObserver[T], T any](fn F) rx.Observer[T] {
 	observer := &Anonymous[T]{}
 	if c, ok := any(fn).(func()); ok {
 		observer.Complete = c
@@ -44,7 +44,7 @@ func Lift[F rx.Anonymous[T], T any](fn F) rx.Observer[T] {
 	return observer
 }
 
-func Subscribe[F rx.Anonymous[T], T any](
+func Subscribe[F rx.AnonymousObserver[T], T any](
 	observable rx.Observable[T], fn F,
 ) rx.Subscription {
 	return observable.Subscribe(Lift[F, T](fn))
