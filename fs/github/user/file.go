@@ -2,57 +2,54 @@ package user
 
 import (
 	"io/fs"
-	"path/filepath"
 
 	"github.com/google/go-github/v66/github"
 	"github.com/unmango/go/fs/github/internal"
 )
 
-type userFile struct {
+type File struct {
 	internal.ReadOnlyFile
-	user *github.User
-
-	repos map[int64]*github.Repository
+	internal.Fs
+	User *github.User
 }
 
 // Close implements afero.File.
-func (userFile) Close() error {
+func (File) Close() error {
 	return nil
 }
 
 // Name implements afero.File.
-// Subtle: this method shadows the method (*Fs).Name of user.Fs.
-func (u *userFile) Name() string {
-	return filepath.Join(u.parent.Name(), u.user.GetName())
+func (u *File) Name() string {
+	return u.User.GetName()
 }
 
 // Read implements afero.File.
-func (u *userFile) Read(p []byte) (n int, err error) {
+func (u *File) Read(p []byte) (n int, err error) {
 	panic("unimplemented")
 }
 
 // ReadAt implements afero.File.
-func (u *userFile) ReadAt(p []byte, off int64) (n int, err error) {
+func (u *File) ReadAt(p []byte, off int64) (n int, err error) {
 	panic("unimplemented")
 }
 
 // Readdir implements afero.File.
-func (u *userFile) Readdir(count int) ([]fs.FileInfo, error) {
+func (u *File) Readdir(count int) ([]fs.FileInfo, error) {
 	panic("unimplemented")
 }
 
 // Readdirnames implements afero.File.
-func (u *userFile) Readdirnames(n int) ([]string, error) {
+func (u *File) Readdirnames(n int) ([]string, error) {
 	panic("unimplemented")
 }
 
 // Seek implements afero.File.
-func (u *userFile) Seek(offset int64, whence int) (int64, error) {
+func (u *File) Seek(offset int64, whence int) (int64, error) {
 	panic("unimplemented")
 }
 
 // Stat implements afero.File.
 // Subtle: this method shadows the method (*Fs).Stat of user.Fs.
-func (u *userFile) Stat() (fs.FileInfo, error) {
+func (u *File) Stat() (fs.FileInfo, error) {
 	panic("unimplemented")
 }

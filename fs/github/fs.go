@@ -6,15 +6,13 @@ import (
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/user"
 	"github.com/unmango/go/option"
 )
 
 type Fs struct {
 	afero.ReadOnlyFs
-	internal.ContextAccessor
-
-	Client *github.Client
-	users  map[string]*github.User
+	internal.Fs
 }
 
 var _ afero.Fs = &Fs{}
@@ -25,30 +23,38 @@ func (g *Fs) Name() string {
 }
 
 // Open implements afero.Fs.
-func (g *Fs) Open(name string) (afero.File, error) {
-	if _, ok := g.users[name]; !ok {
-		if u, err := g.getUser(name); err != nil {
-			return nil, err
-		} else {
-			g.users[name] = u
-		}
+func (f *Fs) Open(name string) (afero.File, error) {
+	u, err := f.getUser(name)
+	if err != nil {
+		return nil, err
 	}
 
-	return &userFile{g, g.users[name]}, nil
+	return &user.File{
+		Fs:   f.Fs,
+		User: u,
+	}, nil
 }
 
 // OpenFile implements afero.Fs.
-func (g *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	return g.Open(name)
+func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
+	return f.Open(name)
 }
 
 // Stat implements afero.Fs.
-func (g *Fs) Stat(name string) (fs.FileInfo, error) {
-	panic("unimplemented")
+func (f *Fs) Stat(name string) (fs.FileInfo, error) {
+	u, err := f.getUser(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user.FileInfo{
+		Fs:   f.Fs,
+		User: u,
+	}, nil
 }
 
-func (g *Fs) getUser(name string) (*github.User, error) {
-	user, _, err := g.Client.Users.Get(g.Context(), name)
+func (f *Fs) getUser(name string) (*github.User, error) {
+	user, _, err := f.Client.Users.Get(f.Context(), name)
 	return user, err
 }
 

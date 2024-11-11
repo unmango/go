@@ -1,8 +1,8 @@
 package internal
 
-import "github.com/spf13/afero"
+import "github.com/google/go-github/v66/github"
 
 type Fs struct {
-	afero.Fs
-	*State
+	ContextAccessor
+	Client *github.Client
 }
