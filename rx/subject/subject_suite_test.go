@@ -1,4 +1,4 @@
-package observable_test
+package subject_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestObservable(t *testing.T) {
+func TestSubject(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Observable Suite")
+	RunSpecs(t, "Subject Suite")
 }
