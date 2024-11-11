@@ -1,9 +1,9 @@
 package rx
 
-type Subscription func()
+type Subscription func() error
 
-func (s Subscription) Unsubscribe() {
-	s()
+func (s Subscription) Unsubscribe() error {
+	return s()
 }
 
 type Subscriber[T any] interface {
@@ -28,6 +28,10 @@ type Observer[T any] interface {
 	NextObserver[T]
 	ErrorObserver
 	CompletionObserver
+}
+
+type Anonymous[T any] interface {
+	~func(T) | ~func(error) | ~func()
 }
 
 type Observable[T any] interface {

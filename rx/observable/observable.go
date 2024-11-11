@@ -1,4 +1,4 @@
-package obs
+package observable
 
 import (
 	"github.com/unmango/go/rx"
@@ -7,8 +7,4 @@ import (
 
 func New[T any](options ...subject.Option[T]) rx.Observable[T] {
 	return subject.New(options...)
-}
-
-func FromAnonymous[T any](observable func(rx.Subscriber[T])) rx.Observable[T] {
-	return Anonymous[T](observable)
 }

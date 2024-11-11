@@ -1,4 +1,4 @@
-package obs
+package observable
 
 import "github.com/unmango/go/rx"
 
@@ -18,5 +18,3 @@ func (s *subscriber[T]) Error(err error) {
 func (s *subscriber[T]) Next(value T) {
 	s.OnNext(value)
 }
-
-var _ rx.Subscriber[any] = &subscriber[any]{}

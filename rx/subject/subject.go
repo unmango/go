@@ -3,6 +3,7 @@ package subject
 import (
 	"github.com/unmango/go/iter"
 	"github.com/unmango/go/iter/seqs"
+	"github.com/unmango/go/option"
 	"github.com/unmango/go/rx"
 )
 
@@ -11,10 +12,6 @@ type subject[T any] struct {
 }
 
 type Option[T any] func(*subject[T])
-
-func (option Option[T]) apply(s *subject[T]) {
-	option(s)
-}
 
 // OnComplete implements rx.Subject.
 func (s *subject[T]) OnComplete() {
@@ -41,16 +38,16 @@ func (s *subject[T]) OnNext(value T) {
 func (s *subject[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
 	s.subs = seqs.Append(s.subs, observer)
 
-	return func() {
+	return func() error {
 		s.subs = seqs.Remove(s.subs, observer)
+		return nil
 	}
 }
 
 func New[T any](options ...Option[T]) rx.Subject[T] {
-	subject := &subject[T]{}
-	for _, opt := range options {
-		opt.apply(subject)
-	}
+	subs := iter.Empty[rx.Observer[T]]()
+	subject := &subject[T]{subs}
+	option.ApplyAll(subject, options)
 
 	return subject
 }

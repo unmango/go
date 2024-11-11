@@ -10,7 +10,7 @@ DEVOPS := ${LOCALBIN}/devops
 GINKGO := ${LOCALBIN}/ginkgo
 
 ifeq ($(CI),)
-TEST_FLAGS := --json-report report.json --keep-separate-reports
+TEST_FLAGS :=
 else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
@@ -18,8 +18,10 @@ endif
 build: bin/devops .make/build
 test: .make/test
 
-tidy: go.mod
-	go mod tidy
+test_all:
+	$(GINKGO) run -r ./
+
+tidy: go.sum
 
 clean:
 	find . -name report.json -delete

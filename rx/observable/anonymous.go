@@ -1,11 +1,10 @@
-package obs
+package observable
 
 import "github.com/unmango/go/rx"
 
-type Anonymous[T any] func(rx.Subscriber[T])
+type Anonymous[T any] func(rx.Observer[T]) rx.Subscription
 
 // Subscribe implements rx.Observable.
-func (a Anonymous[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
-	a(&subscriber[T]{observer})
-	return func() {}
+func (a Anonymous[T]) Subscribe(obs rx.Observer[T]) rx.Subscription {
+	return a(obs)
 }
