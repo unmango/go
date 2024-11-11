@@ -2,6 +2,12 @@ package observable
 
 import "github.com/unmango/go/rx"
 
+type Subscriber[T any] interface {
+	Next(T)
+	Error(error)
+	Complete()
+}
+
 type subscriber[T any] struct{ rx.Observer[T] }
 
 // Complete implements rx.Subscriber.

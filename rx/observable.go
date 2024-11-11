@@ -4,12 +4,6 @@ type Subscription func()
 
 func (s Subscription) Unsubscribe() { s() }
 
-type Subscriber[T any] interface {
-	Next(T)
-	Error(error)
-	Complete()
-}
-
 type NextObserver[T any] interface {
 	OnNext(T)
 }
@@ -28,7 +22,7 @@ type Observer[T any] interface {
 	CompletionObserver
 }
 
-type Anonymous[T any] interface {
+type AnonymousObserver[T any] interface {
 	~func(T) | ~func(error) | ~func()
 }
 
