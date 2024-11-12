@@ -11,3 +11,7 @@ func (c ContextAccessor) Context() context.Context {
 func BackgroundContext() ContextAccessor {
 	return context.Background
 }
+
+func TodoContext() ContextAccessor {
+	return context.TODO
+}

@@ -7,36 +7,36 @@ import (
 	"github.com/google/go-github/v66/github"
 )
 
-type assetFileInfo struct {
+type FileInfo struct {
 	asset *github.ReleaseAsset
 }
 
 // IsDir implements fs.FileInfo.
-func (a *assetFileInfo) IsDir() bool {
+func (a *FileInfo) IsDir() bool {
 	return false
 }
 
 // ModTime implements fs.FileInfo.
-func (a *assetFileInfo) ModTime() time.Time {
-	panic("unsupported")
+func (a *FileInfo) ModTime() time.Time {
+	return a.asset.GetUpdatedAt().Time
 }
 
 // Mode implements fs.FileInfo.
-func (a *assetFileInfo) Mode() fs.FileMode {
-	panic("unsupported")
+func (a *FileInfo) Mode() fs.FileMode {
+	return 0
 }
 
 // Name implements fs.FileInfo.
-func (a *assetFileInfo) Name() string {
+func (a *FileInfo) Name() string {
 	return a.asset.GetName()
 }
 
 // Size implements fs.FileInfo.
-func (a *assetFileInfo) Size() int64 {
+func (a *FileInfo) Size() int64 {
 	return int64(a.asset.GetSize())
 }
 
 // Sys implements fs.FileInfo.
-func (a *assetFileInfo) Sys() any {
+func (a *FileInfo) Sys() any {
 	return a.asset
 }

@@ -1,17 +1,18 @@
 package user
 
 import (
+	"context"
+	"fmt"
 	"io/fs"
 	"os"
 	"time"
 
 	"github.com/google/go-github/v66/github"
-	"github.com/unmango/go/fs/github/internal"
 )
 
 type FileInfo struct {
-	internal.Fs
-	User *github.User
+	client *github.Client
+	user   *github.User
 }
 
 // IsDir implements fs.FileInfo.
@@ -21,7 +22,7 @@ func (f *FileInfo) IsDir() bool {
 
 // ModTime implements fs.FileInfo.
 func (f *FileInfo) ModTime() time.Time {
-	return f.User.GetUpdatedAt().Time
+	return f.user.GetUpdatedAt().Time
 }
 
 // Mode implements fs.FileInfo.
@@ -31,7 +32,7 @@ func (f *FileInfo) Mode() fs.FileMode {
 
 // Name implements fs.FileInfo.
 func (f *FileInfo) Name() string {
-	return f.User.GetName()
+	return f.user.GetName()
 }
 
 // Size implements fs.FileInfo.
@@ -41,5 +42,17 @@ func (f *FileInfo) Size() int64 {
 
 // Sys implements fs.FileInfo.
 func (f *FileInfo) Sys() any {
-	return f.User
+	return f.user
+}
+
+func Stat(ctx context.Context, gh *github.Client, name string) (*FileInfo, error) {
+	user, _, err := gh.Users.Get(ctx, name)
+	if err != nil {
+		return nil, fmt.Errorf("stat user: %w", err)
+	}
+
+	return &FileInfo{
+		client: gh,
+		user:   user,
+	}, nil
 }

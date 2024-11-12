@@ -1,34 +1,58 @@
 package repository
 
 import (
+	"context"
+	"fmt"
 	"io/fs"
+	"os"
 	"time"
 
 	"github.com/google/go-github/v66/github"
 )
 
-type fileInfoContent struct {
-	file *github.RepositoryContent
+type FileInfo struct {
+	client *github.Client
+	repo   *github.Repository
 }
 
 // IsDir implements fs.FileInfo.
-func (r *fileInfoContent) IsDir() bool { return false }
+func (f *FileInfo) IsDir() bool {
+	return true
+}
 
 // ModTime implements fs.FileInfo.
-func (r *fileInfoContent) ModTime() time.Time { panic("unsupported") }
+func (f *FileInfo) ModTime() time.Time {
+	return f.repo.GetUpdatedAt().Time
+}
 
 // Mode implements fs.FileInfo.
-func (r *fileInfoContent) Mode() fs.FileMode { panic("unsupported") }
+func (f *FileInfo) Mode() fs.FileMode {
+	return os.ModeDir
+}
 
 // Name implements fs.FileInfo.
-func (r *fileInfoContent) Name() string { return r.file.GetName() }
+func (f *FileInfo) Name() string {
+	return f.repo.GetName()
+}
 
 // Size implements fs.FileInfo.
-func (r *fileInfoContent) Size() int64 { return int64(r.file.GetSize()) }
+func (f *FileInfo) Size() int64 {
+	return int64(f.repo.GetSize())
+}
 
 // Sys implements fs.FileInfo.
-func (r *fileInfoContent) Sys() any { return r.file }
+func (f *FileInfo) Sys() any {
+	return f.repo
+}
 
-func NewFileInfo(contents *github.RepositoryContent) fs.FileInfo {
-	return &fileInfoContent{contents}
+func Stat(ctx context.Context, gh *github.Client, user, name string) (*FileInfo, error) {
+	repo, _, err := gh.Repositories.Get(ctx, user, name)
+	if err != nil {
+		return nil, fmt.Errorf("stat: %w", err)
+	}
+
+	return &FileInfo{
+		client: gh,
+		repo:   repo,
+	}, nil
 }

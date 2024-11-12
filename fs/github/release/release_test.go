@@ -9,9 +9,9 @@ import (
 
 var _ = Describe("Release", func() {
 	It("should work", func() {
-		r := release.New("UnstoppableMango", "tdl", "v0.0.29", client.Repositories)
+		r := release.New(client, "UnstoppableMango", "tdl", "v0.0.29")
 
-		_, err := r.Stat("tdl-amd64-linux.tar.gz")
+		_, err := r.Stat("tdl-linux-amd64.tar.gz")
 
 		Expect(err).NotTo(HaveOccurred())
 	})
