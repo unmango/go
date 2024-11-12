@@ -7,38 +7,57 @@ import (
 
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
-	"github.com/unmango/go/fs/github/repository"
 )
 
 type Fs struct {
 	afero.ReadOnlyFs
 	client *github.Client
-	user   string
 }
 
 // Name implements afero.Fs.
 func (g *Fs) Name() string {
-	return fmt.Sprintf("https://github.com/%s", g.user)
+	return "https://github.com"
 }
 
 // Open implements afero.Fs.
 func (f *Fs) Open(name string) (afero.File, error) {
-	return repository.Open(context.TODO(), f.client, f.user, name)
+	return Open(context.TODO(), f.client, name)
 }
 
 // OpenFile implements afero.Fs.
 func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	return repository.Open(context.TODO(), f.client, f.user, name)
+	return Open(context.TODO(), f.client, name)
 }
 
 // Stat implements afero.Fs.
 func (f *Fs) Stat(name string) (fs.FileInfo, error) {
-	return repository.Stat(context.TODO(), f.client, f.user, name)
+	return Stat(context.TODO(), f.client, name)
 }
 
-func New(gh *github.Client, name string) afero.Fs {
-	return &Fs{
-		client: gh,
-		user:   name,
+func NewFs(gh *github.Client) afero.Fs {
+	return &Fs{client: gh}
+}
+
+func Open(ctx context.Context, gh *github.Client, name string) (*File, error) {
+	user, _, err := gh.Users.Get(ctx, name)
+	if err != nil {
+		return nil, fmt.Errorf("open user: %w", err)
 	}
+
+	return &File{
+		client: gh,
+		user:   user,
+	}, nil
+}
+
+func Stat(ctx context.Context, gh *github.Client, name string) (*FileInfo, error) {
+	user, _, err := gh.Users.Get(ctx, name)
+	if err != nil {
+		return nil, fmt.Errorf("stat user: %w", err)
+	}
+
+	return &FileInfo{
+		client: gh,
+		user:   user,
+	}, nil
 }

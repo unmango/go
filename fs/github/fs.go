@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/internal"
 	"github.com/unmango/go/fs/github/user"
 )
 
@@ -34,6 +35,10 @@ func (f *Fs) Stat(name string) (fs.FileInfo, error) {
 	return user.Stat(context.TODO(), f.client, name)
 }
 
-func New(owner, repository string) afero.Fs {
-	return &Fs{client: DefaultClient()}
+func NewFs(gh *github.Client) afero.Fs {
+	if gh == nil {
+		gh = internal.DefaultClient()
+	}
+
+	return &Fs{client: gh}
 }

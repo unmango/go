@@ -1,4 +1,4 @@
-package release
+package asset
 
 import (
 	"io/fs"

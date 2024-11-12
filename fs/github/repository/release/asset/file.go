@@ -1,8 +1,10 @@
-package release
+package asset
 
 import (
 	"context"
+	"io"
 	"io/fs"
+	"net/http"
 	"syscall"
 
 	"github.com/google/go-github/v66/github"
@@ -11,7 +13,12 @@ import (
 
 type File struct {
 	internal.ReadOnlyFile
-	asset *github.ReleaseAsset
+	client *github.Client
+	owner  string
+	repo   string
+	asset  *github.ReleaseAsset
+
+	reader io.Reader
 }
 
 // Close implements afero.File.
@@ -26,7 +33,11 @@ func (f *File) Name() string {
 
 // Read implements afero.File.
 func (f *File) Read(p []byte) (n int, err error) {
-	panic("unimplemented")
+	if err = f.ensure(); err != nil {
+		return
+	}
+
+	return f.reader.Read(p)
 }
 
 // ReadAt implements afero.File.
@@ -36,11 +47,13 @@ func (f *File) ReadAt(p []byte, off int64) (n int, err error) {
 
 // Readdir implements afero.File.
 func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
+	// TODO: Traverse into archives?
 	panic("unimplemented")
 }
 
 // Readdirnames implements afero.File.
 func (f *File) Readdirnames(n int) ([]string, error) {
+	// TODO: Traverse into archives?
 	panic("unimplemented")
 }
 
@@ -54,11 +67,22 @@ func (f *File) Stat() (fs.FileInfo, error) {
 	return &FileInfo{asset: f.asset}, nil
 }
 
-func Open(ctx context.Context, gh *github.Client, owner, repository string, id int64) (*File, error) {
-	asset, _, err := gh.Repositories.GetReleaseAsset(ctx, owner, repository, id)
-	if err != nil {
-		return nil, err
+func (f *File) ensure() error {
+	if f.reader != nil {
+		return nil
 	}
 
-	return &File{asset: asset}, nil
+	reader, _, err := f.client.Repositories.DownloadReleaseAsset(
+		context.TODO(),
+		f.owner,
+		f.repo,
+		f.asset.GetID(),
+		http.DefaultClient,
+	)
+	if err != nil {
+		return err
+	}
+
+	f.reader = reader
+	return nil
 }

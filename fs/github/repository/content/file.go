@@ -1,4 +1,4 @@
-package repository
+package content
 
 import (
 	"io/fs"
@@ -10,8 +10,8 @@ import (
 
 type File struct {
 	internal.ReadOnlyFile
-	client *github.Client
-	repo   *github.Repository
+	client  *github.Client
+	content *github.RepositoryContent
 }
 
 // Close implements afero.File.
@@ -21,7 +21,7 @@ func (f *File) Close() error {
 
 // Name implements afero.File.
 func (f *File) Name() string {
-	return f.repo.GetName()
+	return f.content.GetName()
 }
 
 // Read implements afero.File.
@@ -51,5 +51,5 @@ func (f *File) Seek(offset int64, whence int) (int64, error) {
 
 // Stat implements afero.File.
 func (f *File) Stat() (fs.FileInfo, error) {
-	return &FileInfo{repo: f.repo}, nil
+	return &FileInfo{content: f.content}, nil
 }

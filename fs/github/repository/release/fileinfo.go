@@ -1,4 +1,4 @@
-package user
+package release
 
 import (
 	"io/fs"
@@ -9,8 +9,7 @@ import (
 )
 
 type FileInfo struct {
-	client *github.Client
-	user   *github.User
+	release *github.RepositoryRelease
 }
 
 // IsDir implements fs.FileInfo.
@@ -20,7 +19,7 @@ func (f *FileInfo) IsDir() bool {
 
 // ModTime implements fs.FileInfo.
 func (f *FileInfo) ModTime() time.Time {
-	return f.user.GetUpdatedAt().Time
+	return f.release.GetCreatedAt().Time
 }
 
 // Mode implements fs.FileInfo.
@@ -30,7 +29,7 @@ func (f *FileInfo) Mode() fs.FileMode {
 
 // Name implements fs.FileInfo.
 func (f *FileInfo) Name() string {
-	return f.user.GetName()
+	return f.release.GetName()
 }
 
 // Size implements fs.FileInfo.
@@ -40,5 +39,5 @@ func (f *FileInfo) Size() int64 {
 
 // Sys implements fs.FileInfo.
 func (f *FileInfo) Sys() any {
-	return f.user
+	return f.release
 }
