@@ -7,6 +7,8 @@ import (
 
 type Result[T any] func() (T, error)
 
+type Result2[T, V any] func() (T, V, error)
+
 func (r Result[T]) Err() error {
 	_, err := r()
 	return err
