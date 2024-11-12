@@ -76,6 +76,38 @@ func Open(ctx context.Context, gh *github.Client, owner, repository string, id i
 	}, nil
 }
 
+func Readdir(ctx context.Context, gh *github.Client, owner, repository string, count int) ([]fs.FileInfo, error) {
+	releases, _, err := gh.Repositories.ListReleases(ctx, owner, repository, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s/%s readdir: %w", owner, repository, err)
+	}
+
+	length := min(count, len(releases))
+	results := make([]fs.FileInfo, length)
+
+	for i := 0; i < length; i++ {
+		results[i] = &FileInfo{release: releases[i]}
+	}
+
+	return results, nil
+}
+
+func Readdirnames(ctx context.Context, gh *github.Client, owner, repository string, n int) ([]string, error) {
+	releases, _, err := gh.Repositories.ListReleases(ctx, owner, repository, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s/%s readdir: %w", owner, repository, err)
+	}
+
+	length := min(n, len(releases))
+	results := make([]string, length)
+
+	for i := 0; i < length; i++ {
+		results[i] = releases[i].GetName()
+	}
+
+	return results, nil
+}
+
 func Stat(ctx context.Context, gh *github.Client, owner, repository string, id int64) (*FileInfo, error) {
 	release, _, err := gh.Repositories.GetRelease(ctx, owner, repository, id)
 	if err != nil {

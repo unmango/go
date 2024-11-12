@@ -87,6 +87,38 @@ func Open(ctx context.Context, gh *github.Client, owner, repository string, id i
 	}, nil
 }
 
+func Readdir(ctx context.Context, gh *github.Client, owner, repository string, id int64, count int) ([]fs.FileInfo, error) {
+	assets, _, err := gh.Repositories.ListReleaseAssets(ctx, owner, repository, id, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s/%s readdir: %w", owner, repository, err)
+	}
+
+	length := min(count, len(assets))
+	results := make([]fs.FileInfo, length)
+
+	for i := 0; i < length; i++ {
+		results[i] = &FileInfo{asset: assets[i]}
+	}
+
+	return results, nil
+}
+
+func Readdirnames(ctx context.Context, gh *github.Client, owner, repository string, id int64, n int) ([]string, error) {
+	assets, _, err := gh.Repositories.ListReleaseAssets(ctx, owner, repository, id, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s/%s readdir: %w", owner, repository, err)
+	}
+
+	length := min(n, len(assets))
+	results := make([]string, length)
+
+	for i := 0; i < length; i++ {
+		results[i] = assets[i].GetName()
+	}
+
+	return results, nil
+}
+
 func Stat(ctx context.Context, gh *github.Client, owner, repository string, id int64) (*FileInfo, error) {
 	asset, _, err := gh.Repositories.GetReleaseAsset(ctx, owner, repository, id)
 	if err != nil {

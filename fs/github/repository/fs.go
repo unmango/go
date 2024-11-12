@@ -22,47 +22,17 @@ func (f *Fs) Name() string {
 
 // Open implements afero.Fs.
 func (f *Fs) Open(name string) (afero.File, error) {
-	repo, err := f.repository(name)
-	if err != nil {
-		return nil, fmt.Errorf("open %s: %w", name, err)
-	}
-
-	return &File{
-		client: f.client,
-		repo:   repo,
-	}, nil
+	return Open(context.TODO(), f.client, f.owner, name)
 }
 
 // OpenFile implements afero.Fs.
 func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	repo, err := f.repository(name)
-	if err != nil {
-		return nil, fmt.Errorf("open file %s: %w", name, err)
-	}
-
-	return &File{
-		client: f.client,
-		repo:   repo,
-	}, nil
+	return Open(context.TODO(), f.client, f.owner, name)
 }
 
 // Stat implements afero.Fs.
 func (f *Fs) Stat(name string) (fs.FileInfo, error) {
-	repo, err := f.repository(name)
-	if err != nil {
-		return nil, fmt.Errorf("stat %s: %w", name, err)
-	}
-
-	return &FileInfo{repo: repo}, nil
-}
-
-func (f *Fs) repository(name string) (*github.Repository, error) {
-	repo, _, err := f.client.Repositories.Get(context.TODO(), f.owner, name)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo, nil
+	return Stat(context.TODO(), f.client, f.owner, name)
 }
 
 func New(gh *github.Client, owner string) afero.Fs {
