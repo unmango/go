@@ -75,3 +75,7 @@ func (w *Fs) Rename(oldname string, newname string) error {
 func (w *Fs) Stat(name string) (fs.FileInfo, error) {
 	return &FileInfo{w.Writer, name}, nil
 }
+
+func New(writer io.Writer) afero.Fs {
+	return &Fs{writer}
+}
