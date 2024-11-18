@@ -29,7 +29,7 @@ func TestDocker(t *testing.T) {
 var _ = BeforeSuite(func(ctx context.Context) {
 	var err error
 	testclient, err = client.NewClientWithOpts(
-		client.FromEnv,
+		client.WithAPIVersionNegotiation(),
 	)
 	Expect(err).NotTo(HaveOccurred())
 
