@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/docker"
 	"github.com/unmango/go/fs/github"
 	"github.com/unmango/go/fs/github/repository"
 	"github.com/unmango/go/fs/github/repository/content"
@@ -13,6 +14,7 @@ import (
 )
 
 type (
+	Docker                  = docker.Fs
 	GitHub                  = github.Fs
 	GitHubUser              = user.Fs
 	GitHubRepository        = repository.Fs
