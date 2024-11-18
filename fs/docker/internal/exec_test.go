@@ -40,7 +40,9 @@ var _ = Describe("Exec", func() {
 		)
 		Expect(err).NotTo(HaveOccurred())
 
-		docker, err = client.NewClientWithOpts(client.FromEnv)
+		docker, err = client.NewClientWithOpts(
+			client.WithAPIVersionNegotiation(),
+		)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
