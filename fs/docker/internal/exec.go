@@ -7,8 +7,8 @@ import (
 	"time"
 
 	ctr "github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/moby/moby/client"
 )
 
 type ExecOptions struct {

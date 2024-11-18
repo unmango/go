@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"time"
 
-	"github.com/moby/moby/client"
+	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/docker/internal"
 )
@@ -35,6 +35,11 @@ func (f Fs) Chtimes(name string, atime time.Time, mtime time.Time) error {
 
 // Create implements afero.Fs.
 func (f Fs) Create(name string) (afero.File, error) {
+	err := f.exec(context.TODO(), "touch", name)
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO: Less lazy?
 	return &File{
 		client:    f.client,
@@ -74,6 +79,7 @@ func (f Fs) Open(name string) (afero.File, error) {
 
 // OpenFile implements afero.Fs.
 func (f Fs) OpenFile(name string, flag int, perm fs.FileMode) (afero.File, error) {
+	// TODO: Actual implementation
 	// TODO: Less lazy?
 	return &File{
 		client:    f.client,
@@ -110,6 +116,6 @@ func (f Fs) exec(ctx context.Context, cmd ...string) error {
 	)
 }
 
-func New(client client.ContainerAPIClient, container string) afero.Fs {
+func NewFs(client client.ContainerAPIClient, container string) afero.Fs {
 	return Fs{client, container}
 }
