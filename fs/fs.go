@@ -3,7 +3,9 @@ package fs
 import (
 	"io"
 
+	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/docker"
 	"github.com/unmango/go/fs/github"
 	"github.com/unmango/go/fs/github/repository"
 	"github.com/unmango/go/fs/github/repository/content"
@@ -13,14 +15,19 @@ import (
 )
 
 type (
+	Docker                  = docker.Fs
 	GitHub                  = github.Fs
-	GitHubUser              = user.Fs
+	GitHubRelease           = release.Fs
 	GitHubRepository        = repository.Fs
 	GitHubRepositoryContent = content.Fs
-	GitHubRelease           = release.Fs
+	GitHubUser              = user.Fs
 	Writer                  = writer.Fs
 )
 
 func NewWriter(w io.Writer) afero.Fs {
-	return writer.New(w)
+	return writer.NewFs(w)
+}
+
+func NewDocker(client client.ContainerAPIClient, container string) afero.Fs {
+	return docker.NewFs(client, container)
 }
