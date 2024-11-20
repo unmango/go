@@ -31,6 +31,9 @@ type ListOptions struct {
 	Go           bool
 	Proto        bool
 	Typescript   bool
+	CSharp       bool
+	FSharp       bool
+	Dotnet       bool
 }
 
 type printer struct {
@@ -49,6 +52,12 @@ func (o *ListOptions) sources() []string {
 	}
 	if o.Typescript {
 		sources = append(sources, ".ts")
+	}
+	if o.Dotnet || o.CSharp {
+		sources = append(sources, ".cs")
+	}
+	if o.Dotnet || o.FSharp {
+		sources = append(sources, ".fs")
 	}
 
 	return sources
@@ -78,22 +87,42 @@ func (p *printer) shouldPrint(path string) bool {
 		return p.shouldPrintGo(path)
 	case ".ts":
 		return p.shouldPrintTs(path)
+	case ".cs":
+		return p.shouldPrintDotnet(path)
+	case ".fs":
+		return p.shouldPrintDotnet(path)
 	}
 
 	return true
 }
 
 func (p *printer) shouldPrintGo(path string) bool {
-	if strings.Contains(path, "_test.go") {
-		return !p.Opts.ExcludeTests
+	if p.Opts.ExcludeTests {
+		return !strings.Contains(path, "_test.go")
 	}
 
 	return true
 }
 
 func (p *printer) shouldPrintTs(path string) bool {
-	if strings.Contains(path, ".spec.ts") {
-		return !p.Opts.ExcludeTests
+	if p.Opts.ExcludeTests {
+		return !strings.Contains(path, ".spec.ts")
+	}
+
+	return true
+}
+
+func (p *printer) shouldPrintDotnet(path string) bool {
+	if strings.Contains(path, "/bin/") || strings.Contains(path, "/obj/") {
+		return false
+	}
+	if p.Opts.ExcludeTests {
+		matched, err := filepath.Match("**/*.Tests?.*", path)
+		if err != nil {
+			panic(err)
+		}
+
+		return !matched
 	}
 
 	return true
@@ -158,6 +187,9 @@ func NewList(options *ListOptions) *cobra.Command {
 	cmd.Flags().BoolVar(&options.Go, "go", false, "List Go sources")
 	cmd.Flags().BoolVar(&options.Typescript, "ts", false, "List TypeScript sources")
 	cmd.Flags().BoolVar(&options.Proto, "proto", false, "List protobuf sources")
+	cmd.Flags().BoolVar(&options.CSharp, "cs", false, "List C# sources")
+	cmd.Flags().BoolVar(&options.FSharp, "fs", false, "List F# sources")
+	cmd.Flags().BoolVar(&options.Dotnet, "dotnet", false, "List .NET sources")
 
 	return cmd
 }
