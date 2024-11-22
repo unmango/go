@@ -19,3 +19,8 @@ jobs:
       - run: make bin/devops
       - run: make build
       - run: make test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
