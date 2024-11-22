@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     name: Build and Test
@@ -19,3 +23,9 @@ jobs:
       - run: make bin/devops
       - run: make build
       - run: make test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: cover.profile
