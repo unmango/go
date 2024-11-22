@@ -10,14 +10,14 @@ import (
 	aferox "github.com/unmango/go/fs"
 )
 
-var _ = Describe("Reduce", func() {
+var _ = Describe("Fold", func() {
 	It("should work", func() {
 		fsys := afero.NewMemMapFs()
 		_, err := fsys.Create("test.txt")
 		Expect(err).NotTo(HaveOccurred())
 		var count int
 
-		res, err := aferox.Reduce(fsys, "",
+		res, err := aferox.Fold(fsys, "",
 			func(path string, info fs.FileInfo, acc int, err error) (int, error) {
 				return acc + 1, err
 			},
