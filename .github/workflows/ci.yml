@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  push:
+    # For code coverage reports
+    branches: [main]
   pull_request:
     branches: [main]
 
