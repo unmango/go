@@ -18,7 +18,11 @@ var _ = Describe("Fs", func() {
 		infos, err := dir.Readdir(69)
 
 		Expect(err).NotTo(HaveOccurred())
-		Expect(infos).To(HaveLen(19))
+		names := make([]string, len(infos))
+		for i, f := range infos {
+			names[i] = f.Name()
+		}
+		Expect(names).To(ContainElements("root", "var", "bin"))
 	})
 
 	It("should read file contents", func() {

@@ -12,9 +12,9 @@ import (
 
 type File struct {
 	internal.ReadOnlyFile
+	internal.RepositoryPath
+
 	client  *github.Client
-	owner   string
-	repo    string
 	release *github.RepositoryRelease
 }
 
@@ -42,8 +42,7 @@ func (f *File) ReadAt(p []byte, off int64) (n int, err error) {
 func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
 	return asset.Readdir(context.TODO(),
 		f.client,
-		f.owner,
-		f.repo,
+		f.RepositoryPath,
 		f.release.GetID(),
 		count,
 	)
@@ -53,8 +52,7 @@ func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
 func (f *File) Readdirnames(n int) ([]string, error) {
 	return asset.Readdirnames(context.TODO(),
 		f.client,
-		f.owner,
-		f.repo,
+		f.RepositoryPath,
 		f.release.GetID(),
 		n,
 	)

@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
-	"github.com/unmango/go/fs/github/internal"
 )
 
 type Fs struct {
@@ -64,12 +63,12 @@ func Stat(ctx context.Context, gh *github.Client, name string) (*FileInfo, error
 }
 
 func getUser(ctx context.Context, gh *github.Client, name string) (*github.User, error) {
-	owner, err := internal.ParseOwner(name)
-	if err != nil {
-		return nil, fmt.Errorf("fetching user %s: %w", name, err)
-	}
+	// owner, err := internal.ParseOwner(name)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("fetching user %s: %w", name, err)
+	// }
 
-	user, _, err := gh.Users.Get(ctx, owner)
+	user, _, err := gh.Users.Get(ctx, name)
 	if err != nil {
 		return nil, err
 	}

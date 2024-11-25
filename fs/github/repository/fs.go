@@ -4,68 +4,69 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"strings"
 
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
-	"github.com/unmango/go/fs/github/repository/release"
 )
 
 type Fs struct {
 	afero.ReadOnlyFs
+	internal.OwnerPath
 	client *github.Client
-	owner  string
 }
 
 // Name implements afero.Fs.
 func (f *Fs) Name() string {
-	return fmt.Sprintf("https://github.com/%s", f.owner)
+	return fmt.Sprint(f.OwnerPath)
 }
 
 // Open implements afero.Fs.
 func (f *Fs) Open(name string) (afero.File, error) {
-	return Open(context.TODO(), f.client, f.owner, name)
+	return Open(context.TODO(), f.client, f.OwnerPath, name)
 }
 
 // OpenFile implements afero.Fs.
 func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	return Open(context.TODO(), f.client, f.owner, name)
+	return Open(context.TODO(), f.client, f.OwnerPath, name)
 }
 
 // Stat implements afero.Fs.
 func (f *Fs) Stat(name string) (fs.FileInfo, error) {
-	return Stat(context.TODO(), f.client, f.owner, name)
+	return Stat(context.TODO(), f.client, f.OwnerPath, name)
 }
 
 func NewFs(gh *github.Client, owner string) afero.Fs {
-	return &Fs{client: gh, owner: owner}
+	return &Fs{
+		client:    gh,
+		OwnerPath: internal.NewOwnerPath(owner),
+	}
 }
 
-func Open(ctx context.Context, gh *github.Client, user, name string) (afero.File, error) {
-	path, err := internal.NewPath(user, name)
-	if err != nil {
-		return nil, fmt.Errorf("invalid path: %w", err)
-	}
+func Open(ctx context.Context, gh *github.Client, path internal.OwnerPath, name string) (afero.File, error) {
+	// path, err := internal.Parse(user, name)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("invalid path: %w", err)
+	// }
 
-	repo, err := path.Repository()
-	if err != nil {
-		return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	}
+	// repo, err := path.Repository()
+	// if err != nil {
+	// 	return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	// }
 
-	if _, err := path.Release(); err == nil {
-		return release.Open(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
-	}
+	// if _, err := path.Release(); err == nil {
+	// 	return release.Open(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
+	// }
 
-	r, _, err := gh.Repositories.Get(ctx, user, name)
+	r, _, err := gh.Repositories.Get(ctx, path.Owner, name)
 	if err != nil {
 		return nil, err
 	}
 
 	return &File{
-		client: gh,
-		owner:  user,
-		repo:   r,
+		client:    gh,
+		repo:      r,
+		OwnerPath: path,
 	}, nil
 }
 
@@ -103,22 +104,22 @@ func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([
 	return results, nil
 }
 
-func Stat(ctx context.Context, gh *github.Client, user, name string) (fs.FileInfo, error) {
-	path, err := internal.NewPath(user, name)
-	if err != nil {
-		return nil, fmt.Errorf("invalid path: %w", err)
-	}
+func Stat(ctx context.Context, gh *github.Client, path internal.OwnerPath, name string) (fs.FileInfo, error) {
+	// path, err := internal.Parse(user, name)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("invalid path: %w", err)
+	// }
 
-	repo, err := path.Repository()
-	if err != nil {
-		return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	}
+	// repo, err := path.Repository()
+	// if err != nil {
+	// 	return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	// }
 
-	if _, err := path.Release(); err == nil {
-		return release.Stat(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
-	}
+	// if _, err := path.Release(); err == nil {
+	// 	return release.Stat(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
+	// }
 
-	r, _, err := gh.Repositories.Get(ctx, user, name)
+	r, _, err := gh.Repositories.Get(ctx, path.Owner, name)
 	if err != nil {
 		return nil, fmt.Errorf("stat: %w", err)
 	}

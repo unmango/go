@@ -194,18 +194,18 @@ var _ = Describe("Path", func() {
 				Expect(res.Content()).To(Equal(parts))
 			},
 		)
+
+		DescribeTable("Parts",
+			Entry(nil,
+				[]string{"unmango", "go", "releases", "tag", "v0.0.69"},
+				"unmango/go/releases/tag/v0.0.69",
+			),
+			func(parts []string, expected string) {
+				path, err := internal.Parse(parts...)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(path.String()).To(Equal(expected))
+			},
+		)
 	})
-
-	DescribeTable("NewPath",
-		Entry(nil,
-			[]string{"unmango", "go", "releases", "tag", "v0.0.69"},
-			"unmango/go/releases/tag/v0.0.69",
-		),
-		func(parts []string, expected string) {
-			path, err := internal.NewPath(parts...)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(path.String()).To(Equal(expected))
-		},
-	)
 })

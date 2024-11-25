@@ -13,9 +13,9 @@ import (
 
 type File struct {
 	internal.ReadOnlyFile
+	internal.ReleasePath
+
 	client *github.Client
-	owner  string
-	repo   string
 	asset  *github.ReleaseAsset
 
 	reader io.Reader
@@ -74,8 +74,8 @@ func (f *File) ensure() error {
 
 	reader, _, err := f.client.Repositories.DownloadReleaseAsset(
 		context.TODO(),
-		f.owner,
-		f.repo,
+		f.Owner,
+		f.Repository,
 		f.asset.GetID(),
 		http.DefaultClient,
 	)
@@ -89,13 +89,12 @@ func (f *File) ensure() error {
 
 func NewFile(
 	gh *github.Client,
-	owner, repository string,
+	path internal.ReleasePath,
 	asset *github.ReleaseAsset,
 ) *File {
 	return &File{
-		client: gh,
-		owner:  owner,
-		repo:   repository,
-		asset:  asset,
+		client:      gh,
+		asset:       asset,
+		ReleasePath: path,
 	}
 }

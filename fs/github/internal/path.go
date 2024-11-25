@@ -6,8 +6,6 @@ import (
 	"net/url"
 	"path"
 	"strings"
-
-	"github.com/google/go-github/v66/github"
 )
 
 var knownHosts = []string{
@@ -24,6 +22,66 @@ type Path interface {
 	Owner() (string, error)
 	Repository() (string, error)
 	Release() (string, error)
+}
+
+type OwnerPath struct {
+	Owner string
+}
+
+func (p OwnerPath) String() string {
+	return fmt.Sprintf("https://github.com/%s", p.Owner)
+}
+
+type RepositoryPath struct {
+	OwnerPath
+	Repository string
+}
+
+func (p RepositoryPath) String() string {
+	return fmt.Sprintf("%s/%s", p.OwnerPath, p.Repository)
+}
+
+type ReleasePath struct {
+	RepositoryPath
+	Release string
+}
+
+func (p ReleasePath) String() string {
+	return fmt.Sprintf("%s/releases/tag/%s", p.RepositoryPath, p.Release)
+}
+
+type AssetPath struct {
+	ReleasePath
+	Asset string
+}
+
+func (p AssetPath) String() string {
+	return fmt.Sprintf("%s/download/%s", p.ReleasePath, p.Asset)
+}
+
+func NewOwnerPath(owner string) OwnerPath {
+	return OwnerPath{Owner: owner}
+}
+
+func NewRepositoryPath(owner, repo string) RepositoryPath {
+	return RepositoryPath{
+		OwnerPath:  NewOwnerPath(owner),
+		Repository: repo,
+	}
+}
+
+func NewReleasePath(owner, repo, release string) ReleasePath {
+	return ReleasePath{
+		RepositoryPath: NewRepositoryPath(owner, repo),
+		Release:        release,
+	}
+}
+
+func NewAssetPath(owner, repo, release, asset string) AssetPath {
+	return AssetPath{
+		ReleasePath: NewReleasePath(owner, repo, release),
+		Asset:       asset,
+	}
 }
 
 type ghpath struct{ *url.URL }
@@ -103,7 +161,8 @@ func (g *ghpath) index(i int, name string) (string, error) {
 	}
 }
 
-func Parse(path string) (Path, error) {
+func Parse(parts ...string) (Path, error) {
+	path := path.Join(parts...)
 	for _, host := range knownHosts {
 		if strings.HasPrefix(path, host) {
 			path = fmt.Sprintf("https://%s", path)
@@ -118,57 +177,78 @@ func Parse(path string) (Path, error) {
 	return &ghpath{url}, nil
 }
 
-func ParseOwner(path string) (string, error) {
-	if res, err := Parse(path); err != nil {
-		return "", err
+func ParseOwner(path string) (owner OwnerPath, err error) {
+	if p, err := Parse(path); err != nil {
+		return owner, err
 	} else {
-		return res.Owner()
+		return parseOwner(p)
 	}
 }
 
-func ParseRepository(path string) (string, error) {
-	if res, err := Parse(path); err != nil {
-		return "", err
+func ParseRepository(path string) (repo RepositoryPath, err error) {
+	if p, err := Parse(path); err != nil {
+		return repo, err
 	} else {
-		return res.Repository()
+		return parseRepository(p)
 	}
 }
 
-func ParseRelease(path string) (string, error) {
-	if res, err := Parse(path); err != nil {
-		return "", err
+func ParseRelease(path string) (release ReleasePath, err error) {
+	if p, err := Parse(path); err != nil {
+		return release, err
 	} else {
-		return res.Release()
+		return parseRelease(p)
 	}
 }
 
-func ParseAsset(path string) (string, error) {
-	if res, err := Parse(path); err != nil {
-		return "", err
+func ParseAsset(path string) (asset AssetPath, err error) {
+	if p, err := Parse(path); err != nil {
+		return asset, err
 	} else {
-		return res.Asset()
+		return parseAsset(p)
 	}
 }
 
-func PathFromUser(user *github.User) Path {
-	return &ghpath{&url.URL{Path: user.GetLogin()}}
+func parseOwner(path Path) (owner OwnerPath, err error) {
+	if owner.Owner, err = path.Owner(); err != nil {
+		return owner, err
+	}
+
+	return
 }
 
-// func PathFromRepo(repo *github.Repository) Path {
-// 	return NewPath(
-// 		repo.GetOwner().GetLogin(),
-// 		repo.GetName(),
-// 	)
-// }
+func parseRepository(path Path) (repo RepositoryPath, err error) {
+	if repo.OwnerPath, err = parseOwner(path); err != nil {
+		return
+	}
 
-// func PathFromRelease(repo *github.Repository, release *github.RepositoryRelease) Path {
-// 	return NewPath(
-// 		repo.GetOwner().GetLogin(),
-// 		repo.GetName(),
-// 		release.GetName(),
-// 	)
-// }
+	if repo.Repository, err = path.Owner(); err != nil {
+		return
+	}
 
-func NewPath(parts ...string) (Path, error) {
-	return Parse(path.Join(parts...))
+	return
+}
+
+func parseRelease(path Path) (release ReleasePath, err error) {
+	if release.RepositoryPath, err = parseRepository(path); err != nil {
+		return
+	}
+
+	if release.Release, err = path.Release(); err != nil {
+		return
+	}
+
+	return
+}
+
+func parseAsset(path Path) (asset AssetPath, err error) {
+	if asset.ReleasePath, err = parseRelease(path); err != nil {
+		return
+	}
+
+	if asset.Asset, err = path.Asset(); err != nil {
+		return
+	}
+
+	return
 }
