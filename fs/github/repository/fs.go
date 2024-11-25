@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"strings"
 
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/repository/release"
 )
 
 type Fs struct {
@@ -35,23 +38,39 @@ func (f *Fs) Stat(name string) (fs.FileInfo, error) {
 	return Stat(context.TODO(), f.client, f.owner, name)
 }
 
-func New(gh *github.Client, owner string) afero.Fs {
+func NewFs(gh *github.Client, owner string) afero.Fs {
 	return &Fs{client: gh, owner: owner}
 }
 
-func Open(ctx context.Context, gh *github.Client, user, name string) (*File, error) {
-	repo, _, err := gh.Repositories.Get(ctx, user, name)
+func Open(ctx context.Context, gh *github.Client, user, name string) (afero.File, error) {
+	path, err := internal.NewPath(user, name)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path: %w", err)
+	}
+
+	repo, err := path.Repository()
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
+
+	if _, err := path.Release(); err == nil {
+		return release.Open(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
+	}
+
+	r, _, err := gh.Repositories.Get(ctx, user, name)
 	if err != nil {
 		return nil, err
 	}
 
 	return &File{
 		client: gh,
-		repo:   repo,
+		owner:  user,
+		repo:   r,
 	}, nil
 }
 
 func Readdir(ctx context.Context, gh *github.Client, user string, count int) ([]fs.FileInfo, error) {
+	// TODO: Paging
 	repos, _, err := gh.Repositories.ListByUser(ctx, user, nil)
 	if err != nil {
 		return nil, fmt.Errorf("user %s readdir: %w", user, err)
@@ -68,6 +87,7 @@ func Readdir(ctx context.Context, gh *github.Client, user string, count int) ([]
 }
 
 func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([]string, error) {
+	// TODO: Paging
 	repos, _, err := gh.Repositories.ListByUser(ctx, user, nil)
 	if err != nil {
 		return nil, fmt.Errorf("user %s readdirnames: %w", user, err)
@@ -83,11 +103,25 @@ func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([
 	return results, nil
 }
 
-func Stat(ctx context.Context, gh *github.Client, user, name string) (*FileInfo, error) {
-	repo, _, err := gh.Repositories.Get(ctx, user, name)
+func Stat(ctx context.Context, gh *github.Client, user, name string) (fs.FileInfo, error) {
+	path, err := internal.NewPath(user, name)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path: %w", err)
+	}
+
+	repo, err := path.Repository()
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
+
+	if _, err := path.Release(); err == nil {
+		return release.Stat(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
+	}
+
+	r, _, err := gh.Repositories.Get(ctx, user, name)
 	if err != nil {
 		return nil, fmt.Errorf("stat: %w", err)
 	}
 
-	return &FileInfo{repo: repo}, nil
+	return &FileInfo{repo: r}, nil
 }

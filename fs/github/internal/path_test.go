@@ -1,10 +1,9 @@
-package github_test
+package internal_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/unmango/go/fs/github"
+	"github.com/unmango/go/fs/github/internal"
 )
 
 var _ = Describe("Path", func() {
@@ -16,7 +15,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango", "unmango"),
 			Entry(nil, "api.github.com/unmango", "unmango"),
 			func(input, name string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Owner()).To(Equal(name))
@@ -30,7 +29,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango/go", "go"),
 			Entry(nil, "api.github.com/unmango/go", "go"),
 			func(input, name string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Repository()).To(Equal(name))
@@ -44,7 +43,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango"),
 			Entry(nil, "api.github.com/unmango"),
 			func(input string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Repository()
@@ -63,7 +62,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/tree/feature-name", "feature-name"),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", "main"),
 			func(input, name string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Branch()).To(Equal(name))
@@ -82,7 +81,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango/go"),
 			Entry(nil, "api.github.com/unmango/go"),
 			func(input string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Branch()
@@ -98,7 +97,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads"),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs"),
 			func(input string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Branch()
@@ -118,7 +117,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			func(input, name string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Release()).To(Equal(name))
@@ -132,7 +131,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			Entry(nil, "unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			func(input, name string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Release()
@@ -152,7 +151,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			func(input, name string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Asset()).To(Equal(name))
@@ -171,7 +170,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69"),
 			func(input string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Asset()
@@ -189,11 +188,24 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/tree/main/fs/path_test.go", []string{"fs", "path_test.go"}),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", []string{"fs", "fold.go"}),
 			func(input string, parts []string) {
-				res, err := github.Parse(input)
+				res, err := internal.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Content()).To(Equal(parts))
 			},
 		)
 	})
+
+	DescribeTable("NewPath",
+		Entry(nil,
+			[]string{"unmango", "go", "releases", "tag", "v0.0.69"},
+			"unmango/go/releases/tag/v0.0.69",
+		),
+		func(parts []string, expected string) {
+			path, err := internal.NewPath(parts...)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(path.String()).To(Equal(expected))
+		},
+	)
 })

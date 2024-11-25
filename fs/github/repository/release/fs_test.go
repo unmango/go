@@ -16,4 +16,13 @@ var _ = Describe("Fs", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(r.Name()).To(Equal("v0.0.29"))
 	})
+
+	It("should stat asset", func() {
+		fs := release.NewFs(client, "UnstoppableMango", "tdl")
+
+		r, err := fs.Stat("v0.0.29/tdl-linux-amd64.tar.gz")
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(r.Name()).To(Equal("tdl-linux-amd64.tar.gz"))
+	})
 })

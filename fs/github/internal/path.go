@@ -1,10 +1,13 @@
-package github
+package internal
 
 import (
 	"errors"
 	"fmt"
 	"net/url"
+	"path"
 	"strings"
+
+	"github.com/google/go-github/v66/github"
 )
 
 var knownHosts = []string{
@@ -113,4 +116,59 @@ func Parse(path string) (Path, error) {
 	}
 
 	return &ghpath{url}, nil
+}
+
+func ParseOwner(path string) (string, error) {
+	if res, err := Parse(path); err != nil {
+		return "", err
+	} else {
+		return res.Owner()
+	}
+}
+
+func ParseRepository(path string) (string, error) {
+	if res, err := Parse(path); err != nil {
+		return "", err
+	} else {
+		return res.Repository()
+	}
+}
+
+func ParseRelease(path string) (string, error) {
+	if res, err := Parse(path); err != nil {
+		return "", err
+	} else {
+		return res.Release()
+	}
+}
+
+func ParseAsset(path string) (string, error) {
+	if res, err := Parse(path); err != nil {
+		return "", err
+	} else {
+		return res.Asset()
+	}
+}
+
+func PathFromUser(user *github.User) Path {
+	return &ghpath{&url.URL{Path: user.GetLogin()}}
+}
+
+// func PathFromRepo(repo *github.Repository) Path {
+// 	return NewPath(
+// 		repo.GetOwner().GetLogin(),
+// 		repo.GetName(),
+// 	)
+// }
+
+// func PathFromRelease(repo *github.Repository, release *github.RepositoryRelease) Path {
+// 	return NewPath(
+// 		repo.GetOwner().GetLogin(),
+// 		repo.GetName(),
+// 		release.GetName(),
+// 	)
+// }
+
+func NewPath(parts ...string) (Path, error) {
+	return Parse(path.Join(parts...))
 }

@@ -86,3 +86,16 @@ func (f *File) ensure() error {
 	f.reader = reader
 	return nil
 }
+
+func NewFile(
+	gh *github.Client,
+	owner, repository string,
+	asset *github.ReleaseAsset,
+) *File {
+	return &File{
+		client: gh,
+		owner:  owner,
+		repo:   repository,
+		asset:  asset,
+	}
+}
