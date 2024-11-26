@@ -18,7 +18,9 @@ var _ = Describe("Maybe", func() {
 		})
 
 		It("should be nil", func() {
-			Expect(maybe.None[any]()).To(BeNil())
+			_, err := maybe.None[any]()
+
+			Expect(err).To(MatchError(maybe.ErrNone))
 		})
 
 		It("should be ErrNone", func() {
