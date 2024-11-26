@@ -39,9 +39,9 @@ func NewFs(gh *github.Client) afero.Fs {
 }
 
 func Open(ctx context.Context, gh *github.Client, name string) (*File, error) {
-	user, _, err := gh.Users.Get(ctx, name)
+	user, err := getUser(ctx, gh, name)
 	if err != nil {
-		return nil, fmt.Errorf("open user: %w", err)
+		return nil, fmt.Errorf("opening %s: %w", name, err)
 	}
 
 	return &File{
@@ -51,13 +51,27 @@ func Open(ctx context.Context, gh *github.Client, name string) (*File, error) {
 }
 
 func Stat(ctx context.Context, gh *github.Client, name string) (*FileInfo, error) {
-	user, _, err := gh.Users.Get(ctx, name)
+	user, err := getUser(ctx, gh, name)
 	if err != nil {
-		return nil, fmt.Errorf("stat user: %w", err)
+		return nil, fmt.Errorf("stat %s: %w", name, err)
 	}
 
 	return &FileInfo{
 		client: gh,
 		user:   user,
 	}, nil
+}
+
+func getUser(ctx context.Context, gh *github.Client, name string) (*github.User, error) {
+	// owner, err := internal.ParseOwner(name)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("fetching user %s: %w", name, err)
+	// }
+
+	user, _, err := gh.Users.Get(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

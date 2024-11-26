@@ -1,15 +1,19 @@
 package release
 
 import (
+	"context"
 	"io/fs"
 	"syscall"
 
 	"github.com/google/go-github/v66/github"
 	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/repository/release/asset"
 )
 
 type File struct {
 	internal.ReadOnlyFile
+	internal.RepositoryPath
+
 	client  *github.Client
 	release *github.RepositoryRelease
 }
@@ -36,12 +40,22 @@ func (f *File) ReadAt(p []byte, off int64) (n int, err error) {
 
 // Readdir implements afero.File.
 func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
-	panic("unimplemented")
+	return asset.Readdir(context.TODO(),
+		f.client,
+		f.RepositoryPath,
+		f.release.GetID(),
+		count,
+	)
 }
 
 // Readdirnames implements afero.File.
 func (f *File) Readdirnames(n int) ([]string, error) {
-	panic("unimplemented")
+	return asset.Readdirnames(context.TODO(),
+		f.client,
+		f.RepositoryPath,
+		f.release.GetID(),
+		n,
+	)
 }
 
 // Seek implements afero.File.

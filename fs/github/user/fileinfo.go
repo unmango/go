@@ -30,7 +30,7 @@ func (f *FileInfo) Mode() fs.FileMode {
 
 // Name implements fs.FileInfo.
 func (f *FileInfo) Name() string {
-	return f.user.GetName()
+	return f.user.GetLogin()
 }
 
 // Size implements fs.FileInfo.
