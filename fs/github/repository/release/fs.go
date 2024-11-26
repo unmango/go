@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/repository/release/asset"
 )
 
 type Fs struct {
@@ -45,19 +46,22 @@ func NewFs(gh *github.Client, owner, repository string) afero.Fs {
 }
 
 func Open(ctx context.Context, gh *github.Client, path internal.RepositoryPath, name string) (afero.File, error) {
-	// path, err := internal.Parse(owner, repository, name)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path: %w", err)
-	// }
+	p, err := path.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path: %w", err)
+	}
 
-	// release, err := path.Release()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	// }
+	release, err := p.Release()
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
 
-	// if a, err := path.Asset(); err == nil {
-	// 	return asset.Open(ctx, gh, owner, repository, release, a)
-	// }
+	if assetName, err := p.Asset(); err == nil {
+		return asset.Open(ctx, gh, internal.ReleasePath{
+			RepositoryPath: path,
+			Release:        release,
+		}, assetName)
+	}
 
 	id, err := releaseId(ctx, gh, path, name)
 	if err != nil {
@@ -109,20 +113,22 @@ func Readdirnames(ctx context.Context, gh *github.Client, owner, repository stri
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.RepositoryPath, name string) (fs.FileInfo, error) {
-	// path, err := internal.Parse(owner, repository, name)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path: %w", err)
-	// }
+	p, err := path.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path: %w", err)
+	}
 
-	// release, err := path.Release()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path %s: %w", release, err)
-	// }
+	release, err := p.Release()
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", release, err)
+	}
 
-	// if a, err := path.Asset(); err == nil {
-	// 	log.Errorf("asset: %s, path: %s", a, path)
-	// 	return asset.Stat(ctx, gh, owner, repository, release, a)
-	// }
+	if assetName, err := p.Asset(); err == nil {
+		return asset.Stat(ctx, gh, internal.ReleasePath{
+			RepositoryPath: path,
+			Release:        release,
+		}, assetName)
+	}
 
 	id, err := releaseId(ctx, gh, path, name)
 	if err != nil {

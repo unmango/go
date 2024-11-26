@@ -123,7 +123,13 @@ func (g ghpath) Asset() (string, error) {
 		return "", errors.New("not a release")
 	}
 
-	return g.index(5, "asset")
+	if a, err := g.index(5, "asset"); err != nil {
+		return "", err
+	} else if a == "download" {
+		return g.index(6, "asset")
+	} else {
+		return a, nil
+	}
 }
 
 // Branch implements Path.
@@ -154,6 +160,11 @@ func (g ghpath) Content() []string {
 
 // Release implements Path.
 func (g ghpath) Release() (string, error) {
+	// This will change when I decide to support content
+	if len(g) == 3 {
+		return g[2], nil
+	}
+
 	if !g.has(2, "releases") {
 		return "", errors.New("no release")
 	}

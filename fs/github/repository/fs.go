@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/repository/release"
 )
 
 type Fs struct {
@@ -44,19 +45,22 @@ func NewFs(gh *github.Client, owner string) afero.Fs {
 }
 
 func Open(ctx context.Context, gh *github.Client, path internal.OwnerPath, name string) (afero.File, error) {
-	// path, err := internal.Parse(user, name)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path: %w", err)
-	// }
+	p, err := path.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path: %w", err)
+	}
 
-	// repo, err := path.Repository()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	// }
+	repo, err := p.Repository()
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
 
-	// if _, err := path.Release(); err == nil {
-	// 	return release.Open(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
-	// }
+	if _, err := p.Release(); err == nil {
+		return release.Open(ctx, gh, internal.RepositoryPath{
+			OwnerPath:  path,
+			Repository: repo,
+		}, name)
+	}
 
 	r, _, err := gh.Repositories.Get(ctx, path.Owner, name)
 	if err != nil {
@@ -105,19 +109,22 @@ func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.OwnerPath, name string) (fs.FileInfo, error) {
-	// path, err := internal.Parse(user, name)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path: %w", err)
-	// }
+	p, err := path.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path: %w", err)
+	}
 
-	// repo, err := path.Repository()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	// }
+	repo, err := p.Repository()
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
 
-	// if _, err := path.Release(); err == nil {
-	// 	return release.Stat(ctx, gh, user, repo, strings.TrimPrefix(name, repo))
-	// }
+	if _, err := p.Release(); err == nil {
+		return release.Stat(ctx, gh, internal.RepositoryPath{
+			OwnerPath:  path,
+			Repository: repo,
+		}, name)
+	}
 
 	r, _, err := gh.Repositories.Get(ctx, path.Owner, name)
 	if err != nil {

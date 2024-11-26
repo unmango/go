@@ -304,13 +304,55 @@ var _ = Describe("Path", func() {
 	})
 
 	Describe("OwnerPath", func() {
-		It("should Parse", func() {
+		It("should Parse repo", func() {
 			p := internal.NewOwnerPath("testing")
 
 			r, err := p.Parse("repo-name")
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(r.Repository()).To(Equal("repo-name"))
+		})
+
+		It("should assume release when parsing len 2", func() {
+			p := internal.NewOwnerPath("testing")
+
+			r, err := p.Parse("repo/release-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Release()).To(Equal("release-name"))
+		})
+
+		It("should Parse release", func() {
+			p := internal.NewOwnerPath("testing")
+
+			r, err := p.Parse("repo/releases/tag/release-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Release()).To(Equal("release-name"))
+		})
+
+		It("should assume asset when parsing len 5", func() {
+			p := internal.NewOwnerPath("testing")
+
+			r, err := p.Parse("repo/releases/tag/release-name/asset.tar.gz")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Release()).To(Equal("release-name"))
+			Expect(r.Asset()).To(Equal("asset.tar.gz"))
+		})
+
+		It("should Parse asset", func() {
+			p := internal.NewOwnerPath("testing")
+
+			r, err := p.Parse("repo/releases/tag/release-name/download/asset.tar.gz")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Release()).To(Equal("release-name"))
+			Expect(r.Asset()).To(Equal("asset.tar.gz"))
 		})
 	})
 
@@ -321,6 +363,7 @@ var _ = Describe("Path", func() {
 			r, err := p.Parse("release-name")
 
 			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo"))
 			Expect(r.Release()).To(Equal("release-name"))
 		})
 	})
@@ -332,6 +375,8 @@ var _ = Describe("Path", func() {
 			r, err := p.Parse("asset-name")
 
 			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Release()).To(Equal("release"))
 			Expect(r.Asset()).To(Equal("asset-name"))
 		})
 	})
