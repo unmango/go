@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
@@ -108,35 +109,38 @@ func Stat(ctx context.Context, gh *github.Client, path internal.ReleasePath, nam
 	return &FileInfo{asset: asset}, nil
 }
 
-func releaseId(ctx context.Context, gh *github.Client, owner, repo, name string) (int64, error) {
-	if id, ok := internal.TryGetId(name); ok {
+func releaseId(ctx context.Context, gh *github.Client, path internal.ReleasePath) (int64, error) {
+	if id, ok := internal.TryGetId(path.Release); ok {
 		return id, nil
 	}
 
-	releases, _, err := gh.Repositories.ListReleases(ctx, owner, repo, nil)
+	log.Error("releaseId", "path", path)
+	releases, _, err := gh.Repositories.ListReleases(ctx, path.Owner, path.Repository, nil)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, r := range releases {
-		if r.GetName() == name {
+		log.Error("comparing", "r.GetName()", r.GetName(), "path.Release", path.Release)
+		if r.GetName() == path.Release {
 			return r.GetID(), nil
 		}
 	}
 
-	return 0, fmt.Errorf("%s: %w", name, os.ErrNotExist)
+	return 0, fmt.Errorf("%s: %w", path.Release, os.ErrNotExist)
 }
 
 func assetId(ctx context.Context, gh *github.Client, path internal.ReleasePath, name string) (int64, error) {
-	releaseId, err := releaseId(ctx, gh, path.Owner, path.Repository, path.Release)
-	if err != nil {
-		return 0, err
-	}
-
 	if id, ok := internal.TryGetId(name); ok {
 		return id, nil
 	}
 
+	releaseId, err := releaseId(ctx, gh, path)
+	if err != nil {
+		return 0, fmt.Errorf("reading release id: %w", err)
+	}
+
+	log.Error("assetId", "path", path)
 	assets, _, err := gh.Repositories.ListReleaseAssets(ctx, path.Owner, path.Repository, releaseId, nil)
 	if err != nil {
 		return 0, err

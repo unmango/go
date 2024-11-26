@@ -242,39 +242,7 @@ func Parse(parts ...string) (Path, error) {
 	return ghpath(path), nil
 }
 
-func ParseOwner(path string) (owner OwnerPath, err error) {
-	if p, err := Parse(path); err != nil {
-		return owner, err
-	} else {
-		return parseOwner(p)
-	}
-}
-
-func ParseRepository(path string) (repo RepositoryPath, err error) {
-	if p, err := Parse(path); err != nil {
-		return repo, err
-	} else {
-		return parseRepository(p)
-	}
-}
-
-func ParseRelease(path string) (release ReleasePath, err error) {
-	if p, err := Parse(path); err != nil {
-		return release, err
-	} else {
-		return parseRelease(p)
-	}
-}
-
-func ParseAsset(path string) (asset AssetPath, err error) {
-	if p, err := Parse(path); err != nil {
-		return asset, err
-	} else {
-		return parseAsset(p)
-	}
-}
-
-func parseOwner(path Path) (owner OwnerPath, err error) {
+func ParseOwner(path Path) (owner OwnerPath, err error) {
 	if owner.Owner, err = path.Owner(); err != nil {
 		return owner, err
 	}
@@ -282,8 +250,8 @@ func parseOwner(path Path) (owner OwnerPath, err error) {
 	return
 }
 
-func parseRepository(path Path) (repo RepositoryPath, err error) {
-	if repo.OwnerPath, err = parseOwner(path); err != nil {
+func ParseRepository(path Path) (repo RepositoryPath, err error) {
+	if repo.OwnerPath, err = ParseOwner(path); err != nil {
 		return
 	}
 
@@ -294,8 +262,8 @@ func parseRepository(path Path) (repo RepositoryPath, err error) {
 	return
 }
 
-func parseRelease(path Path) (release ReleasePath, err error) {
-	if release.RepositoryPath, err = parseRepository(path); err != nil {
+func ParseRelease(path Path) (release ReleasePath, err error) {
+	if release.RepositoryPath, err = ParseRepository(path); err != nil {
 		return
 	}
 
@@ -306,8 +274,8 @@ func parseRelease(path Path) (release ReleasePath, err error) {
 	return
 }
 
-func parseAsset(path Path) (asset AssetPath, err error) {
-	if asset.ReleasePath, err = parseRelease(path); err != nil {
+func ParseAsset(path Path) (asset AssetPath, err error) {
+	if asset.ReleasePath, err = ParseRelease(path); err != nil {
 		return
 	}
 

@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/google/go-github/v66 v66.0.0
+	github.com/goware/urlx v0.3.2
 	github.com/onsi/ginkgo/v2 v2.22.0
 	github.com/onsi/gomega v1.36.0
 	github.com/spf13/afero v1.11.0
@@ -41,7 +42,6 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20241029153458-d1b30febd7db // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/goware/urlx v0.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

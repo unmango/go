@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 
+	"github.com/charmbracelet/log"
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
@@ -55,6 +56,7 @@ func Open(ctx context.Context, gh *github.Client, path internal.OwnerPath, name 
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}
 
+	log.Error("open release", "path", path, "name", name)
 	if _, err := p.Release(); err == nil {
 		return release.Open(ctx, gh, internal.RepositoryPath{
 			OwnerPath:  path,
@@ -109,21 +111,19 @@ func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.OwnerPath, name string) (fs.FileInfo, error) {
+	log.Error("parsing", "path", path, "name", name)
 	p, err := path.Parse(name)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path: %w", err)
 	}
 
-	repo, err := p.Repository()
+	repo, err := internal.ParseRepository(p)
 	if err != nil {
-		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+		return nil, fmt.Errorf("invalid path %s: %w", p, err)
 	}
 
-	if _, err := p.Release(); err == nil {
-		return release.Stat(ctx, gh, internal.RepositoryPath{
-			OwnerPath:  path,
-			Repository: repo,
-		}, name)
+	if releaseName, err := p.Release(); err == nil {
+		return release.Stat(ctx, gh, repo, releaseName)
 	}
 
 	r, _, err := gh.Repositories.Get(ctx, path.Owner, name)

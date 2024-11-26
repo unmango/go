@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/charmbracelet/log"
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
@@ -51,16 +52,14 @@ func Open(ctx context.Context, gh *github.Client, path internal.RepositoryPath, 
 		return nil, fmt.Errorf("invalid path: %w", err)
 	}
 
-	release, err := p.Release()
+	release, err := internal.ParseRelease(p)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}
 
+	log.Error("open asset", "path", path, "name", name)
 	if assetName, err := p.Asset(); err == nil {
-		return asset.Open(ctx, gh, internal.ReleasePath{
-			RepositoryPath: path,
-			Release:        release,
-		}, assetName)
+		return asset.Open(ctx, gh, release, assetName)
 	}
 
 	id, err := releaseId(ctx, gh, path, name)
@@ -118,16 +117,13 @@ func Stat(ctx context.Context, gh *github.Client, path internal.RepositoryPath, 
 		return nil, fmt.Errorf("invalid path: %w", err)
 	}
 
-	release, err := p.Release()
+	release, err := internal.ParseRelease(p)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", release, err)
 	}
 
 	if assetName, err := p.Asset(); err == nil {
-		return asset.Stat(ctx, gh, internal.ReleasePath{
-			RepositoryPath: path,
-			Release:        release,
-		}, assetName)
+		return asset.Stat(ctx, gh, release, assetName)
 	}
 
 	id, err := releaseId(ctx, gh, path, name)
