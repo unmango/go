@@ -25,9 +25,17 @@ type Map[A, B any] interface {
 	~func(A) B
 }
 
+type Maybe[T any] interface {
+	~func() (T, error)
+}
+
 type Monoid[T any] interface {
 	Semigroup[T]
 	Identity[T]
+}
+
+type Result[T any] interface {
+	~func() (T, error)
 }
 
 type Semigroup[T any] interface {
