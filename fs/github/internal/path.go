@@ -244,7 +244,7 @@ func Parse(parts ...string) (Path, error) {
 
 func ParseOwner(path Path) (owner OwnerPath, err error) {
 	if owner.Owner, err = path.Owner(); err != nil {
-		return owner, err
+		return
 	}
 
 	return
@@ -255,7 +255,7 @@ func ParseRepository(path Path) (repo RepositoryPath, err error) {
 		return
 	}
 
-	if repo.Repository, err = path.Owner(); err != nil {
+	if repo.Repository, err = path.Repository(); err != nil {
 		return
 	}
 

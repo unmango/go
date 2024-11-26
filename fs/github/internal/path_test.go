@@ -380,4 +380,69 @@ var _ = Describe("Path", func() {
 			Expect(r.Asset()).To(Equal("asset-name"))
 		})
 	})
+
+	DescribeTable("ParseOwner",
+		Entry(nil, "UnstoppableMango"),
+		Entry(nil, "UnstoppableMango/repo"),
+		Entry(nil, "UnstoppableMango/repo/releases/tag/tdl"),
+		Entry(nil, "UnstoppableMango/repo/releases/this-is-wrong/thing"),
+		Entry(nil, "UnstoppableMango/repo/tree/main"),
+		func(input string) {
+			p, err := internal.Parse(input)
+			Expect(err).NotTo(HaveOccurred())
+
+			r, err := internal.ParseOwner(p)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner).To(Equal("UnstoppableMango"))
+		},
+	)
+
+	DescribeTable("ParseRepository",
+		Entry(nil, "UnstoppableMango/repo"),
+		Entry(nil, "UnstoppableMango/repo/releases/tag/tdl"),
+		Entry(nil, "UnstoppableMango/repo/releases/this-is-wrong/thing"),
+		Entry(nil, "UnstoppableMango/repo/tree/main"),
+		func(input string) {
+			p, err := internal.Parse(input)
+			Expect(err).NotTo(HaveOccurred())
+
+			r, err := internal.ParseRepository(p)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner).To(Equal("UnstoppableMango"))
+			Expect(r.Repository).To(Equal("repo"))
+		},
+	)
+
+	DescribeTable("ParseRelease",
+		Entry(nil, "UnstoppableMango/repo/releases/tag/tdl"),
+		func(input string) {
+			p, err := internal.Parse(input)
+			Expect(err).NotTo(HaveOccurred())
+
+			r, err := internal.ParseRelease(p)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner).To(Equal("UnstoppableMango"))
+			Expect(r.Repository).To(Equal("repo"))
+			Expect(r.Release).To(Equal("tdl"))
+		},
+	)
+
+	DescribeTable("ParseAsset",
+		Entry(nil, "UnstoppableMango/repo/releases/tag/tdl/v0.0.69"),
+		func(input string) {
+			p, err := internal.Parse(input)
+			Expect(err).NotTo(HaveOccurred())
+
+			r, err := internal.ParseAsset(p)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner).To(Equal("UnstoppableMango"))
+			Expect(r.Repository).To(Equal("repo"))
+			Expect(r.Release).To(Equal("tdl"))
+			Expect(r.Asset).To(Equal("v0.0.69"))
+		},
+	)
 })

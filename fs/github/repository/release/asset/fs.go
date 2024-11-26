@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/charmbracelet/log"
 	"github.com/google/go-github/v66/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
@@ -25,17 +24,32 @@ func (f *Fs) Name() string {
 
 // Open implements afero.Fs.
 func (f *Fs) Open(name string) (afero.File, error) {
-	return Open(context.TODO(), f.client, f.ReleasePath, name)
+	path, err := f.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("open %s: %w", name, err)
+	}
+
+	return Open(context.TODO(), f.client, path)
 }
 
 // OpenFile implements afero.Fs.
 func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	return Open(context.TODO(), f.client, f.ReleasePath, name)
+	path, err := f.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("open %s: %w", name, err)
+	}
+
+	return Open(context.TODO(), f.client, path)
 }
 
 // Stat implements afero.Fs.
 func (f *Fs) Stat(name string) (fs.FileInfo, error) {
-	return Stat(context.TODO(), f.client, f.ReleasePath, name)
+	path, err := f.Parse(name)
+	if err != nil {
+		return nil, fmt.Errorf("stat %s: %w", name, err)
+	}
+
+	return Stat(context.TODO(), f.client, path)
 }
 
 func NewFs(gh *github.Client, owner, repository, release string) afero.Fs {
@@ -45,13 +59,18 @@ func NewFs(gh *github.Client, owner, repository, release string) afero.Fs {
 	}
 }
 
-func Open(ctx context.Context, gh *github.Client, path internal.ReleasePath, name string) (*File, error) {
-	id, err := assetId(ctx, gh, path, name)
+func Open(ctx context.Context, gh *github.Client, path internal.Path) (*File, error) {
+	assetPath, err := internal.ParseAsset(path)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
+
+	id, err := assetId(ctx, gh, assetPath)
 	if err != nil {
 		return nil, fmt.Errorf("opening %s: %w", path, err)
 	}
 
-	asset, _, err := gh.Repositories.GetReleaseAsset(ctx, path.Owner, path.Repository, id)
+	asset, _, err := gh.Repositories.GetReleaseAsset(ctx, assetPath.Owner, assetPath.Repository, id)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +78,7 @@ func Open(ctx context.Context, gh *github.Client, path internal.ReleasePath, nam
 	return &File{
 		client:      gh,
 		asset:       asset,
-		ReleasePath: path,
+		ReleasePath: assetPath.ReleasePath,
 	}, nil
 }
 
@@ -95,13 +114,18 @@ func Readdirnames(ctx context.Context, gh *github.Client, path internal.Reposito
 	return results, nil
 }
 
-func Stat(ctx context.Context, gh *github.Client, path internal.ReleasePath, name string) (*FileInfo, error) {
-	id, err := assetId(ctx, gh, path, name)
+func Stat(ctx context.Context, gh *github.Client, path internal.Path) (*FileInfo, error) {
+	assetPath, err := internal.ParseAsset(path)
+	if err != nil {
+		return nil, fmt.Errorf("invalid path %s: %w", path, err)
+	}
+
+	id, err := assetId(ctx, gh, assetPath)
 	if err != nil {
 		return nil, fmt.Errorf("reading asset id: %w", err)
 	}
 
-	asset, _, err := gh.Repositories.GetReleaseAsset(ctx, path.Owner, path.Repository, id)
+	asset, _, err := gh.Repositories.GetReleaseAsset(ctx, assetPath.Owner, assetPath.Repository, id)
 	if err != nil {
 		return nil, err
 	}
@@ -114,14 +138,12 @@ func releaseId(ctx context.Context, gh *github.Client, path internal.ReleasePath
 		return id, nil
 	}
 
-	log.Error("releaseId", "path", path)
 	releases, _, err := gh.Repositories.ListReleases(ctx, path.Owner, path.Repository, nil)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, r := range releases {
-		log.Error("comparing", "r.GetName()", r.GetName(), "path.Release", path.Release)
 		if r.GetName() == path.Release {
 			return r.GetID(), nil
 		}
@@ -130,27 +152,26 @@ func releaseId(ctx context.Context, gh *github.Client, path internal.ReleasePath
 	return 0, fmt.Errorf("%s: %w", path.Release, os.ErrNotExist)
 }
 
-func assetId(ctx context.Context, gh *github.Client, path internal.ReleasePath, name string) (int64, error) {
-	if id, ok := internal.TryGetId(name); ok {
+func assetId(ctx context.Context, gh *github.Client, path internal.AssetPath) (int64, error) {
+	if id, ok := internal.TryGetId(path.Asset); ok {
 		return id, nil
 	}
 
-	releaseId, err := releaseId(ctx, gh, path)
+	releaseId, err := releaseId(ctx, gh, path.ReleasePath)
 	if err != nil {
 		return 0, fmt.Errorf("reading release id: %w", err)
 	}
 
-	log.Error("assetId", "path", path)
 	assets, _, err := gh.Repositories.ListReleaseAssets(ctx, path.Owner, path.Repository, releaseId, nil)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, a := range assets {
-		if a.GetName() == name {
+		if a.GetName() == path.Asset {
 			return a.GetID(), nil
 		}
 	}
 
-	return 0, fmt.Errorf("%s: %w", name, os.ErrNotExist)
+	return 0, fmt.Errorf("%s: %w", path, os.ErrNotExist)
 }
