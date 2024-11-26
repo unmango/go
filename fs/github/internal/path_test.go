@@ -8,12 +8,21 @@ import (
 
 var _ = Describe("Path", func() {
 	Describe("Parse", func() {
-		DescribeTable("Owner",
-			Entry(nil, "unmango", "unmango"),
+		DescribeTable("Owner URL",
 			Entry(nil, "https://github.com/unmango", "unmango"),
 			Entry(nil, "github.com/unmango", "unmango"),
 			Entry(nil, "https://api.github.com/unmango", "unmango"),
 			Entry(nil, "api.github.com/unmango", "unmango"),
+			func(input, name string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Owner()).To(Equal(name))
+			},
+		)
+
+		DescribeTable("Owner",
+			Entry(nil, "unmango", "unmango"),
 			func(input, name string) {
 				res, err := internal.Parse(input)
 
@@ -22,12 +31,21 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("Repository",
-			Entry(nil, "unmango/go", "go"),
+		DescribeTable("Repository URL",
 			Entry(nil, "https://github.com/unmango/go", "go"),
 			Entry(nil, "github.com/unmango/go", "go"),
 			Entry(nil, "https://api.github.com/unmango/go", "go"),
 			Entry(nil, "api.github.com/unmango/go", "go"),
+			func(input, name string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Repository()).To(Equal(name))
+			},
+		)
+
+		DescribeTable("Repository",
+			Entry(nil, "unmango/go", "go"),
 			func(input, name string) {
 				res, err := internal.Parse(input)
 
@@ -36,12 +54,22 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("No Repository",
-			Entry(nil, "unmango"),
+		DescribeTable("No Repository URL",
 			Entry(nil, "https://github.com/unmango"),
 			Entry(nil, "github.com/unmango"),
 			Entry(nil, "https://api.github.com/unmango"),
 			Entry(nil, "api.github.com/unmango"),
+			func(input string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				_, err = res.Repository()
+				Expect(err).To(MatchError("no repository"))
+			},
+		)
+
+		DescribeTable("No Repository",
+			Entry(nil, "unmango"),
 			func(input string) {
 				res, err := internal.Parse(input)
 
@@ -51,16 +79,25 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("Branch",
+		DescribeTable("Branch URL",
 			Entry(nil, "https://github.com/unmango/go/tree/main", "main"),
 			Entry(nil, "https://api.github.com/unmango/go/tree/main", "main"),
 			Entry(nil, "api.github.com/unmango/go/tree/main", "main"),
 			Entry(nil, "github.com/unmango/go/tree/main", "main"),
+			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", "main"),
+			func(input, name string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Branch()).To(Equal(name))
+			},
+		)
+
+		DescribeTable("Branch",
 			Entry(nil, "unmango/go/tree/main", "main"),
 			Entry(nil, "unmango/go/tree/main/fs", "main"),
 			Entry(nil, "unmango/go/tree/main/fs/path_test.go", "main"),
 			Entry(nil, "unmango/go/tree/feature-name", "feature-name"),
-			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", "main"),
 			func(input, name string) {
 				res, err := internal.Parse(input)
 
@@ -69,17 +106,27 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("Not a Branch",
-			Entry(nil, "unmango"),
+		DescribeTable("Not a Branch URL",
 			Entry(nil, "https://github.com/unmango"),
 			Entry(nil, "github.com/unmango"),
 			Entry(nil, "https://api.github.com/unmango"),
 			Entry(nil, "api.github.com/unmango"),
-			Entry(nil, "unmango/go"),
 			Entry(nil, "https://github.com/unmango/go"),
 			Entry(nil, "github.com/unmango/go"),
 			Entry(nil, "https://api.github.com/unmango/go"),
 			Entry(nil, "api.github.com/unmango/go"),
+			func(input string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				_, err = res.Branch()
+				Expect(err).To(MatchError("not a branch"))
+			},
+		)
+
+		DescribeTable("Not a Branch",
+			Entry(nil, "unmango"),
+			Entry(nil, "unmango/go"),
 			func(input string) {
 				res, err := internal.Parse(input)
 
@@ -89,7 +136,7 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("No Branch",
+		DescribeTable("No Branch URL",
 			Entry(nil, "https://github.com/unmango/go/tree"),
 			Entry(nil, "https://api.github.com/unmango/go/tree"),
 			Entry(nil, "api.github.com/unmango/go/tree"),
@@ -97,7 +144,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads"),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs"),
 			func(input string) {
-				res, err := internal.Parse(input)
+				res, err := internal.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Branch()
@@ -105,16 +152,25 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("Release",
+		DescribeTable("Release URL",
 			Entry(nil, "https://github.com/unmango/go/releases/tag/v0.0.69", "v0.0.69"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/tag/v0.0.69", "v0.0.69"),
 			Entry(nil, "api.github.com/unmango/go/releases/tag/v0.0.69", "v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/tag/v0.0.69", "v0.0.69"),
-			Entry(nil, "unmango/go/releases/tag/v0.0.69", "v0.0.69"),
 			Entry(nil, "https://github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			Entry(nil, "api.github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
+			func(input, name string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Release()).To(Equal(name))
+			},
+		)
+
+		DescribeTable("Release",
+			Entry(nil, "unmango/go/releases/tag/v0.0.69", "v0.0.69"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			func(input, name string) {
 				res, err := internal.Parse(input)
@@ -124,11 +180,21 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("No Release",
+		DescribeTable("No Release URL",
 			Entry(nil, "https://github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			Entry(nil, "api.github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
+			func(input, name string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				_, err = res.Release()
+				Expect(err).To(MatchError("no release"))
+			},
+		)
+
+		DescribeTable("No Release",
 			Entry(nil, "unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			func(input, name string) {
 				res, err := internal.Parse(input)
@@ -139,16 +205,25 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("Asset",
+		DescribeTable("Asset URL",
 			Entry(nil, "https://github.com/unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "api.github.com/unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "github.com/unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
-			Entry(nil, "unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "https://github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "api.github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
+			func(input, name string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Asset()).To(Equal(name))
+			},
+		)
+
+		DescribeTable("Asset",
+			Entry(nil, "unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			func(input, name string) {
 				res, err := internal.Parse(input)
@@ -158,16 +233,26 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("No Asset",
+		DescribeTable("No Asset URL",
 			Entry(nil, "https://github.com/unmango/go/releases/tag/v0.0.69"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/tag/v0.0.69"),
 			Entry(nil, "api.github.com/unmango/go/releases/tag/v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/tag/v0.0.69"),
-			Entry(nil, "unmango/go/releases/tag/v0.0.69"),
 			Entry(nil, "https://github.com/unmango/go/releases/download/v0.0.69"),
 			Entry(nil, "https://api.github.com/unmango/go/releases/download/v0.0.69"),
 			Entry(nil, "api.github.com/unmango/go/releases/download/v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69"),
+			func(input string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				_, err = res.Asset()
+				Expect(err).To(MatchError("no asset"))
+			},
+		)
+
+		DescribeTable("No Asset",
+			Entry(nil, "unmango/go/releases/tag/v0.0.69"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69"),
 			func(input string) {
 				res, err := internal.Parse(input)
@@ -178,15 +263,24 @@ var _ = Describe("Path", func() {
 			},
 		)
 
-		DescribeTable("Content",
+		DescribeTable("Content URL",
 			Entry(nil, "https://github.com/unmango/go/tree/main", []string{}),
 			Entry(nil, "https://api.github.com/unmango/go/tree/main", []string{}),
 			Entry(nil, "api.github.com/unmango/go/tree/main", []string{}),
 			Entry(nil, "github.com/unmango/go/tree/main", []string{}),
+			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", []string{"fs", "fold.go"}),
+			func(input string, parts []string) {
+				res, err := internal.ParseUrl(input)
+
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Content()).To(Equal(parts))
+			},
+		)
+
+		DescribeTable("Content",
 			Entry(nil, "unmango/go/tree/main", []string{}),
 			Entry(nil, "unmango/go/tree/main/fs", []string{"fs"}),
 			Entry(nil, "unmango/go/tree/main/fs/path_test.go", []string{"fs", "path_test.go"}),
-			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", []string{"fs", "fold.go"}),
 			func(input string, parts []string) {
 				res, err := internal.Parse(input)
 
@@ -207,5 +301,38 @@ var _ = Describe("Path", func() {
 				Expect(path.String()).To(Equal(expected))
 			},
 		)
+	})
+
+	Describe("OwnerPath", func() {
+		It("should Parse", func() {
+			p := internal.NewOwnerPath("testing")
+
+			r, err := p.Parse("repo-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Repository()).To(Equal("repo-name"))
+		})
+	})
+
+	Describe("RepositoryPath", func() {
+		It("should Parse", func() {
+			p := internal.NewRepositoryPath("owner", "repo")
+
+			r, err := p.Parse("release-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Release()).To(Equal("release-name"))
+		})
+	})
+
+	Describe("ReleasePath", func() {
+		It("should Parse", func() {
+			p := internal.NewReleasePath("owner", "repo", "release")
+
+			r, err := p.Parse("asset-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Asset()).To(Equal("asset-name"))
+		})
 	})
 })

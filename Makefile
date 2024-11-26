@@ -43,6 +43,9 @@ bin/ginkgo: go.mod
 bin/devops: $(shell $(DEVOPS) list --go --exclude-tests)
 	go build -o $@ cmd/devops/main.go
 
+.envrc: hack/example.envrc
+	cp $< $@
+
 .make/build: $(shell $(DEVOPS) list --go --exclude-tests)
 	go build ./...
 	@touch $@

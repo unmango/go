@@ -3,9 +3,12 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"path"
+	"slices"
 	"strings"
+
+	"github.com/charmbracelet/log"
+	"github.com/goware/urlx"
 )
 
 var knownHosts = []string{
@@ -24,8 +27,16 @@ type Path interface {
 	Release() (string, error)
 }
 
+type Parser interface {
+	Parse(string) (Path, error)
+}
+
 type OwnerPath struct {
 	Owner string
+}
+
+func (p OwnerPath) Parse(path string) (Path, error) {
+	return Parse(p.Owner, path)
 }
 
 func (p OwnerPath) String() string {
@@ -37,6 +48,14 @@ type RepositoryPath struct {
 	Repository string
 }
 
+func (p RepositoryPath) Parse(path string) (Path, error) {
+	if strings.HasPrefix(path, "releases/tag") {
+		return Parse(p.Owner, p.Repository, path)
+	} else {
+		return Parse(p.Owner, p.Repository, "releases", "tag", path)
+	}
+}
+
 func (p RepositoryPath) String() string {
 	return fmt.Sprintf("%s/%s", p.OwnerPath, p.Repository)
 }
@@ -46,6 +65,10 @@ type ReleasePath struct {
 	Release string
 }
 
+func (p ReleasePath) Parse(path string) (Path, error) {
+	return Parse(p.Owner, p.Repository, "releases", "tag", p.Release, path)
+}
+
 func (p ReleasePath) String() string {
 	return fmt.Sprintf("%s/releases/tag/%s", p.RepositoryPath, p.Release)
 }
@@ -53,6 +76,10 @@ func (p ReleasePath) String() string {
 type AssetPath struct {
 	ReleasePath
 	Asset string
+}
+
+func (p AssetPath) Parse(path string) (Path, error) {
+	return Parse(p.Owner, p.Repository, p.Release, p.Asset, path)
 }
 
 func (p AssetPath) String() string {
@@ -84,10 +111,14 @@ func NewAssetPath(owner, repo, release, asset string) AssetPath {
 	}
 }
 
-type ghpath struct{ *url.URL }
+type ghpath []string
+
+func (g ghpath) String() string {
+	return path.Join(g...)
+}
 
 // Asset implements Path.
-func (g *ghpath) Asset() (string, error) {
+func (g ghpath) Asset() (string, error) {
 	if _, err := g.Release(); err != nil {
 		return "", errors.New("not a release")
 	}
@@ -96,7 +127,7 @@ func (g *ghpath) Asset() (string, error) {
 }
 
 // Branch implements Path.
-func (g *ghpath) Branch() (string, error) {
+func (g ghpath) Branch() (string, error) {
 	if g.has(2, "tree") {
 		return g.index(3, "branch")
 	}
@@ -109,20 +140,20 @@ func (g *ghpath) Branch() (string, error) {
 }
 
 // Content implements Path.
-func (g *ghpath) Content() []string {
+func (g ghpath) Content() []string {
 	if g.has(2, "tree") {
-		return g.parts()[4:]
+		return g[4:]
 	}
 
 	if g.has(2, "refs") {
-		return g.parts()[5:]
+		return g[5:]
 	}
 
 	return []string{}
 }
 
 // Release implements Path.
-func (g *ghpath) Release() (string, error) {
+func (g ghpath) Release() (string, error) {
 	if !g.has(2, "releases") {
 		return "", errors.New("no release")
 	}
@@ -135,46 +166,69 @@ func (g *ghpath) Release() (string, error) {
 }
 
 // Owner implements Path.
-func (g *ghpath) Owner() (string, error) {
+func (g ghpath) Owner() (string, error) {
 	return g.index(0, "owner")
 }
 
 // Repository implements Path.
-func (g *ghpath) Repository() (string, error) {
+func (g ghpath) Repository() (string, error) {
 	return g.index(1, "repository")
 }
 
-func (g *ghpath) parts() []string {
-	return strings.Split(strings.TrimPrefix(g.Path, "/"), "/")
-}
-
-func (g *ghpath) has(i int, name string) bool {
+func (g ghpath) has(i int, name string) bool {
 	part, err := g.index(i, name)
 	return err == nil && part == name
 }
 
-func (g *ghpath) index(i int, name string) (string, error) {
-	if parts := g.parts(); len(parts) <= i {
+func (g ghpath) index(i int, name string) (string, error) {
+	if len(g) <= i {
 		return "", fmt.Errorf("no %s", name)
 	} else {
-		return parts[i], nil
+		return g[i], nil
 	}
 }
 
-func Parse(parts ...string) (Path, error) {
-	path := path.Join(parts...)
-	for _, host := range knownHosts {
-		if strings.HasPrefix(path, host) {
-			path = fmt.Sprintf("https://%s", path)
-		}
-	}
-
-	url, err := url.Parse(path)
+func ParseUrl(rawURL string) (Path, error) {
+	url, err := urlx.Parse(rawURL)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ghpath{url}, nil
+	parts := strings.Split(url.Path, "/")
+	return Parse(parts...)
+}
+
+func Parse(parts ...string) (Path, error) {
+	if len(parts) == 0 {
+		return nil, errors.New("empty path")
+	}
+
+	path := []string{}
+	for _, p := range parts {
+		if p == "" {
+			continue
+		}
+
+		url, err := urlx.Parse(p)
+		if err != nil {
+			log.Errorf("err: %s, p: %s", err, p)
+			return nil, err
+		}
+
+		if slices.Contains(knownHosts, url.Host) {
+			continue
+		}
+
+		for _, s := range strings.Split(p, "/") {
+			if s == "" {
+				continue
+			}
+
+			path = append(path, s)
+		}
+	}
+
+	return ghpath(path), nil
 }
 
 func ParseOwner(path string) (owner OwnerPath, err error) {
