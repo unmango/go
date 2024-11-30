@@ -5,6 +5,7 @@ go 1.23.2
 require (
 	github.com/charmbracelet/log v0.4.0
 	github.com/docker/docker v27.3.1+incompatible
+	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v67 v67.0.0
 	github.com/goware/urlx v0.3.2
 	github.com/onsi/ginkgo/v2 v2.22.0
@@ -38,7 +39,6 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20241029153458-d1b30febd7db // indirect
 	github.com/google/uuid v1.6.0 // indirect
