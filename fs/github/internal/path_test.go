@@ -1,6 +1,9 @@
 package internal_test
 
 import (
+	"fmt"
+	"testing/quick"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/unmango/go/fs/github/internal"
@@ -291,6 +294,14 @@ var _ = Describe("Path", func() {
 
 		DescribeTable("Parts",
 			Entry(nil,
+				[]string{"unmango", "go"},
+				"unmango/go",
+			),
+			Entry(nil,
+				[]string{"unmango", "go", "refs", "heads", "main"},
+				"unmango/go/refs/heads/main",
+			),
+			Entry(nil,
 				[]string{"unmango", "go", "releases", "tag", "v0.0.69"},
 				"unmango/go/releases/tag/v0.0.69",
 			),
@@ -354,17 +365,121 @@ var _ = Describe("Path", func() {
 			Expect(r.Release()).To(Equal("release-name"))
 			Expect(r.Asset()).To(Equal("asset.tar.gz"))
 		})
+
+		It("should stringify", func() {
+			fn := func(owner string) bool {
+				p := internal.NewOwnerPath(owner)
+
+				actual := p.String()
+
+				return actual == fmt.Sprintf("https://github.com/%s", owner)
+			}
+
+			Expect(quick.Check(fn, nil)).To(Succeed())
+		})
 	})
 
 	Describe("RepositoryPath", func() {
-		It("should Parse", func() {
+		It("should Parse release", func() {
 			p := internal.NewRepositoryPath("owner", "repo")
 
-			r, err := p.Parse("release-name")
+			r, err := p.Parse("releases/tag/release-name")
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(r.Repository()).To(Equal("repo"))
 			Expect(r.Release()).To(Equal("release-name"))
+		})
+
+		It("should Parse branch from tree", func() {
+			p := internal.NewRepositoryPath("owner", "repo")
+
+			r, err := p.Parse("tree/branch-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner()).To(Equal("owner"))
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Branch()).To(Equal("branch-name"))
+		})
+
+		It("should Parse branch from ref", func() {
+			p := internal.NewRepositoryPath("owner", "repo")
+
+			r, err := p.Parse("refs/heads/branch-name")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner()).To(Equal("owner"))
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Branch()).To(Equal("branch-name"))
+		})
+
+		It("should stringify", func() {
+			fn := func(owner, repo string) bool {
+				p := internal.NewRepositoryPath(owner, repo)
+
+				actual := p.String()
+
+				return actual == fmt.Sprintf("https://github.com/%s/%s", owner, repo)
+			}
+
+			Expect(quick.Check(fn, nil)).To(Succeed())
+		})
+	})
+
+	Describe("BranchPath", func() {
+		It("should parse", func() {
+			p := internal.NewBranchPath("owner", "repo", "branch")
+
+			r, err := p.Parse("some-content")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner()).To(Equal("owner"))
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Branch()).To(Equal("branch"))
+			Expect(r.Content()).To(ConsistOf("some-content"))
+		})
+
+		It("should stringify", func() {
+			fn := func(owner, repo, branch string) bool {
+				p := internal.NewBranchPath(owner, repo, branch)
+
+				actual := p.String()
+
+				return actual == fmt.Sprintf(
+					"https://github.com/%s/%s/tree/%s",
+					owner, repo, branch,
+				)
+			}
+
+			Expect(quick.Check(fn, nil)).To(Succeed())
+		})
+	})
+
+	Describe("ContentPath", func() {
+		It("should parse", func() {
+			p := internal.NewContentPath("owner", "repo", "branch", "content")
+
+			r, err := p.Parse("other-content")
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(r.Owner()).To(Equal("owner"))
+			Expect(r.Repository()).To(Equal("repo"))
+			Expect(r.Branch()).To(Equal("branch"))
+			Expect(r.Content()).To(ConsistOf("content", "other-content"))
+		})
+
+		It("should stringify", func() {
+			fn := func(owner, repo, branch, content string) bool {
+				p := internal.NewContentPath(owner, repo, branch, content)
+
+				actual := p.String()
+
+				return actual == fmt.Sprintf(
+					"https://github.com/%s/%s/tree/%s/%s",
+					owner, repo, branch, content,
+				)
+			}
+
+			Expect(quick.Check(fn, nil)).To(Succeed())
 		})
 	})
 
@@ -378,6 +493,21 @@ var _ = Describe("Path", func() {
 			Expect(r.Repository()).To(Equal("repo"))
 			Expect(r.Release()).To(Equal("release"))
 			Expect(r.Asset()).To(Equal("asset-name"))
+		})
+
+		It("should stringify", func() {
+			fn := func(owner, repo, release string) bool {
+				p := internal.NewReleasePath(owner, repo, release)
+
+				actual := p.String()
+
+				return actual == fmt.Sprintf(
+					"https://github.com/%s/%s/releases/tag/%s",
+					owner, repo, release,
+				)
+			}
+
+			Expect(quick.Check(fn, nil)).To(Succeed())
 		})
 	})
 

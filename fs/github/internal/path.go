@@ -49,15 +49,41 @@ type RepositoryPath struct {
 }
 
 func (p RepositoryPath) Parse(path string) (Path, error) {
-	if strings.HasPrefix(path, "releases/tag") {
+	if HasReleasePrefix(path) || HasBranchPrefix(path) {
 		return Parse(p.Owner, p.Repository, path)
 	} else {
-		return Parse(p.Owner, p.Repository, "releases", "tag", path)
+		return nil, fmt.Errorf("unable to guess path type: %s", path)
 	}
 }
 
 func (p RepositoryPath) String() string {
 	return fmt.Sprintf("%s/%s", p.OwnerPath, p.Repository)
+}
+
+type BranchPath struct {
+	RepositoryPath
+	Branch string
+}
+
+func (p BranchPath) Parse(path string) (Path, error) {
+	return Parse(p.Owner, p.Repository, "tree", p.Branch, path)
+}
+
+func (p BranchPath) String() string {
+	return fmt.Sprintf("%s/tree/%s", p.RepositoryPath, p.Branch)
+}
+
+type ContentPath struct {
+	BranchPath
+	Content string
+}
+
+func (p ContentPath) Parse(path string) (Path, error) {
+	return Parse(p.Owner, p.Repository, "tree", p.Branch, p.Content, path)
+}
+
+func (p ContentPath) String() string {
+	return fmt.Sprintf("%s/%s", p.BranchPath, p.Content)
 }
 
 type ReleasePath struct {
@@ -94,6 +120,20 @@ func NewRepositoryPath(owner, repo string) RepositoryPath {
 	return RepositoryPath{
 		OwnerPath:  NewOwnerPath(owner),
 		Repository: repo,
+	}
+}
+
+func NewBranchPath(owner, repo, branch string) BranchPath {
+	return BranchPath{
+		RepositoryPath: NewRepositoryPath(owner, repo),
+		Branch:         branch,
+	}
+}
+
+func NewContentPath(owner, repo, branch, content string) ContentPath {
+	return ContentPath{
+		BranchPath: NewBranchPath(owner, repo, branch),
+		Content:    content,
 	}
 }
 
@@ -262,6 +302,18 @@ func ParseRepository(path Path) (repo RepositoryPath, err error) {
 	return
 }
 
+func ParseBranch(path Path) (branch BranchPath, err error) {
+	if branch.RepositoryPath, err = ParseRepository(path); err != nil {
+		return
+	}
+
+	if branch.Branch, err = path.Branch(); err != nil {
+		return
+	}
+
+	return
+}
+
 func ParseRelease(path Path) (release ReleasePath, err error) {
 	if release.RepositoryPath, err = ParseRepository(path); err != nil {
 		return
@@ -284,4 +336,12 @@ func ParseAsset(path Path) (asset AssetPath, err error) {
 	}
 
 	return
+}
+
+func HasReleasePrefix(s string) bool {
+	return strings.HasPrefix(s, "releases/tag")
+}
+
+func HasBranchPrefix(s string) bool {
+	return strings.HasPrefix(s, "tree") || strings.HasPrefix(s, "refs/heads")
 }

@@ -23,7 +23,7 @@ var (
 
 func TestDocker(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Docker Suite")
+	RunSpecs(t, "Docker Suite", Label("E2E"))
 }
 
 var _ = BeforeSuite(func(ctx context.Context) {
