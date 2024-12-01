@@ -11,7 +11,7 @@ var _ = Describe("Fs", func() {
 	It("should stat", func() {
 		fs := release.NewFs(client, "UnstoppableMango", "tdl")
 
-		r, err := fs.Stat("v0.0.29")
+		r, err := fs.Stat("releases/tag/v0.0.29")
 
 		Expect(err).NotTo(HaveOccurred())
 		Expect(r.Name()).To(Equal("v0.0.29"))
@@ -20,7 +20,7 @@ var _ = Describe("Fs", func() {
 	It("should stat asset", func() {
 		fs := release.NewFs(client, "UnstoppableMango", "tdl")
 
-		r, err := fs.Stat("v0.0.29/tdl-linux-amd64.tar.gz")
+		r, err := fs.Stat("releases/tag/v0.0.29/tdl-linux-amd64.tar.gz")
 
 		Expect(err).NotTo(HaveOccurred())
 		Expect(r.Name()).To(Equal("tdl-linux-amd64.tar.gz"))
