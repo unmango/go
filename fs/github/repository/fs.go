@@ -7,14 +7,15 @@ import (
 
 	"github.com/google/go-github/v67/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 	"github.com/unmango/go/fs/github/repository/content"
 	"github.com/unmango/go/fs/github/repository/release"
 )
 
 type Fs struct {
-	afero.ReadOnlyFs
-	internal.OwnerPath
+	internal.ReadOnlyFs
+	ghpath.OwnerPath
 	client *github.Client
 }
 
@@ -56,11 +57,11 @@ func (f *Fs) Stat(name string) (fs.FileInfo, error) {
 func NewFs(gh *github.Client, owner string) afero.Fs {
 	return &Fs{
 		client:    gh,
-		OwnerPath: internal.NewOwnerPath(owner),
+		OwnerPath: ghpath.NewOwnerPath(owner),
 	}
 }
 
-func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.File, error) {
+func Open(ctx context.Context, gh *github.Client, path ghpath.Path) (afero.File, error) {
 	if _, err := path.Release(); err == nil {
 		return release.Open(ctx, gh, path)
 	}
@@ -68,7 +69,7 @@ func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.Fil
 		return content.Open(ctx, gh, path)
 	}
 
-	repo, err := internal.ParseRepository(path)
+	repo, err := ghpath.ParseRepository(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}
@@ -120,7 +121,7 @@ func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([
 	return names, nil
 }
 
-func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {
+func Stat(ctx context.Context, gh *github.Client, path ghpath.Path) (fs.FileInfo, error) {
 	if _, err := path.Release(); err == nil {
 		return release.Stat(ctx, gh, path)
 	}
@@ -128,7 +129,7 @@ func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileIn
 		return content.Stat(ctx, gh, path)
 	}
 
-	repo, err := internal.ParseRepository(path)
+	repo, err := ghpath.ParseRepository(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}

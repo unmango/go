@@ -1,6 +1,12 @@
 package internal
 
-import "syscall"
+import (
+	"syscall"
+
+	"github.com/spf13/afero"
+)
+
+type ReadOnlyFs = afero.ReadOnlyFs
 
 type ReadOnlyFile struct{}
 

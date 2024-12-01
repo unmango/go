@@ -8,13 +8,14 @@ import (
 
 	"github.com/google/go-github/v67/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 	"github.com/unmango/go/fs/github/repository/release/asset"
 )
 
 type Fs struct {
-	afero.ReadOnlyFs
-	internal.RepositoryPath
+	internal.ReadOnlyFs
+	ghpath.RepositoryPath
 	client *github.Client
 }
 
@@ -56,12 +57,12 @@ func (f *Fs) Stat(name string) (fs.FileInfo, error) {
 func NewFs(gh *github.Client, owner, repository string) afero.Fs {
 	return &Fs{
 		client:         gh,
-		RepositoryPath: internal.NewRepositoryPath(owner, repository),
+		RepositoryPath: ghpath.NewRepositoryPath(owner, repository),
 	}
 }
 
-func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.File, error) {
-	release, err := internal.ParseRelease(path)
+func Open(ctx context.Context, gh *github.Client, path ghpath.Path) (afero.File, error) {
+	release, err := ghpath.ParseRelease(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}
@@ -119,12 +120,12 @@ func Readdirnames(ctx context.Context, gh *github.Client, owner, repository stri
 	return names, nil
 }
 
-func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {
+func Stat(ctx context.Context, gh *github.Client, path ghpath.Path) (fs.FileInfo, error) {
 	if _, err := path.Asset(); err == nil {
 		return asset.Stat(ctx, gh, path)
 	}
 
-	release, err := internal.ParseRelease(path)
+	release, err := ghpath.ParseRelease(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", release, err)
 	}
@@ -142,7 +143,7 @@ func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileIn
 	return &FileInfo{release: r}, nil
 }
 
-func releaseId(ctx context.Context, gh *github.Client, path internal.ReleasePath) (int64, error) {
+func releaseId(ctx context.Context, gh *github.Client, path ghpath.ReleasePath) (int64, error) {
 	if id, ok := internal.TryGetId(path.Release); ok {
 		return id, nil
 	}

@@ -8,13 +8,14 @@ import (
 	"io/fs"
 
 	"github.com/google/go-github/v67/github"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 	"github.com/unmango/go/fs/github/repository/release/asset"
 )
 
 type File struct {
 	internal.ReadOnlyFile
-	internal.RepositoryPath
+	ghpath.RepositoryPath
 
 	client  *github.Client
 	release *github.RepositoryRelease

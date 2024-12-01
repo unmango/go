@@ -9,7 +9,7 @@ import (
 
 type Fs struct {
 	afero.ReadOnlyFs
-	w io.Writer
+	writer io.Writer
 }
 
 // Name implements afero.Fs.
@@ -19,19 +19,19 @@ func (w *Fs) Name() string {
 
 // Open implements afero.Fs.
 func (w *Fs) Open(name string) (afero.File, error) {
-	return &File{w.w, name}, nil
+	return &File{w.writer, name}, nil
 }
 
 // OpenFile implements afero.Fs.
 func (w *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	return &File{w.w, name}, nil
+	return &File{w.writer, name}, nil
 }
 
 // Stat implements afero.Fs.
 func (w *Fs) Stat(name string) (fs.FileInfo, error) {
-	return &FileInfo{w.w, name}, nil
+	return &FileInfo{w.writer, name}, nil
 }
 
 func NewFs(writer io.Writer) afero.Fs {
-	return &Fs{w: writer}
+	return &Fs{writer: writer}
 }

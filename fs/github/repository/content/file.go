@@ -6,12 +6,13 @@ import (
 	"syscall"
 
 	"github.com/google/go-github/v67/github"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 )
 
 type File struct {
 	internal.ReadOnlyFile
-	internal.ContentPath
+	ghpath.ContentPath
 
 	client  *github.Client
 	content *github.RepositoryContent

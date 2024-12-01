@@ -12,12 +12,13 @@ import (
 	"syscall"
 
 	"github.com/google/go-github/v67/github"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 )
 
 type File struct {
 	internal.ReadOnlyFile
-	internal.ReleasePath
+	ghpath.ReleasePath
 
 	client *github.Client
 	asset  *github.ReleaseAsset

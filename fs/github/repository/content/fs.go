@@ -7,12 +7,13 @@ import (
 
 	"github.com/google/go-github/v67/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 )
 
 type Fs struct {
-	afero.ReadOnlyFs
-	internal.BranchPath
+	internal.ReadOnlyFs
+	ghpath.BranchPath
 	client *github.Client
 }
 
@@ -48,8 +49,8 @@ func (f *Fs) Stat(name string) (fs.FileInfo, error) {
 	}
 }
 
-func Open(ctx context.Context, client *github.Client, path internal.Path) (afero.File, error) {
-	content, err := internal.ParseContent(path)
+func Open(ctx context.Context, client *github.Client, path ghpath.Path) (afero.File, error) {
+	content, err := ghpath.ParseContent(path)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
 	}
@@ -81,8 +82,8 @@ func Open(ctx context.Context, client *github.Client, path internal.Path) (afero
 	}
 }
 
-func Stat(ctx context.Context, client *github.Client, path internal.Path) (fs.FileInfo, error) {
-	content, err := internal.ParseContent(path)
+func Stat(ctx context.Context, client *github.Client, path ghpath.Path) (fs.FileInfo, error) {
+	content, err := ghpath.ParseContent(path)
 	if err != nil {
 		return nil, fmt.Errorf("stat: %w", err)
 	}
@@ -112,6 +113,6 @@ func Stat(ctx context.Context, client *github.Client, path internal.Path) (fs.Fi
 func NewFs(gh *github.Client, owner, repo, branch string) afero.Fs {
 	return &Fs{
 		client:     gh,
-		BranchPath: internal.NewBranchPath(owner, repo, branch),
+		BranchPath: ghpath.NewBranchPath(owner, repo, branch),
 	}
 }
