@@ -9,7 +9,7 @@ import (
 var _ = Describe("File", func() {
 	It("should be readonly", func() {
 		fs := asset.NewFs(client, "UnstoppableMango", "tdl", "v0.0.29")
-		file, err := fs.Open("v0.0.29")
+		file, err := fs.Open("tdl-linux-amd64.tar.gz")
 		Expect(err).NotTo(HaveOccurred())
 
 		_, err = file.Write([]byte{})
