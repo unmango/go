@@ -22,10 +22,6 @@ type File struct {
 
 // Close implements afero.File.
 func (f *File) Close() error {
-	if f.reader != nil {
-		return f.Close()
-	}
-
 	return nil
 }
 

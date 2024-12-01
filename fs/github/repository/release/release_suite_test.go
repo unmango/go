@@ -1,12 +1,12 @@
 package release_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/google/go-github/v67/github"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/unmango/go/fs/github/internal"
 )
 
 var client *github.Client
@@ -17,9 +17,5 @@ func TestRelease(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	client = github.NewClient(nil)
-
-	if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-		client = client.WithAuthToken(token)
-	}
+	client = internal.DefaultClient()
 })

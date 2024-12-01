@@ -32,7 +32,7 @@ var _ = Describe("Fs", func() {
 		Expect(data).To(HaveLen(49_388_058))
 	})
 
-	It("should read an archive asset", func() {
+	It("should read an archive asset", Label("E2E"), func() {
 		r := asset.NewFs(client, "UnstoppableMango", "tdl", "v0.0.29")
 
 		file, err := r.Open("tdl-linux-amd64.tar.gz")
