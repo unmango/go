@@ -2,7 +2,6 @@ package content
 
 import (
 	"bytes"
-	"io"
 	"io/fs"
 	"syscall"
 
@@ -17,7 +16,7 @@ type File struct {
 	client  *github.Client
 	content *github.RepositoryContent
 
-	reader io.Reader
+	reader *bytes.Buffer
 }
 
 // Close implements afero.File.
@@ -41,17 +40,17 @@ func (f *File) Read(p []byte) (n int, err error) {
 
 // ReadAt implements afero.File.
 func (f *File) ReadAt(p []byte, off int64) (n int, err error) {
-	return 0, syscall.EPERM
+	return 0, syscall.EROFS
 }
 
 // Readdir implements afero.File.
 func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
-	return nil, syscall.EPERM
+	return nil, syscall.ENOTDIR
 }
 
 // Readdirnames implements afero.File.
 func (f *File) Readdirnames(n int) ([]string, error) {
-	return nil, syscall.EPERM
+	return nil, syscall.ENOTDIR
 }
 
 // Seek implements afero.File.

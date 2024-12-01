@@ -88,7 +88,9 @@ func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.Fil
 }
 
 func Readdir(ctx context.Context, gh *github.Client, owner, repository string, count int) ([]fs.FileInfo, error) {
-	releases, _, err := gh.Repositories.ListReleases(ctx, owner, repository, nil)
+	// TODO: count == 0
+	opt := &github.ListOptions{PerPage: count}
+	releases, _, err := gh.Repositories.ListReleases(ctx, owner, repository, opt)
 	if err != nil {
 		return nil, fmt.Errorf("%s/%s readdir: %w", owner, repository, err)
 	}
@@ -104,19 +106,17 @@ func Readdir(ctx context.Context, gh *github.Client, owner, repository string, c
 }
 
 func Readdirnames(ctx context.Context, gh *github.Client, owner, repository string, n int) ([]string, error) {
-	releases, _, err := gh.Repositories.ListReleases(ctx, owner, repository, nil)
+	infos, err := Readdir(ctx, gh, owner, repository, n)
 	if err != nil {
-		return nil, fmt.Errorf("%s/%s readdir: %w", owner, repository, err)
+		return nil, err
 	}
 
-	length := min(n, len(releases))
-	results := make([]string, length)
-
-	for i := 0; i < length; i++ {
-		results[i] = releases[i].GetName()
+	names := []string{}
+	for _, i := range infos {
+		names = append(names, i.Name())
 	}
 
-	return results, nil
+	return names, nil
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {

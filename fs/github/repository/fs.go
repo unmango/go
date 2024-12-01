@@ -86,37 +86,38 @@ func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.Fil
 }
 
 func Readdir(ctx context.Context, gh *github.Client, user string, count int) ([]fs.FileInfo, error) {
-	// TODO: Paging
-	repos, _, err := gh.Repositories.ListByUser(ctx, user, nil)
+	// TODO: count == 0
+	opt := &github.RepositoryListByUserOptions{
+		ListOptions: github.ListOptions{PerPage: count},
+	}
+
+	repos, _, err := gh.Repositories.ListByUser(ctx, user, opt)
 	if err != nil {
 		return nil, fmt.Errorf("user %s readdir: %w", user, err)
 	}
 
 	length := min(count, len(repos))
-	results := make([]fs.FileInfo, length)
+	infos := make([]fs.FileInfo, length)
 
 	for i := 0; i < length; i++ {
-		results[i] = &FileInfo{repo: repos[i]}
+		infos[i] = &FileInfo{repo: repos[i]}
 	}
 
-	return results, nil
+	return infos, nil
 }
 
 func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([]string, error) {
-	// TODO: Paging
-	repos, _, err := gh.Repositories.ListByUser(ctx, user, nil)
+	infos, err := Readdir(ctx, gh, user, n)
 	if err != nil {
-		return nil, fmt.Errorf("user %s readdirnames: %w", user, err)
+		return nil, err
 	}
 
-	length := min(n, len(repos))
-	results := make([]string, length)
-
-	for i := 0; i < length; i++ {
-		results[i] = repos[i].GetName()
+	names := []string{}
+	for _, i := range infos {
+		names = append(names, i.Name())
 	}
 
-	return results, nil
+	return names, nil
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {

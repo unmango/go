@@ -223,11 +223,3 @@ func (f *File) exec(ctx context.Context, cmd ...string) error {
 func (f *File) execo(ctx context.Context, options internal.ExecOptions) error {
 	return internal.Exec(ctx, f.client, f.container, options)
 }
-
-func NewFile(client client.ContainerAPIClient, container, name string) *File {
-	return &File{
-		client:    client,
-		container: container,
-		name:      name,
-	}
-}
