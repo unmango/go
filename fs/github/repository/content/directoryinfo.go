@@ -9,8 +9,8 @@ import (
 )
 
 type DirectoryInfo struct {
-	name     string
-	contents []*github.RepositoryContent
+	name    string
+	content []*github.RepositoryContent
 }
 
 // IsDir implements fs.FileInfo.
@@ -35,7 +35,7 @@ func (d *DirectoryInfo) Name() string {
 
 // Size implements fs.FileInfo.
 func (d *DirectoryInfo) Size() (s int64) {
-	for _, c := range d.contents {
+	for _, c := range d.content {
 		s += int64(c.GetSize())
 	}
 
@@ -44,5 +44,5 @@ func (d *DirectoryInfo) Size() (s int64) {
 
 // Sys implements fs.FileInfo.
 func (d *DirectoryInfo) Sys() any {
-	return d.contents
+	return d.content
 }

@@ -314,6 +314,15 @@ func ParseBranch(path Path) (branch BranchPath, err error) {
 	return
 }
 
+func ParseContent(p Path) (content ContentPath, err error) {
+	if content.BranchPath, err = ParseBranch(p); err != nil {
+		return
+	}
+
+	content.Content = path.Join(p.Content()...)
+	return
+}
+
 func ParseRelease(path Path) (release ReleasePath, err error) {
 	if release.RepositoryPath, err = ParseRepository(path); err != nil {
 		return

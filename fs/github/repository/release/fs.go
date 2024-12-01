@@ -120,13 +120,13 @@ func Readdirnames(ctx context.Context, gh *github.Client, owner, repository stri
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {
+	if _, err := path.Asset(); err == nil {
+		return asset.Stat(ctx, gh, path)
+	}
+
 	release, err := internal.ParseRelease(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", release, err)
-	}
-
-	if _, err := path.Asset(); err == nil {
-		return asset.Stat(ctx, gh, path)
 	}
 
 	id, err := releaseId(ctx, gh, release)

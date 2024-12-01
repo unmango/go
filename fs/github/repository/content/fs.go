@@ -7,88 +7,111 @@ import (
 
 	"github.com/google/go-github/v67/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/internal"
 )
 
 type Fs struct {
 	afero.ReadOnlyFs
+	internal.BranchPath
 	client *github.Client
-	owner  string
-	repo   string
 }
 
 // Name implements afero.Fs.
 func (f *Fs) Name() string {
-	return fmt.Sprintf("https://github.com/%s/%s", f.owner, f.repo)
+	return fmt.Sprint(f.BranchPath)
 }
 
 // Open implements afero.Fs.
 func (f *Fs) Open(name string) (afero.File, error) {
-	file, dir, err := f.content(name)
-	if err != nil {
-		return nil, fmt.Errorf("open %s: %w", name, err)
-	}
-
-	if file != nil {
-		return &File{
-			client:  f.client,
-			content: file,
-		}, nil
+	if path, err := f.Parse(name); err != nil {
+		return nil, fmt.Errorf("open: %w", err)
 	} else {
-		return &Directory{
-			client:   f.client,
-			name:     name,
-			contents: dir,
-		}, nil
+		return Open(context.TODO(), f.client, path)
 	}
 }
 
 // OpenFile implements afero.Fs.
 func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	file, dir, err := f.content(name)
-	if err != nil {
-		return nil, fmt.Errorf("open file %s: %w", name, err)
-	}
-
-	if file != nil {
-		return &File{
-			client:  f.client,
-			content: file,
-		}, nil
+	if path, err := f.Parse(name); err != nil {
+		return nil, fmt.Errorf("open: %w", err)
 	} else {
-		return &Directory{
-			client:   f.client,
-			name:     name,
-			contents: dir,
-		}, nil
+		return Open(context.TODO(), f.client, path)
 	}
 }
 
 // Stat implements afero.Fs.
 func (f *Fs) Stat(name string) (fs.FileInfo, error) {
-	file, dir, err := f.content(name)
+	if path, err := f.Parse(name); err != nil {
+		return nil, fmt.Errorf("stat: %w", err)
+	} else {
+		return Stat(context.TODO(), f.client, path)
+	}
+}
+
+func Open(ctx context.Context, client *github.Client, path internal.Path) (afero.File, error) {
+	content, err := internal.ParseContent(path)
 	if err != nil {
-		return nil, fmt.Errorf("stat %s: %w", name, err)
+		return nil, fmt.Errorf("open: %w", err)
+	}
+
+	file, dir, _, err := client.Repositories.GetContents(ctx,
+		content.Owner,
+		content.Repository,
+		content.Content,
+		&github.RepositoryContentGetOptions{
+			Ref: content.Branch,
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("open: %w", err)
+	}
+
+	if file != nil {
+		return &File{
+			ContentPath: content,
+			client:      client,
+			content:     file,
+		}, nil
+	} else {
+		return &Directory{
+			ContentPath: content,
+			client:      client,
+			content:     dir,
+		}, nil
+	}
+}
+
+func Stat(ctx context.Context, client *github.Client, path internal.Path) (fs.FileInfo, error) {
+	content, err := internal.ParseContent(path)
+	if err != nil {
+		return nil, fmt.Errorf("stat: %w", err)
+	}
+
+	file, dir, _, err := client.Repositories.GetContents(ctx,
+		content.Owner,
+		content.Repository,
+		content.Content,
+		&github.RepositoryContentGetOptions{
+			Ref: content.Branch,
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("stat: %w", err)
 	}
 
 	if file != nil {
 		return &FileInfo{content: file}, nil
 	} else {
 		return &DirectoryInfo{
-			name:     name,
-			contents: dir,
+			name:    content.Content,
+			content: dir,
 		}, nil
 	}
 }
 
-func (f *Fs) content(name string) (*github.RepositoryContent, []*github.RepositoryContent, error) {
-	file, dir, _, err := f.client.Repositories.GetContents(context.TODO(), f.owner, f.repo, name, nil)
-	if err != nil {
-		return nil, nil, err
+func NewFs(gh *github.Client, owner, repo, branch string) afero.Fs {
+	return &Fs{
+		client:     gh,
+		BranchPath: internal.NewBranchPath(owner, repo, branch),
 	}
-
-	return file, dir, nil
-}
-
-func NewFs(gh *github.Client) afero.Fs {
-	return &Fs{client: gh}
 }

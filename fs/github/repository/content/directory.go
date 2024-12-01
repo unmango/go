@@ -10,9 +10,10 @@ import (
 
 type Directory struct {
 	internal.ReadOnlyFile
-	client   *github.Client
-	name     string
-	contents []*github.RepositoryContent
+	internal.ContentPath
+
+	client  *github.Client
+	content []*github.RepositoryContent
 }
 
 // Close implements afero.File.
@@ -22,12 +23,12 @@ func (d *Directory) Close() error {
 
 // Name implements afero.File.
 func (d *Directory) Name() string {
-	return d.name
+	return d.Content
 }
 
 // Read implements afero.File.
 func (d *Directory) Read(p []byte) (n int, err error) {
-	panic("unimplemented")
+	return 0, syscall.EPERM
 }
 
 // ReadAt implements afero.File.
@@ -37,10 +38,10 @@ func (d *Directory) ReadAt(p []byte, off int64) (n int, err error) {
 
 // Readdir implements afero.File.
 func (d *Directory) Readdir(count int) ([]fs.FileInfo, error) {
-	length := min(count, len(d.contents))
+	length := min(count, len(d.content))
 	files := make([]fs.FileInfo, length)
 
-	for i, c := range d.contents {
+	for i, c := range d.content {
 		files[i] = &FileInfo{content: c}
 	}
 
@@ -49,10 +50,10 @@ func (d *Directory) Readdir(count int) ([]fs.FileInfo, error) {
 
 // Readdirnames implements afero.File.
 func (d *Directory) Readdirnames(n int) ([]string, error) {
-	length := min(n, len(d.contents))
+	length := min(n, len(d.content))
 	names := make([]string, length)
 
-	for i, c := range d.contents {
+	for i, c := range d.content {
 		names[i] = c.GetName()
 	}
 
@@ -67,7 +68,7 @@ func (d *Directory) Seek(offset int64, whence int) (int64, error) {
 // Stat implements afero.File.
 func (d *Directory) Stat() (fs.FileInfo, error) {
 	return &DirectoryInfo{
-		name:     d.name,
-		contents: d.contents,
+		name:    d.Name(),
+		content: d.content,
 	}, nil
 }
