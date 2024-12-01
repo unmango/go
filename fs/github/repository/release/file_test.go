@@ -9,7 +9,7 @@ import (
 var _ = Describe("File", func() {
 	It("should be readonly", func() {
 		fs := release.NewFs(client, "UnstoppableMango", "tdl")
-		file, err := fs.Open("v0.0.29")
+		file, err := fs.Open("releases/tag/v0.0.29")
 		Expect(err).NotTo(HaveOccurred())
 
 		_, err = file.Write([]byte{})
