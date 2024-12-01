@@ -1,21 +1,27 @@
 package repository
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"io/fs"
 	"syscall"
 
 	"github.com/google/go-github/v67/github"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 	"github.com/unmango/go/fs/github/repository/release"
 )
 
 type File struct {
 	internal.ReadOnlyFile
-	internal.OwnerPath
+	ghpath.OwnerPath
 
 	client *github.Client
 	repo   *github.Repository
+
+	reader *bytes.Buffer
 }
 
 // Close implements afero.File.
@@ -30,7 +36,11 @@ func (f *File) Name() string {
 
 // Read implements afero.File.
 func (f *File) Read(p []byte) (n int, err error) {
-	panic("unimplemented")
+	if err = f.ensure(); err != nil {
+		return
+	} else {
+		return f.reader.Read(p)
+	}
 }
 
 // ReadAt implements afero.File.
@@ -68,10 +78,16 @@ func (f *File) Stat() (fs.FileInfo, error) {
 	return &FileInfo{repo: f.repo}, nil
 }
 
-func NewFile(gh *github.Client, owner string, repository *github.Repository) *File {
-	return &File{
-		client:    gh,
-		OwnerPath: internal.NewOwnerPath(owner),
-		repo:      repository,
+func (f *File) ensure() error {
+	if f.reader != nil {
+		return nil
 	}
+
+	data, err := json.Marshal(f.repo)
+	if err != nil {
+		return fmt.Errorf("marshaling repo: %w", err)
+	}
+
+	f.reader = bytes.NewBuffer(data)
+	return nil
 }

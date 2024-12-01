@@ -5,12 +5,13 @@ import (
 	"syscall"
 
 	"github.com/google/go-github/v67/github"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 )
 
 type Directory struct {
 	internal.ReadOnlyFile
-	internal.ContentPath
+	ghpath.ContentPath
 
 	client  *github.Client
 	content []*github.RepositoryContent
@@ -28,12 +29,12 @@ func (d *Directory) Name() string {
 
 // Read implements afero.File.
 func (d *Directory) Read(p []byte) (n int, err error) {
-	return 0, syscall.EPERM
+	return 0, syscall.EISDIR
 }
 
 // ReadAt implements afero.File.
 func (d *Directory) ReadAt(p []byte, off int64) (n int, err error) {
-	return 0, syscall.EPERM
+	return 0, syscall.EISDIR
 }
 
 // Readdir implements afero.File.
@@ -41,8 +42,8 @@ func (d *Directory) Readdir(count int) ([]fs.FileInfo, error) {
 	length := min(count, len(d.content))
 	files := make([]fs.FileInfo, length)
 
-	for i, c := range d.content {
-		files[i] = &FileInfo{content: c}
+	for i := 0; i < length; i++ {
+		files[i] = &FileInfo{content: d.content[i]}
 	}
 
 	return files, nil
@@ -50,11 +51,14 @@ func (d *Directory) Readdir(count int) ([]fs.FileInfo, error) {
 
 // Readdirnames implements afero.File.
 func (d *Directory) Readdirnames(n int) ([]string, error) {
-	length := min(n, len(d.content))
-	names := make([]string, length)
+	infos, err := d.Readdir(n)
+	if err != nil {
+		return nil, err
+	}
 
-	for i, c := range d.content {
-		names[i] = c.GetName()
+	names := []string{}
+	for _, info := range infos {
+		names = append(names, info.Name())
 	}
 
 	return names, nil
@@ -62,7 +66,7 @@ func (d *Directory) Readdirnames(n int) ([]string, error) {
 
 // Seek implements afero.File.
 func (d *Directory) Seek(offset int64, whence int) (int64, error) {
-	return 0, syscall.EPERM
+	return 0, syscall.EISDIR
 }
 
 // Stat implements afero.File.

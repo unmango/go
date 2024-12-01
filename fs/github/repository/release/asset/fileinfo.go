@@ -2,6 +2,8 @@ package asset
 
 import (
 	"io/fs"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v67/github"
@@ -13,7 +15,7 @@ type FileInfo struct {
 
 // IsDir implements fs.FileInfo.
 func (a *FileInfo) IsDir() bool {
-	return false
+	return strings.HasSuffix(a.Name(), "tar.gz")
 }
 
 // ModTime implements fs.FileInfo.
@@ -23,7 +25,7 @@ func (a *FileInfo) ModTime() time.Time {
 
 // Mode implements fs.FileInfo.
 func (a *FileInfo) Mode() fs.FileMode {
-	return 0
+	return os.ModePerm
 }
 
 // Name implements fs.FileInfo.

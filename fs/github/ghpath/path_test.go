@@ -1,4 +1,4 @@
-package internal_test
+package ghpath_test
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/ghpath"
 )
 
 var _ = Describe("Path", func() {
@@ -17,7 +17,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango", "unmango"),
 			Entry(nil, "api.github.com/unmango", "unmango"),
 			func(input, name string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Owner()).To(Equal(name))
@@ -27,7 +27,7 @@ var _ = Describe("Path", func() {
 		DescribeTable("Owner",
 			Entry(nil, "unmango", "unmango"),
 			func(input, name string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Owner()).To(Equal(name))
@@ -40,7 +40,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango/go", "go"),
 			Entry(nil, "api.github.com/unmango/go", "go"),
 			func(input, name string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Repository()).To(Equal(name))
@@ -50,7 +50,7 @@ var _ = Describe("Path", func() {
 		DescribeTable("Repository",
 			Entry(nil, "unmango/go", "go"),
 			func(input, name string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Repository()).To(Equal(name))
@@ -63,7 +63,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango"),
 			Entry(nil, "api.github.com/unmango"),
 			func(input string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Repository()
@@ -74,7 +74,7 @@ var _ = Describe("Path", func() {
 		DescribeTable("No Repository",
 			Entry(nil, "unmango"),
 			func(input string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Repository()
@@ -89,7 +89,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "github.com/unmango/go/tree/main", "main"),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", "main"),
 			func(input, name string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Branch()).To(Equal(name))
@@ -102,7 +102,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/tree/main/fs/path_test.go", "main"),
 			Entry(nil, "unmango/go/tree/feature-name", "feature-name"),
 			func(input, name string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Branch()).To(Equal(name))
@@ -119,7 +119,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://api.github.com/unmango/go"),
 			Entry(nil, "api.github.com/unmango/go"),
 			func(input string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Branch()
@@ -131,7 +131,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango"),
 			Entry(nil, "unmango/go"),
 			func(input string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Branch()
@@ -147,7 +147,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads"),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs"),
 			func(input string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Branch()
@@ -165,7 +165,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "api.github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			func(input, name string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Release()).To(Equal(name))
@@ -176,7 +176,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/releases/tag/v0.0.69", "v0.0.69"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69", "v0.0.69"),
 			func(input, name string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Release()).To(Equal(name))
@@ -189,7 +189,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "api.github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			func(input, name string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Release()
@@ -200,7 +200,7 @@ var _ = Describe("Path", func() {
 		DescribeTable("No Release",
 			Entry(nil, "unmango/go/releases/bleh/v0.0.69", "v0.0.69"),
 			func(input, name string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Release()
@@ -218,7 +218,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "api.github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			func(input, name string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Asset()).To(Equal(name))
@@ -229,7 +229,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/releases/tag/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69/my-asset.tar.gz", "my-asset.tar.gz"),
 			func(input, name string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Asset()).To(Equal(name))
@@ -246,7 +246,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "api.github.com/unmango/go/releases/download/v0.0.69"),
 			Entry(nil, "github.com/unmango/go/releases/download/v0.0.69"),
 			func(input string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Asset()
@@ -258,7 +258,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/releases/tag/v0.0.69"),
 			Entry(nil, "unmango/go/releases/download/v0.0.69"),
 			func(input string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				_, err = res.Asset()
@@ -273,7 +273,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "github.com/unmango/go/tree/main", []string{}),
 			Entry(nil, "https://raw.githubusercontent.com/unmango/go/refs/heads/main/fs/fold.go", []string{"fs", "fold.go"}),
 			func(input string, parts []string) {
-				res, err := internal.ParseUrl(input)
+				res, err := ghpath.ParseUrl(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Content()).To(Equal(parts))
@@ -285,7 +285,7 @@ var _ = Describe("Path", func() {
 			Entry(nil, "unmango/go/tree/main/fs", []string{"fs"}),
 			Entry(nil, "unmango/go/tree/main/fs/path_test.go", []string{"fs", "path_test.go"}),
 			func(input string, parts []string) {
-				res, err := internal.Parse(input)
+				res, err := ghpath.Parse(input)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(res.Content()).To(Equal(parts))
@@ -306,7 +306,7 @@ var _ = Describe("Path", func() {
 				"unmango/go/releases/tag/v0.0.69",
 			),
 			func(parts []string, expected string) {
-				path, err := internal.Parse(parts...)
+				path, err := ghpath.Parse(parts...)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(path.String()).To(Equal(expected))
@@ -316,7 +316,7 @@ var _ = Describe("Path", func() {
 
 	Describe("OwnerPath", func() {
 		It("should Parse repo", func() {
-			p := internal.NewOwnerPath("testing")
+			p := ghpath.NewOwnerPath("testing")
 
 			r, err := p.Parse("repo-name")
 
@@ -325,7 +325,7 @@ var _ = Describe("Path", func() {
 		})
 
 		It("should assume release when parsing len 2", func() {
-			p := internal.NewOwnerPath("testing")
+			p := ghpath.NewOwnerPath("testing")
 
 			r, err := p.Parse("repo/release-name")
 
@@ -335,7 +335,7 @@ var _ = Describe("Path", func() {
 		})
 
 		It("should Parse release", func() {
-			p := internal.NewOwnerPath("testing")
+			p := ghpath.NewOwnerPath("testing")
 
 			r, err := p.Parse("repo/releases/tag/release-name")
 
@@ -345,7 +345,7 @@ var _ = Describe("Path", func() {
 		})
 
 		It("should assume asset when parsing len 5", func() {
-			p := internal.NewOwnerPath("testing")
+			p := ghpath.NewOwnerPath("testing")
 
 			r, err := p.Parse("repo/releases/tag/release-name/asset.tar.gz")
 
@@ -356,7 +356,7 @@ var _ = Describe("Path", func() {
 		})
 
 		It("should Parse asset", func() {
-			p := internal.NewOwnerPath("testing")
+			p := ghpath.NewOwnerPath("testing")
 
 			r, err := p.Parse("repo/releases/tag/release-name/download/asset.tar.gz")
 
@@ -368,7 +368,7 @@ var _ = Describe("Path", func() {
 
 		It("should stringify", func() {
 			fn := func(owner string) bool {
-				p := internal.NewOwnerPath(owner)
+				p := ghpath.NewOwnerPath(owner)
 
 				actual := p.String()
 
@@ -381,7 +381,7 @@ var _ = Describe("Path", func() {
 
 	Describe("RepositoryPath", func() {
 		It("should Parse release", func() {
-			p := internal.NewRepositoryPath("owner", "repo")
+			p := ghpath.NewRepositoryPath("owner", "repo")
 
 			r, err := p.Parse("releases/tag/release-name")
 
@@ -391,7 +391,7 @@ var _ = Describe("Path", func() {
 		})
 
 		It("should Parse branch from tree", func() {
-			p := internal.NewRepositoryPath("owner", "repo")
+			p := ghpath.NewRepositoryPath("owner", "repo")
 
 			r, err := p.Parse("tree/branch-name")
 
@@ -402,7 +402,7 @@ var _ = Describe("Path", func() {
 		})
 
 		It("should Parse branch from ref", func() {
-			p := internal.NewRepositoryPath("owner", "repo")
+			p := ghpath.NewRepositoryPath("owner", "repo")
 
 			r, err := p.Parse("refs/heads/branch-name")
 
@@ -414,7 +414,7 @@ var _ = Describe("Path", func() {
 
 		It("should stringify", func() {
 			fn := func(owner, repo string) bool {
-				p := internal.NewRepositoryPath(owner, repo)
+				p := ghpath.NewRepositoryPath(owner, repo)
 
 				actual := p.String()
 
@@ -427,7 +427,7 @@ var _ = Describe("Path", func() {
 
 	Describe("BranchPath", func() {
 		It("should parse", func() {
-			p := internal.NewBranchPath("owner", "repo", "branch")
+			p := ghpath.NewBranchPath("owner", "repo", "branch")
 
 			r, err := p.Parse("some-content")
 
@@ -440,7 +440,7 @@ var _ = Describe("Path", func() {
 
 		It("should stringify", func() {
 			fn := func(owner, repo, branch string) bool {
-				p := internal.NewBranchPath(owner, repo, branch)
+				p := ghpath.NewBranchPath(owner, repo, branch)
 
 				actual := p.String()
 
@@ -456,7 +456,7 @@ var _ = Describe("Path", func() {
 
 	Describe("ContentPath", func() {
 		It("should parse", func() {
-			p := internal.NewContentPath("owner", "repo", "branch", "content")
+			p := ghpath.NewContentPath("owner", "repo", "branch", "content")
 
 			r, err := p.Parse("other-content")
 
@@ -469,7 +469,7 @@ var _ = Describe("Path", func() {
 
 		It("should stringify", func() {
 			fn := func(owner, repo, branch, content string) bool {
-				p := internal.NewContentPath(owner, repo, branch, content)
+				p := ghpath.NewContentPath(owner, repo, branch, content)
 
 				actual := p.String()
 
@@ -485,7 +485,7 @@ var _ = Describe("Path", func() {
 
 	Describe("ReleasePath", func() {
 		It("should Parse", func() {
-			p := internal.NewReleasePath("owner", "repo", "release")
+			p := ghpath.NewReleasePath("owner", "repo", "release")
 
 			r, err := p.Parse("asset-name")
 
@@ -497,7 +497,7 @@ var _ = Describe("Path", func() {
 
 		It("should stringify", func() {
 			fn := func(owner, repo, release string) bool {
-				p := internal.NewReleasePath(owner, repo, release)
+				p := ghpath.NewReleasePath(owner, repo, release)
 
 				actual := p.String()
 
@@ -518,10 +518,10 @@ var _ = Describe("Path", func() {
 		Entry(nil, "UnstoppableMango/repo/releases/this-is-wrong/thing"),
 		Entry(nil, "UnstoppableMango/repo/tree/main"),
 		func(input string) {
-			p, err := internal.Parse(input)
+			p, err := ghpath.Parse(input)
 			Expect(err).NotTo(HaveOccurred())
 
-			r, err := internal.ParseOwner(p)
+			r, err := ghpath.ParseOwner(p)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(r.Owner).To(Equal("UnstoppableMango"))
@@ -534,10 +534,10 @@ var _ = Describe("Path", func() {
 		Entry(nil, "UnstoppableMango/repo/releases/this-is-wrong/thing"),
 		Entry(nil, "UnstoppableMango/repo/tree/main"),
 		func(input string) {
-			p, err := internal.Parse(input)
+			p, err := ghpath.Parse(input)
 			Expect(err).NotTo(HaveOccurred())
 
-			r, err := internal.ParseRepository(p)
+			r, err := ghpath.ParseRepository(p)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(r.Owner).To(Equal("UnstoppableMango"))
@@ -548,10 +548,10 @@ var _ = Describe("Path", func() {
 	DescribeTable("ParseRelease",
 		Entry(nil, "UnstoppableMango/repo/releases/tag/tdl"),
 		func(input string) {
-			p, err := internal.Parse(input)
+			p, err := ghpath.Parse(input)
 			Expect(err).NotTo(HaveOccurred())
 
-			r, err := internal.ParseRelease(p)
+			r, err := ghpath.ParseRelease(p)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(r.Owner).To(Equal("UnstoppableMango"))
@@ -563,10 +563,10 @@ var _ = Describe("Path", func() {
 	DescribeTable("ParseAsset",
 		Entry(nil, "UnstoppableMango/repo/releases/tag/tdl/v0.0.69"),
 		func(input string) {
-			p, err := internal.Parse(input)
+			p, err := ghpath.Parse(input)
 			Expect(err).NotTo(HaveOccurred())
 
-			r, err := internal.ParseAsset(p)
+			r, err := ghpath.ParseAsset(p)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(r.Owner).To(Equal("UnstoppableMango"))

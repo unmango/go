@@ -7,14 +7,15 @@ import (
 
 	"github.com/google/go-github/v67/github"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 	"github.com/unmango/go/fs/github/repository/content"
 	"github.com/unmango/go/fs/github/repository/release"
 )
 
 type Fs struct {
-	afero.ReadOnlyFs
-	internal.OwnerPath
+	internal.ReadOnlyFs
+	ghpath.OwnerPath
 	client *github.Client
 }
 
@@ -56,11 +57,11 @@ func (f *Fs) Stat(name string) (fs.FileInfo, error) {
 func NewFs(gh *github.Client, owner string) afero.Fs {
 	return &Fs{
 		client:    gh,
-		OwnerPath: internal.NewOwnerPath(owner),
+		OwnerPath: ghpath.NewOwnerPath(owner),
 	}
 }
 
-func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.File, error) {
+func Open(ctx context.Context, gh *github.Client, path ghpath.Path) (afero.File, error) {
 	if _, err := path.Release(); err == nil {
 		return release.Open(ctx, gh, path)
 	}
@@ -68,7 +69,7 @@ func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.Fil
 		return content.Open(ctx, gh, path)
 	}
 
-	repo, err := internal.ParseRepository(path)
+	repo, err := ghpath.ParseRepository(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}
@@ -86,40 +87,41 @@ func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.Fil
 }
 
 func Readdir(ctx context.Context, gh *github.Client, user string, count int) ([]fs.FileInfo, error) {
-	// TODO: Paging
-	repos, _, err := gh.Repositories.ListByUser(ctx, user, nil)
+	// TODO: count == 0
+	opt := &github.RepositoryListByUserOptions{
+		ListOptions: github.ListOptions{PerPage: count},
+	}
+
+	repos, _, err := gh.Repositories.ListByUser(ctx, user, opt)
 	if err != nil {
 		return nil, fmt.Errorf("user %s readdir: %w", user, err)
 	}
 
 	length := min(count, len(repos))
-	results := make([]fs.FileInfo, length)
+	infos := make([]fs.FileInfo, length)
 
 	for i := 0; i < length; i++ {
-		results[i] = &FileInfo{repo: repos[i]}
+		infos[i] = &FileInfo{repo: repos[i]}
 	}
 
-	return results, nil
+	return infos, nil
 }
 
 func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([]string, error) {
-	// TODO: Paging
-	repos, _, err := gh.Repositories.ListByUser(ctx, user, nil)
+	infos, err := Readdir(ctx, gh, user, n)
 	if err != nil {
-		return nil, fmt.Errorf("user %s readdirnames: %w", user, err)
+		return nil, err
 	}
 
-	length := min(n, len(repos))
-	results := make([]string, length)
-
-	for i := 0; i < length; i++ {
-		results[i] = repos[i].GetName()
+	names := []string{}
+	for _, i := range infos {
+		names = append(names, i.Name())
 	}
 
-	return results, nil
+	return names, nil
 }
 
-func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {
+func Stat(ctx context.Context, gh *github.Client, path ghpath.Path) (fs.FileInfo, error) {
 	if _, err := path.Release(); err == nil {
 		return release.Stat(ctx, gh, path)
 	}
@@ -127,7 +129,7 @@ func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileIn
 		return content.Stat(ctx, gh, path)
 	}
 
-	repo, err := internal.ParseRepository(path)
+	repo, err := ghpath.ParseRepository(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
 	}

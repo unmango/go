@@ -1,29 +1,38 @@
 package asset
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"context"
+	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
+	"strings"
 	"syscall"
 
 	"github.com/google/go-github/v67/github"
+	"github.com/unmango/go/fs/github/ghpath"
 	"github.com/unmango/go/fs/github/internal"
 )
 
 type File struct {
 	internal.ReadOnlyFile
-	internal.ReleasePath
+	ghpath.ReleasePath
 
 	client *github.Client
 	asset  *github.ReleaseAsset
 
-	reader io.Reader
+	reader io.ReadCloser
 }
 
 // Close implements afero.File.
 func (f *File) Close() error {
-	return nil
+	if f.reader != nil {
+		return f.reader.Close()
+	} else {
+		return nil
+	}
 }
 
 // Name implements afero.File.
@@ -46,15 +55,53 @@ func (f *File) ReadAt(p []byte, off int64) (n int, err error) {
 }
 
 // Readdir implements afero.File.
-func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
-	// TODO: Traverse into archives?
-	panic("unimplemented")
+func (f *File) Readdir(count int) (infos []fs.FileInfo, err error) {
+	if !f.isArchive() {
+		return nil, syscall.ENOTDIR
+	}
+
+	if err := f.ensure(); err != nil {
+		return nil, err
+	}
+
+	r := f.reader
+	if f.isGzip() {
+		if r, err = gzip.NewReader(r); err != nil {
+			return
+		}
+	}
+
+	tar := tar.NewReader(r)
+	for {
+		h, err := tar.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("reading archive: %w", err)
+		}
+
+		// TODO: Handle directories
+		infos = append(infos, h.FileInfo())
+	}
+
+	return infos, nil
 }
 
 // Readdirnames implements afero.File.
 func (f *File) Readdirnames(n int) ([]string, error) {
-	// TODO: Traverse into archives?
-	panic("unimplemented")
+	infos, err := f.Readdir(n)
+	if err != nil {
+		return nil, err
+	}
+
+	length := min(n, len(infos))
+	names := make([]string, length)
+	for i, info := range infos {
+		names[i] = info.Name()
+	}
+
+	return names, nil
 }
 
 // Seek implements afero.File.
@@ -87,14 +134,12 @@ func (f *File) ensure() error {
 	return nil
 }
 
-func NewFile(
-	gh *github.Client,
-	path internal.ReleasePath,
-	asset *github.ReleaseAsset,
-) *File {
-	return &File{
-		client:      gh,
-		asset:       asset,
-		ReleasePath: path,
-	}
+func (f *File) isArchive() bool {
+	name := f.asset.GetName()
+	return strings.HasSuffix(name, ".tar.gz") ||
+		strings.HasSuffix(name, ".tar")
+}
+
+func (f *File) isGzip() bool {
+	return strings.HasSuffix(f.asset.GetName(), ".gz")
 }

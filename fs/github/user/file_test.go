@@ -1,7 +1,8 @@
 package user_test
 
 import (
-	"github.com/google/go-github/v67/github"
+	"io"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -10,19 +11,50 @@ import (
 
 var _ = Describe("File", func() {
 	It("should list repositories", func() {
-		client := github.NewClient(nil)
 		fs := user.NewFs(client)
 		file, err := fs.Open("UnstoppableMango")
 		Expect(err).NotTo(HaveOccurred())
 
-		repos, err := file.Readdir(69)
+		names, err := file.Readdirnames(69)
 
 		Expect(err).NotTo(HaveOccurred())
-		Expect(repos).NotTo(BeEmpty())
-		names := make([]string, len(repos))
-		for i, r := range repos {
-			names[i] = r.Name()
-		}
 		Expect(names).To(ContainElement("advent-of-code"))
+	})
+
+	It("should read json", func() {
+		fs := user.NewFs(client)
+		file, err := fs.Open("UnstoppableMango")
+		Expect(err).NotTo(HaveOccurred())
+
+		data, err := io.ReadAll(file)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(data).To(And(
+			ContainSubstring("login"),
+			ContainSubstring("UnstoppableMango"),
+		))
+		Expect(file.Close()).To(Succeed())
+	})
+
+	It("should Open user", func() {
+		fs := user.NewFs(client)
+
+		file, err := fs.Open("UnstoppableMango")
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(file.Name()).To(Equal("UnstoppableMango"))
+	})
+
+	It("should be readonly", func() {
+		fs := user.NewFs(client)
+		file, err := fs.Open("UnstoppableMango")
+		Expect(err).NotTo(HaveOccurred())
+
+		_, err = file.Write([]byte{})
+		Expect(err).To(MatchError("read-only file system"))
+		_, err = file.WriteAt([]byte{}, 69)
+		Expect(err).To(MatchError("read-only file system"))
+		_, err = file.WriteString("doesn't matter")
+		Expect(err).To(MatchError("read-only file system"))
 	})
 })
