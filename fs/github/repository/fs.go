@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-github/v67/github"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/github/internal"
+	"github.com/unmango/go/fs/github/repository/content"
 	"github.com/unmango/go/fs/github/repository/release"
 )
 
@@ -60,13 +61,16 @@ func NewFs(gh *github.Client, owner string) afero.Fs {
 }
 
 func Open(ctx context.Context, gh *github.Client, path internal.Path) (afero.File, error) {
+	if _, err := path.Release(); err == nil {
+		return release.Open(ctx, gh, path)
+	}
+	if _, err := path.Branch(); err == nil {
+		return content.Open(ctx, gh, path)
+	}
+
 	repo, err := internal.ParseRepository(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	}
-
-	if _, err := path.Release(); err == nil {
-		return release.Open(ctx, gh, path)
 	}
 
 	r, _, err := gh.Repositories.Get(ctx, repo.Owner, repo.Repository)
@@ -116,13 +120,16 @@ func Readdirnames(ctx context.Context, gh *github.Client, user string, n int) ([
 }
 
 func Stat(ctx context.Context, gh *github.Client, path internal.Path) (fs.FileInfo, error) {
+	if _, err := path.Release(); err == nil {
+		return release.Stat(ctx, gh, path)
+	}
+	if _, err := path.Branch(); err == nil {
+		return content.Stat(ctx, gh, path)
+	}
+
 	repo, err := internal.ParseRepository(path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid path %s: %w", path, err)
-	}
-
-	if _, err := path.Release(); err == nil {
-		return release.Stat(ctx, gh, path)
 	}
 
 	r, _, err := gh.Repositories.Get(ctx, repo.Owner, repo.Repository)

@@ -18,7 +18,7 @@ func (l logger) Printf(format string, v ...interface{}) {
 	GinkgoWriter.Printf(format+"\n", v)
 }
 
-var _ = Describe("Exec", func() {
+var _ = Describe("Exec", Label("E2E"), func() {
 	var (
 		ctr    testcontainers.Container
 		docker client.APIClient

@@ -1,6 +1,8 @@
 package content
 
 import (
+	"bytes"
+	"io"
 	"io/fs"
 	"syscall"
 
@@ -10,8 +12,12 @@ import (
 
 type File struct {
 	internal.ReadOnlyFile
+	internal.ContentPath
+
 	client  *github.Client
 	content *github.RepositoryContent
+
+	reader io.Reader
 }
 
 // Close implements afero.File.
@@ -21,12 +27,16 @@ func (f *File) Close() error {
 
 // Name implements afero.File.
 func (f *File) Name() string {
-	return f.content.GetName()
+	return f.content.GetPath()
 }
 
 // Read implements afero.File.
 func (f *File) Read(p []byte) (n int, err error) {
-	panic("unimplemented")
+	if err = f.ensure(); err != nil {
+		return
+	}
+
+	return f.reader.Read(p)
 }
 
 // ReadAt implements afero.File.
@@ -36,12 +46,12 @@ func (f *File) ReadAt(p []byte, off int64) (n int, err error) {
 
 // Readdir implements afero.File.
 func (f *File) Readdir(count int) ([]fs.FileInfo, error) {
-	panic("unimplemented")
+	return nil, syscall.EPERM
 }
 
 // Readdirnames implements afero.File.
 func (f *File) Readdirnames(n int) ([]string, error) {
-	panic("unimplemented")
+	return nil, syscall.EPERM
 }
 
 // Seek implements afero.File.
@@ -52,4 +62,18 @@ func (f *File) Seek(offset int64, whence int) (int64, error) {
 // Stat implements afero.File.
 func (f *File) Stat() (fs.FileInfo, error) {
 	return &FileInfo{content: f.content}, nil
+}
+
+func (f *File) ensure() error {
+	if f.reader != nil {
+		return nil
+	}
+
+	content, err := f.content.GetContent()
+	if err != nil {
+		return err
+	}
+
+	f.reader = bytes.NewBufferString(content)
+	return nil
 }

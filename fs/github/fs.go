@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 
 	"github.com/google/go-github/v67/github"
@@ -22,17 +23,29 @@ func (g *Fs) Name() string {
 
 // Open implements afero.Fs.
 func (f *Fs) Open(name string) (afero.File, error) {
-	return user.Open(context.TODO(), f.client, name)
+	if path, err := internal.Parse(name); err != nil {
+		return nil, fmt.Errorf("open %s: %w", name, err)
+	} else {
+		return user.Open(context.TODO(), f.client, path)
+	}
 }
 
 // OpenFile implements afero.Fs.
 func (f *Fs) OpenFile(name string, _ int, _ fs.FileMode) (afero.File, error) {
-	return user.Open(context.TODO(), f.client, name)
+	if path, err := internal.Parse(name); err != nil {
+		return nil, fmt.Errorf("open %s: %w", name, err)
+	} else {
+		return user.Open(context.TODO(), f.client, path)
+	}
 }
 
 // Stat implements afero.Fs.
 func (f *Fs) Stat(name string) (fs.FileInfo, error) {
-	return user.Stat(context.TODO(), f.client, name)
+	if path, err := internal.Parse(name); err != nil {
+		return nil, fmt.Errorf("stat %s: %w", name, err)
+	} else {
+		return user.Stat(context.TODO(), f.client, path)
+	}
 }
 
 func NewFs(gh *github.Client) afero.Fs {

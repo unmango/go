@@ -10,7 +10,7 @@ DEVOPS := ${LOCALBIN}/devops
 GINKGO := ${LOCALBIN}/ginkgo
 
 ifeq ($(CI),)
-TEST_FLAGS :=
+TEST_FLAGS := --label-filter !E2E
 else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
