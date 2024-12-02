@@ -4,9 +4,7 @@ import (
 	"iter"
 )
 
-type (
-	Seq2[K, V any] iter.Seq2[K, V]
-)
+type Seq2[K, V any] iter.Seq2[K, V]
 
 func D2[K, V any](seq Seq2[K, V]) iter.Seq2[K, V] {
 	return iter.Seq2[K, V](seq)
@@ -34,6 +32,29 @@ func DropFirst2[T, U any](seq Seq2[T, U]) Seq[U] {
 
 func Empty2[K, V any]() Seq2[K, V] {
 	return func(yield func(K, V) bool) {}
+}
+
+func Fold2[A, K, V any](seq Seq2[K, V], folder func(A, K, V) A, initial A) (acc A) {
+	acc = initial
+	seq(func(k K, v V) bool {
+		acc = folder(acc, k, v)
+		return true
+	})
+
+	return
+}
+
+func Filter2[K, V any](seq Seq2[K, V], predicate func(K, V) bool) Seq2[K, V] {
+	return func(yield func(K, V) bool) {
+		for k, v := range seq {
+			if !predicate(k, v) {
+				continue
+			}
+			if !yield(k, v) {
+				return
+			}
+		}
+	}
 }
 
 func Pull2[K, V any](seq Seq2[K, V]) (next func() (K, V, bool), stop func()) {
