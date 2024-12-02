@@ -85,7 +85,3 @@ func OpenSingle(fsys afero.Fs, root string, options ...IterOption) (afero.File, 
 
 	return file, nil
 }
-
-func SkipDirs(options *iterOptions) {
-	options.skipDirs = true
-}

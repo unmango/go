@@ -30,6 +30,6 @@ func Empty[V any]() Seq[V] {
 
 func Singleton[V any](v V) Seq[V] {
 	return func(yield func(V) bool) {
-		yield(v)
+		_ = yield(v)
 	}
 }
