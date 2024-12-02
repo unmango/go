@@ -31,6 +31,41 @@ var _ = Describe("Seq3", func() {
 		})
 	})
 
+	Describe("Filter", func() {
+		It("should not yield the filtered element", func() {
+			seq := slices.All3(
+				[]int{69, 420},
+				[]string{"69", "420"},
+				[]bool{true, true},
+			)
+
+			r := iter.Filter3(seq, func(i int, _ string, _ bool) bool {
+				return i == 69
+			})
+
+			a, b, c := slices.Collect3(r)
+			Expect(a).To(ConsistOf(69))
+			Expect(b).To(ConsistOf("69"))
+			Expect(c).To(ConsistOf(true))
+		})
+	})
+
+	Describe("Fold", func() {
+		It("should fold", func() {
+			seq := slices.All3(
+				[]int{69, 420},
+				[]string{"69", "420"},
+				[]bool{true, true},
+			)
+
+			r := iter.Fold3(seq, func(acc int, i int, _ string, _ bool) int {
+				return acc + i
+			}, 0)
+
+			Expect(r).To(Equal(489))
+		})
+	})
+
 	Describe("DropFirst", func() {
 		It("should yield the last two elements of the triple", func() {
 			seq := iter.Singleton3(69, "420", true)
@@ -97,6 +132,25 @@ var _ = Describe("Seq3", func() {
 
 			a := slices.Collect(r)
 			Expect(a).To(ConsistOf(true))
+		})
+	})
+
+	Describe("Map", func() {
+		It("should map", func() {
+			seq := slices.All3(
+				[]int{69, 420},
+				[]string{"69", "420"},
+				[]bool{true, true},
+			)
+
+			r := iter.Map3(seq, func(i int, s string, b bool) (int, string, bool) {
+				return i + 1, s, b
+			})
+
+			a, b, c := slices.Collect3(r)
+			Expect(a).To(ConsistOf(70, 421))
+			Expect(b).To(ConsistOf("69", "420"))
+			Expect(c).To(ConsistOf(true, true))
 		})
 	})
 })
