@@ -174,4 +174,12 @@ var _ = Describe("Seq", func() {
 			Expect(r).To(ConsistOf(69, 420))
 		})
 	})
+
+	Describe("Values", func() {
+		It("should create a new sequence", func() {
+			s := iter.Values(1, 2, 3, 4)
+
+			Expect(s).To(ConsistOf(1, 2, 3, 4))
+		})
+	})
 })

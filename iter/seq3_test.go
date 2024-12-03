@@ -33,7 +33,7 @@ var _ = Describe("Seq3", func() {
 
 	Describe("Filter", func() {
 		It("should not yield the filtered element", func() {
-			seq := slices.All3(
+			seq := slices.Values3(
 				[]int{69, 420},
 				[]string{"69", "420"},
 				[]bool{true, true},
@@ -52,7 +52,7 @@ var _ = Describe("Seq3", func() {
 
 	Describe("Fold", func() {
 		It("should fold", func() {
-			seq := slices.All3(
+			seq := slices.Values3(
 				[]int{69, 420},
 				[]string{"69", "420"},
 				[]bool{true, true},
@@ -137,7 +137,7 @@ var _ = Describe("Seq3", func() {
 
 	Describe("Map", func() {
 		It("should map", func() {
-			seq := slices.All3(
+			seq := slices.Values3(
 				[]int{69, 420},
 				[]string{"69", "420"},
 				[]bool{true, true},

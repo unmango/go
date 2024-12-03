@@ -14,18 +14,18 @@ func U2[K, V any](seq iter.Seq2[K, V]) Seq2[K, V] {
 	return Seq2[K, V](seq)
 }
 
-func DropLast2[T, U any](seq Seq2[T, U]) Seq[T] {
-	return func(yield func(T) bool) {
-		seq(func(t T, _ U) bool {
-			return yield(t)
-		})
-	}
-}
-
 func DropFirst2[T, U any](seq Seq2[T, U]) Seq[U] {
 	return func(yield func(U) bool) {
 		seq(func(_ T, u U) bool {
 			return yield(u)
+		})
+	}
+}
+
+func DropLast2[T, U any](seq Seq2[T, U]) Seq[T] {
+	return func(yield func(T) bool) {
+		seq(func(t T, _ U) bool {
+			return yield(t)
 		})
 	}
 }

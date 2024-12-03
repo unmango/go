@@ -139,3 +139,13 @@ func Take[V any](seq Seq[V], n int) Seq[V] {
 		}
 	}
 }
+
+func Values[V any](values ...V) Seq[V] {
+	return func(yield func(V) bool) {
+		for _, v := range values {
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
