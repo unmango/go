@@ -105,6 +105,19 @@ func Pull[V any](seq Seq[V]) (next func() (V, bool), stop func()) {
 	return iter.Pull(iter.Seq[V](seq))
 }
 
+func Remove[V comparable](seq Seq[V], r V) Seq[V] {
+	return func(yield func(V) bool) {
+		for v := range seq {
+			if v == r {
+				continue
+			}
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
 func Singleton[V any](v V) Seq[V] {
 	return func(yield func(V) bool) {
 		_ = yield(v)

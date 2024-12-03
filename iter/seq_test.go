@@ -115,6 +115,16 @@ var _ = Describe("Seq", func() {
 		})
 	})
 
+	Describe("Remove", func() {
+		It("should remove the given element", func() {
+			s := slices.Values([]int{1, 2, 3, 4})
+
+			r := iter.Remove(s, 3)
+
+			Expect(r).To(ConsistOf(1, 2, 4))
+		})
+	})
+
 	Describe("Singleton", func() {
 		It("should yield a single element", func() {
 			s := iter.Singleton(69)
