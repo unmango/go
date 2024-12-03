@@ -2,7 +2,6 @@ package subject
 
 import (
 	"github.com/unmango/go/iter"
-	"github.com/unmango/go/iter/seqs"
 	"github.com/unmango/go/option"
 	"github.com/unmango/go/rx"
 )
@@ -36,10 +35,10 @@ func (s *subject[T]) OnNext(value T) {
 
 // Subscribe implements rx.Subject.
 func (s *subject[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
-	s.subs = seqs.Append(s.subs, observer)
+	s.subs = iter.Append(s.subs, observer)
 
 	return func() {
-		s.subs = seqs.Remove(s.subs, observer)
+		s.subs = iter.Remove(s.subs, observer)
 	}
 }
 

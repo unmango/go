@@ -21,6 +21,20 @@ func U[V any](seq iter.Seq[V]) Seq[V] {
 	return Seq[V](seq)
 }
 
+func Append[V any](seq Seq[V], v V) Seq[V] {
+	return func(yield func(V) bool) {
+		cont := true
+		seq(func(v V) bool {
+			cont = yield(v)
+			return cont
+		})
+
+		if cont {
+			_ = yield(v)
+		}
+	}
+}
+
 func Bind[V, X any](seq Seq[V], fn func(V) Seq[X]) Seq[X] {
 	return func(yield func(X) bool) {
 		for v := range seq {
