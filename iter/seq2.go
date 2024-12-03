@@ -57,6 +57,14 @@ func Filter2[K, V any](seq Seq2[K, V], predicate func(K, V) bool) Seq2[K, V] {
 	}
 }
 
+func Map2[K, V, X, Y any](seq Seq2[K, V], fn func(K, V) (X, Y)) Seq2[X, Y] {
+	return func(yield func(X, Y) bool) {
+		seq(func(k K, v V) bool {
+			return yield(fn(k, v))
+		})
+	}
+}
+
 func Pull2[K, V any](seq Seq2[K, V]) (next func() (K, V, bool), stop func()) {
 	return iter.Pull2(iter.Seq2[K, V](seq))
 }
