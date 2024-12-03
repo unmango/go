@@ -110,3 +110,32 @@ func Singleton[V any](v V) Seq[V] {
 		_ = yield(v)
 	}
 }
+
+func Skip[V any](seq Seq[V], n int) Seq[V] {
+	return func(yield func(V) bool) {
+		for v := range seq {
+			if n > 0 {
+				n--
+				continue
+			}
+			if !yield(v) {
+				return
+			}
+		}
+	}
+}
+
+func Take[V any](seq Seq[V], n int) Seq[V] {
+	return func(yield func(V) bool) {
+		for v := range seq {
+			if n <= 0 {
+				return
+			}
+			if !yield(v) {
+				return
+			}
+
+			n--
+		}
+	}
+}
