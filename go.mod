@@ -9,7 +9,7 @@ require (
 	github.com/google/go-github/v67 v67.0.0
 	github.com/goware/urlx v0.3.2
 	github.com/onsi/ginkgo/v2 v2.22.0
-	github.com/onsi/gomega v1.36.0
+	github.com/onsi/gomega v1.36.1
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.1
 	github.com/testcontainers/testcontainers-go v0.34.0
