@@ -3,7 +3,6 @@ package aferox
 import (
 	"io"
 
-	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/context"
 	"github.com/unmango/go/fs/docker"
@@ -16,7 +15,6 @@ import (
 )
 
 type (
-	Docker                  = docker.Fs
 	GitHub                  = github.Fs
 	GitHubRelease           = release.Fs
 	GitHubRepository        = repository.Fs
