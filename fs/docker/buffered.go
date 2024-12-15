@@ -1,28 +1,35 @@
 package docker
 
 import (
+	"archive/tar"
+	"bytes"
+	"context"
+	"fmt"
+
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/sync"
 )
 
-// TODO: For some reason I thought Sync() existed on [afero.Fs] but
-// it's actually on [afero.File], I'll have to re-think how I want
-// this to work
-
-type BufferedFs struct {
-	afero.Fs
-	layer afero.Fs
-}
-
-func NewBuffered(client client.ContainerAPIClient, container string) afero.Fs {
-	layer := afero.NewMemMapFs()
-	docker := afero.NewCopyOnWriteFs(
-		NewFs(client, container),
-		layer,
+func NewBufferedFs(client client.ContainerAPIClient, ctr string) (afero.Fs, sync.Func) {
+	buf := afero.NewMemMapFs()
+	base := afero.NewCopyOnWriteFs(
+		NewFs(client, ctr),
+		buf,
 	)
 
-	return &BufferedFs{
-		Fs:    docker,
-		layer: layer,
+	strategy := func(ctx context.Context, src, _ afero.Fs) error {
+		buf := &bytes.Buffer{}
+		archive := tar.NewWriter(buf)
+		if err := archive.AddFS(afero.NewIOFS(src)); err != nil {
+			return fmt.Errorf("adding src to archive: %w", err)
+		}
+
+		return client.CopyToContainer(ctx, ctr, "", buf,
+			container.CopyToContainerOptions{},
+		)
 	}
+
+	return sync.NewFs(base, buf, sync.WithStrategy(strategy))
 }
