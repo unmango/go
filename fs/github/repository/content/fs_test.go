@@ -38,7 +38,7 @@ var _ = Describe("Fs", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(file.Name()).To(Equal("cmd"))
 		Expect(file.Readdirnames(3)).To(
-			ConsistOf("ux", "devops", "uml2uml"),
+			ConsistOf("ux", "uml2uml"),
 		)
 	})
 })
