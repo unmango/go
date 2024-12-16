@@ -15,6 +15,12 @@ func (fn AccessorFunc) Context() Context {
 	return fn()
 }
 
+func ToAccessor[T ~func() Context](fn T) aferox.ContextAccessor {
+	return AccessorFunc(fn)
+}
+
+// AccessorFs adapts an [Fs] to an [afero.Fs] by using the given [ContextAccessor]
+// to source the [context.Context] for each operation
 type AccessorFs struct {
 	aferox.ContextAccessor
 	fs Fs
