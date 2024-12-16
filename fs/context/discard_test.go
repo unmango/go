@@ -234,7 +234,7 @@ var _ = Describe("Discard", func() {
 		It("should call base", func() {
 			var (
 				actualName   string
-				expectedFile = &afero.UnionFile{}
+				expectedFile = &testing.File{}
 			)
 			base.CreateFunc = func(s string) (afero.File, error) {
 				actualName = s
@@ -252,7 +252,7 @@ var _ = Describe("Discard", func() {
 		It("should discard context", func(ctx context.Context) {
 			var (
 				actualName   string
-				expectedFile = &afero.UnionFile{}
+				expectedFile = &testing.File{}
 			)
 			base.CreateFunc = func(s string) (afero.File, error) {
 				actualName = s
@@ -424,7 +424,7 @@ var _ = Describe("Discard", func() {
 		It("should call base", func() {
 			var (
 				actualName   string
-				expectedFile = &afero.UnionFile{}
+				expectedFile = &testing.File{}
 			)
 			base.OpenFunc = func(s string) (afero.File, error) {
 				actualName = s
@@ -442,7 +442,7 @@ var _ = Describe("Discard", func() {
 		It("should discard context", func(ctx context.Context) {
 			var (
 				actualName   string
-				expectedFile = &afero.UnionFile{}
+				expectedFile = &testing.File{}
 			)
 			base.OpenFunc = func(s string) (afero.File, error) {
 				actualName = s
@@ -488,7 +488,7 @@ var _ = Describe("Discard", func() {
 				actualName   string
 				actualFlag   int
 				actualMode   fs.FileMode
-				expectedFile = &afero.UnionFile{}
+				expectedFile = &testing.File{}
 			)
 			base.OpenFileFunc = func(s string, i int, fm fs.FileMode) (afero.File, error) {
 				actualName = s
@@ -512,7 +512,7 @@ var _ = Describe("Discard", func() {
 				actualName   string
 				actualFlag   int
 				actualMode   fs.FileMode
-				expectedFile = &afero.UnionFile{}
+				expectedFile = &testing.File{}
 			)
 			base.OpenFileFunc = func(s string, i int, fm fs.FileMode) (afero.File, error) {
 				actualName = s
