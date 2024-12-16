@@ -1,51 +1,58 @@
 package ignore
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 
-	"github.com/ianlewis/go-gitignore"
+	ignore "github.com/sabhiram/go-gitignore"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/filter"
 )
 
-func NewGitFs(base afero.Fs, ignore gitignore.GitIgnore) afero.Fs {
-	return filter.NewFs(base, ignore.Ignore)
+const DefaultFile = ".gitignore"
+
+type Ignore interface {
+	MatchesPath(string) bool
 }
 
-func FromGitIgnore(base afero.Fs, reader io.Reader) (afero.Fs, error) {
-	if i, err := readAll(reader); err != nil {
-		return nil, fmt.Errorf("reading ignore file: %w", err)
-	} else {
-		return NewGitFs(base, i), nil
+func NewFsFromGitIgnoreLines(base afero.Fs, lines ...string) afero.Fs {
+	return NewFsFromIgnore(base, ignore.CompileIgnoreLines(lines...))
+}
+
+func NewFsFromIgnore(base afero.Fs, ignore Ignore) afero.Fs {
+	return filter.NewFs(base, not(ignore.MatchesPath))
+}
+
+func NewFsFromGitIgnoreReader(base afero.Fs, reader io.Reader) (afero.Fs, error) {
+	lines := []string{}
+	s := bufio.NewScanner(reader)
+	for s.Scan() {
+		lines = append(lines, s.Text())
 	}
+	if s.Err() != nil {
+		return nil, fmt.Errorf("scanning ignore lines: %w", s.Err())
+	}
+
+	return NewFsFromGitIgnoreLines(base, lines...), nil
 }
 
-func FromGitIgnoreFile(base afero.Fs, path string) (afero.Fs, error) {
-	f, err := base.Open(path)
-	if err != nil {
+func NewFsFromGitIgnoreFile(base afero.Fs, path string) (afero.Fs, error) {
+	if f, err := base.Open(path); err != nil {
 		return nil, fmt.Errorf("opening ignore file: %w", err)
-	}
-	defer f.Close()
-
-	return FromGitIgnore(base, f)
-}
-
-func LoadDefaultGitIgnore(base afero.Fs) (afero.Fs, error) {
-	return FromGitIgnoreFile(base, ".gitignore")
-}
-
-func readAll(reader io.Reader) (gitignore.GitIgnore, error) {
-	var err error
-	i := gitignore.New(reader, "",
-		func(e gitignore.Error) bool {
-			err = e
-			return false
-		},
-	)
-	if err != nil {
-		return nil, err
 	} else {
-		return i, nil
+		defer f.Close()
+		return NewFsFromGitIgnoreReader(base, f)
+	}
+}
+
+func OpenDefaultGitIgnore(base afero.Fs) (afero.Fs, error) {
+	return NewFsFromGitIgnoreFile(base, DefaultFile)
+}
+
+// This is entirely unnecessary
+func not(fn func(string) bool) func(string) bool {
+	return func(s string) bool {
+		return !fn(s)
 	}
 }
