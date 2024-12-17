@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/spf13/afero"
-	aferox "github.com/unmango/go/fs"
+	"github.com/unmango/go/fs/internal"
 	"github.com/unmango/go/option"
 )
 
@@ -34,7 +34,7 @@ func NewFs(base, buf afero.Fs, options ...Option) (afero.Fs, Func) {
 }
 
 func CopyStrategy(_ context.Context, src, dest afero.Fs) error {
-	return aferox.Copy(src, dest)
+	return internal.Copy(src, dest)
 }
 
 func WithStrategy(strategy Strategy) Option {

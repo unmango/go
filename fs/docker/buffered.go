@@ -3,19 +3,19 @@ package docker
 import (
 	"archive/tar"
 	"bytes"
-	"context"
 	"fmt"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/context"
 	"github.com/unmango/go/fs/sync"
 )
 
 func NewBufferedFs(client client.ContainerAPIClient, ctr string) (afero.Fs, sync.Func) {
 	buf := afero.NewMemMapFs()
 	base := afero.NewCopyOnWriteFs(
-		NewFs(client, ctr),
+		context.TodoFs(NewFs(client, ctr)),
 		buf,
 	)
 
