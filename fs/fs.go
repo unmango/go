@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/context"
 	"github.com/unmango/go/fs/docker"
 	"github.com/unmango/go/fs/github"
 	"github.com/unmango/go/fs/github/repository"
@@ -28,6 +29,6 @@ func NewWriter(w io.Writer) afero.Fs {
 	return writer.NewFs(w)
 }
 
-func NewDocker(client client.ContainerAPIClient, container string) afero.Fs {
+func NewDocker(client client.ContainerAPIClient, container string) context.Fs {
 	return docker.NewFs(client, container)
 }
