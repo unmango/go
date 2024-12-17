@@ -3,6 +3,7 @@ package aferox
 import (
 	"io"
 
+	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
 	"github.com/unmango/go/fs/context"
 	"github.com/unmango/go/fs/docker"
