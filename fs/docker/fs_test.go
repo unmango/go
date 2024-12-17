@@ -1,6 +1,7 @@
 package docker_test
 
 import (
+	"context"
 	"io"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -10,9 +11,9 @@ import (
 )
 
 var _ = Describe("Fs", func() {
-	It("should list directories", func() {
+	It("should list directories", func(ctx context.Context) {
 		fs := docker.NewFs(testclient, ctr.GetContainerID())
-		dir, err := fs.Open("/")
+		dir, err := fs.Open(ctx, "/")
 		Expect(err).NotTo(HaveOccurred())
 
 		infos, err := dir.Readdir(69)
@@ -25,15 +26,15 @@ var _ = Describe("Fs", func() {
 		Expect(names).To(ContainElements("root", "var", "bin"))
 	})
 
-	It("should read file contents", func() {
+	It("should read file contents", func(ctx context.Context) {
 		fs := docker.NewFs(testclient, ctr.GetContainerID())
-		file, err := fs.Create("test-read.txt")
+		file, err := fs.Create(ctx, "test-read.txt")
 		Expect(err).NotTo(HaveOccurred())
 		_, err = io.WriteString(file, "bleh")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(file.Close()).To(Succeed())
 
-		file, err = fs.Open("test-read.txt")
+		file, err = fs.Open(ctx, "test-read.txt")
 
 		Expect(err).NotTo(HaveOccurred())
 		data, err := io.ReadAll(file)
@@ -42,19 +43,19 @@ var _ = Describe("Fs", func() {
 	})
 
 	Describe("Create", func() {
-		It("should create a file", func() {
+		It("should create a file", func(ctx context.Context) {
 			fsys := docker.NewFs(testclient, ctr.GetContainerID())
 
-			file, err := fsys.Create("test.txt")
+			file, err := fsys.Create(ctx, "test.txt")
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(file).NotTo(BeNil())
 		})
 
-		It("should create a writable file", func() {
+		It("should create a writable file", func(ctx context.Context) {
 			fsys := docker.NewFs(testclient, ctr.GetContainerID())
 
-			file, err := fsys.Create("writable.txt")
+			file, err := fsys.Create(ctx, "writable.txt")
 
 			Expect(err).NotTo(HaveOccurred())
 			_, err = file.WriteString("blahblahblah")

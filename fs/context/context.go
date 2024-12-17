@@ -4,8 +4,15 @@ import (
 	"context"
 
 	"github.com/spf13/afero"
-	aferox "github.com/unmango/go/fs"
 )
+
+type Setter interface {
+	SetContext(context.Context)
+}
+
+type Accessor interface {
+	Context() context.Context
+}
 
 type Context = context.Context
 
@@ -27,7 +34,7 @@ type union struct {
 	AdapterFs
 }
 
-func NewFs(base Fs, accessor aferox.ContextAccessor) afero.Fs {
+func NewFs(base Fs, accessor Accessor) afero.Fs {
 	return &AccessorFs{accessor, base}
 }
 
@@ -43,7 +50,7 @@ func Discard(fs afero.Fs) AferoFs {
 	return &DiscardFs{fs}
 }
 
-func Adapt(fs Fs, accessor aferox.ContextAccessor) AferoFs {
+func Adapt(fs Fs, accessor Accessor) AferoFs {
 	return &union{
 		Fs:        NewFs(fs, accessor),
 		AdapterFs: AdapterFs{fs},

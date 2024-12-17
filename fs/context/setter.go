@@ -6,13 +6,12 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
-	aferox "github.com/unmango/go/fs"
 )
 
 // WithSetterFs adapts an [afero.Fs] to an [Fs] by calling [SetContext] on the given
 // [ContextSetter] before forwarding each operation to the given [afero.Fs]
 type WithSetterFs struct {
-	aferox.ContextSetter
+	Setter
 	Fs afero.Fs
 }
 

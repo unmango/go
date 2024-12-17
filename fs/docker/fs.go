@@ -1,13 +1,13 @@
 package docker
 
 import (
-	"context"
 	"fmt"
 	"io/fs"
 	"time"
 
 	"github.com/docker/docker/client"
 	"github.com/spf13/afero"
+	"github.com/unmango/go/fs/context"
 	"github.com/unmango/go/fs/docker/internal"
 )
 
@@ -17,25 +17,25 @@ type Fs struct {
 }
 
 // Chmod implements afero.Fs.
-func (f Fs) Chmod(name string, mode fs.FileMode) error {
-	return f.exec(context.TODO(), "chmod", mode.String(), name)
+func (f Fs) Chmod(ctx context.Context, name string, mode fs.FileMode) error {
+	return f.exec(ctx, "chmod", mode.String(), name)
 }
 
 // Chown implements afero.Fs.
-func (f Fs) Chown(name string, uid int, gid int) error {
-	return f.exec(context.TODO(),
+func (f Fs) Chown(ctx context.Context, name string, uid int, gid int) error {
+	return f.exec(ctx,
 		"chown", fmt.Sprintf("%d:%d", uid, gid), name,
 	)
 }
 
 // Chtimes implements afero.Fs.
-func (f Fs) Chtimes(name string, atime time.Time, mtime time.Time) error {
+func (f Fs) Chtimes(ctx context.Context, name string, atime time.Time, mtime time.Time) error {
 	panic("unimplemented")
 }
 
 // Create implements afero.Fs.
-func (f Fs) Create(name string) (afero.File, error) {
-	err := f.exec(context.TODO(), "touch", name)
+func (f Fs) Create(ctx context.Context, name string) (afero.File, error) {
+	err := f.exec(ctx, "touch", name)
 	if err != nil {
 		return nil, err
 	}
@@ -49,15 +49,15 @@ func (f Fs) Create(name string) (afero.File, error) {
 }
 
 // Mkdir implements afero.Fs.
-func (f Fs) Mkdir(name string, perm fs.FileMode) error {
-	return f.exec(context.TODO(),
+func (f Fs) Mkdir(ctx context.Context, name string, perm fs.FileMode) error {
+	return f.exec(ctx,
 		"mkdir", fmt.Sprintf("--mode=%d", perm), name,
 	)
 }
 
 // MkdirAll implements afero.Fs.
-func (f Fs) MkdirAll(path string, perm fs.FileMode) error {
-	return f.exec(context.TODO(),
+func (f Fs) MkdirAll(ctx context.Context, path string, perm fs.FileMode) error {
+	return f.exec(ctx,
 		"mkdir", "--parents", fmt.Sprintf("--mode=%d", perm), path,
 	)
 }
@@ -68,7 +68,7 @@ func (f Fs) Name() string {
 }
 
 // Open implements afero.Fs.
-func (f Fs) Open(name string) (afero.File, error) {
+func (f Fs) Open(ctx context.Context, name string) (afero.File, error) {
 	// TODO: Less lazy?
 	return &File{
 		client:    f.client,
@@ -78,7 +78,7 @@ func (f Fs) Open(name string) (afero.File, error) {
 }
 
 // OpenFile implements afero.Fs.
-func (f Fs) OpenFile(name string, flag int, perm fs.FileMode) (afero.File, error) {
+func (f Fs) OpenFile(ctx context.Context, name string, flag int, perm fs.FileMode) (afero.File, error) {
 	// TODO: Actual implementation
 	// TODO: Less lazy?
 	return &File{
@@ -89,23 +89,23 @@ func (f Fs) OpenFile(name string, flag int, perm fs.FileMode) (afero.File, error
 }
 
 // Remove implements afero.Fs.
-func (f Fs) Remove(name string) error {
-	return f.exec(context.TODO(), "rm", name)
+func (f Fs) Remove(ctx context.Context, name string) error {
+	return f.exec(ctx, "rm", name)
 }
 
 // RemoveAll implements afero.Fs.
-func (f Fs) RemoveAll(path string) error {
-	return f.exec(context.TODO(), "rm", "--recursive", path)
+func (f Fs) RemoveAll(ctx context.Context, path string) error {
+	return f.exec(ctx, "rm", "--recursive", path)
 }
 
 // Rename implements afero.Fs.
-func (f Fs) Rename(oldname string, newname string) error {
-	return f.exec(context.TODO(), "mv", oldname, newname)
+func (f Fs) Rename(ctx context.Context, oldname string, newname string) error {
+	return f.exec(ctx, "mv", oldname, newname)
 }
 
 // Stat implements afero.Fs.
-func (f Fs) Stat(name string) (fs.FileInfo, error) {
-	return Stat(context.TODO(), f.client, f.container, name)
+func (f Fs) Stat(ctx context.Context, name string) (fs.FileInfo, error) {
+	return Stat(ctx, f.client, f.container, name)
 }
 
 func (f Fs) exec(ctx context.Context, cmd ...string) error {
@@ -116,6 +116,6 @@ func (f Fs) exec(ctx context.Context, cmd ...string) error {
 	)
 }
 
-func NewFs(client client.ContainerAPIClient, container string) afero.Fs {
+func NewFs(client client.ContainerAPIClient, container string) context.Fs {
 	return Fs{client, container}
 }

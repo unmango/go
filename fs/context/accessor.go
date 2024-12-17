@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
-	aferox "github.com/unmango/go/fs"
 )
 
 type AccessorFunc func() Context
@@ -15,14 +14,14 @@ func (fn AccessorFunc) Context() Context {
 	return fn()
 }
 
-func ToAccessor[T ~func() Context](fn T) aferox.ContextAccessor {
+func ToAccessor[T ~func() Context](fn T) Accessor {
 	return AccessorFunc(fn)
 }
 
 // AccessorFs adapts an [Fs] to an [afero.Fs] by using the given [ContextAccessor]
 // to source the [context.Context] for each operation
 type AccessorFs struct {
-	aferox.ContextAccessor
+	Accessor
 	Fs Fs
 }
 
