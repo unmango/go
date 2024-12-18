@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/charmbracelet/log v0.4.0
-	github.com/docker/docker v27.4.0+incompatible
+	github.com/docker/docker v27.4.1+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v67 v67.0.0
 	github.com/goware/urlx v0.3.2
