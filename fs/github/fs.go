@@ -12,6 +12,10 @@ import (
 	"github.com/unmango/go/fs/github/user"
 )
 
+type Client = github.Client
+
+var NewClient = github.NewClient
+
 type Fs struct {
 	internal.ReadOnlyFs
 	client *github.Client
