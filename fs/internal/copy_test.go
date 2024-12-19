@@ -12,6 +12,29 @@ import (
 )
 
 var _ = Describe("Copy", func() {
+	It("should error when src doesn't exist", func() {
+		src := afero.NewBasePathFs(afero.NewMemMapFs(), "blah")
+		dest := afero.NewMemMapFs()
+
+		err := internal.Copy(src, dest)
+
+		Expect(err).To(MatchError("open blah: file does not exist"))
+	})
+
+	It("should create dest when it doesn't exist", func() {
+		src := afero.NewMemMapFs()
+		err := afero.WriteFile(src, "test.txt", []byte("testing"), os.ModePerm)
+		Expect(err).NotTo(HaveOccurred())
+		base := afero.NewMemMapFs()
+		dest := afero.NewBasePathFs(base, "blah")
+
+		err = internal.Copy(src, dest)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(dest).To(ContainFile("test.txt"))
+		Expect(base).To(ContainFile("blah/test.txt"))
+	})
+
 	It("should copy files", func() {
 		src := afero.NewMemMapFs()
 		err := afero.WriteFile(src, "test.txt", []byte("testing"), os.ModePerm)
