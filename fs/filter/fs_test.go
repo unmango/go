@@ -1,7 +1,9 @@
 package filter_test
 
 import (
+	"io/fs"
 	"os"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -236,5 +238,24 @@ var _ = Describe("Fs", func() {
 		_, err = filtered.Stat("test.txt")
 
 		Expect(err).NotTo(HaveOccurred())
+	})
+
+	It("should walk properly", func() {
+		base := afero.NewMemMapFs()
+		Expect(base.Mkdir("test", os.ModePerm)).To(Succeed())
+		err := afero.WriteFile(base, "test/file.txt", []byte("testing"), os.ModePerm)
+		Expect(err).NotTo(HaveOccurred())
+		filtered := filter.NewFs(base, func(s string) bool {
+			return filepath.Ext(s) != ".txt"
+		})
+		paths := []string{}
+
+		err = afero.Walk(filtered, "", func(path string, info fs.FileInfo, err error) error {
+			paths = append(paths, path)
+			return err
+		})
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(paths).To(ConsistOf("", "test"))
 	})
 })
