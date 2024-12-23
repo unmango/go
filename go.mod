@@ -7,6 +7,7 @@ require (
 	github.com/docker/docker v27.4.1+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-github/v67 v67.0.0
+	github.com/google/go-github/v68 v68.0.0
 	github.com/goware/urlx v0.3.2
 	github.com/onsi/ginkgo/v2 v2.22.1
 	github.com/onsi/gomega v1.36.1
