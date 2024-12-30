@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/unmango/go/fs/internal"
-	. "github.com/unmango/go/testing/matcher"
+	"github.com/unmango/go/testing/gfs"
 )
 
 var _ = Describe("Copy", func() {
@@ -31,8 +31,8 @@ var _ = Describe("Copy", func() {
 		err = internal.Copy(src, dest)
 
 		Expect(err).NotTo(HaveOccurred())
-		Expect(dest).To(ContainFile("test.txt"))
-		Expect(base).To(ContainFile("blah/test.txt"))
+		Expect(dest).To(gfs.ContainFile("test.txt"))
+		Expect(base).To(gfs.ContainFile("blah/test.txt"))
 	})
 
 	It("should copy files", func() {
@@ -44,7 +44,7 @@ var _ = Describe("Copy", func() {
 		err = internal.Copy(src, dest)
 
 		Expect(err).NotTo(HaveOccurred())
-		Expect(dest).To(ContainFileWithBytes("test.txt", []byte("testing")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test.txt", []byte("testing")))
 	})
 
 	It("should copy directories", func() {
@@ -75,7 +75,7 @@ var _ = Describe("Copy", func() {
 		stat, err := dest.Stat("test")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(stat.IsDir()).To(BeTrueBecause("the directory is created"))
-		Expect(dest).To(ContainFileWithBytes("test/test.txt", []byte("testing")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test/test.txt", []byte("testing")))
 	})
 
 	It("should copy multiple files", func() {
@@ -89,8 +89,8 @@ var _ = Describe("Copy", func() {
 		err = internal.Copy(src, dest)
 
 		Expect(err).NotTo(HaveOccurred())
-		Expect(dest).To(ContainFileWithBytes("test.txt", []byte("testing")))
-		Expect(dest).To(ContainFileWithBytes("test2.txt", []byte("testing2")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test.txt", []byte("testing")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test2.txt", []byte("testing2")))
 	})
 
 	It("should copy a directory structure", func() {
@@ -108,14 +108,14 @@ var _ = Describe("Copy", func() {
 		err = internal.Copy(src, dest)
 
 		Expect(err).NotTo(HaveOccurred())
-		Expect(dest).To(ContainFileWithBytes("test.txt", []byte("testing")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test.txt", []byte("testing")))
 		stat, err := dest.Stat("test")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(stat.IsDir()).To(BeTrueBecause("the first directory is created"))
-		Expect(dest).To(ContainFileWithBytes("test/test2.txt", []byte("testing2")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test/test2.txt", []byte("testing2")))
 		stat, err = dest.Stat("test/other")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(stat.IsDir()).To(BeTrueBecause("the second directory is created"))
-		Expect(dest).To(ContainFileWithBytes("test/other/test3.txt", []byte("testing3")))
+		Expect(dest).To(gfs.ContainFileWithBytes("test/other/test3.txt", []byte("testing3")))
 	})
 })
