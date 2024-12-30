@@ -7,6 +7,10 @@ import (
 	"github.com/unmango/go/fs/context"
 )
 
+type contextKey struct{}
+
+var defaultContextFs = afero.NewOsFs()
+
 func SetContext(fs afero.Fs, ctx context.Context) error {
 	if ctxfs, ok := fs.(context.Setter); !ok {
 		return fmt.Errorf("context not supported: %s", fs.Name())
@@ -15,4 +19,12 @@ func SetContext(fs afero.Fs, ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func FromContext(ctx context.Context) afero.Fs {
+	if fs := ctx.Value(contextKey{}); fs != nil {
+		return fs.(afero.Fs)
+	} else {
+		return defaultContextFs
+	}
 }

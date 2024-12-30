@@ -19,10 +19,11 @@ func main() {
 
 	rootCmd.AddCommand(
 		cmd.NewList(&cmd.ListOptions{}),
+		cmd.NewVersion(),
 	)
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
