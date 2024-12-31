@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
+	"github.com/unmango/go/devops/work"
 	"github.com/unmango/go/option"
 )
 
@@ -46,4 +47,8 @@ func WithRoot(root string) Option {
 	return func(o *Options) {
 		o.root = root
 	}
+}
+
+func WithWorkspace(work *work.Context) Option {
+	return WithRoot(work.Root())
 }

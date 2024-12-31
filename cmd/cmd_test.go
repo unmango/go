@@ -11,9 +11,7 @@ import (
 
 var _ = Describe("Cmd", func() {
 	It("should fail how I want it to", func() {
-		p, err := gexec.Build("./testdata")
-		Expect(err).NotTo(HaveOccurred())
-		cmd := exec.Command(p, "The message")
+		cmd := exec.Command(cmdPath, "The message")
 
 		ses, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
 
