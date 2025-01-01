@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -12,15 +11,7 @@ import (
 )
 
 type VersionOptions struct {
-	Chdir string
-}
-
-func (o VersionOptions) Cwd(ctx context.Context) (work.Directory, error) {
-	if o.Chdir != "" {
-		return work.Directory(o.Chdir), nil
-	} else {
-		return work.Load(ctx)
-	}
+	work.ChdirOptions
 }
 
 func NewVersion() *cobra.Command {
@@ -49,8 +40,7 @@ func NewVersion() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.Chdir, "chdir", "C", "", "change to the specified directory before executing")
-	_ = cmd.MarkFlagDirname("chdir")
+	_ = work.ChdirFlag(cmd, &opts.ChdirOptions, "")
 
 	return cmd
 }
