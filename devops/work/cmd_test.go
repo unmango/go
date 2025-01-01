@@ -13,7 +13,7 @@ import (
 var _ = Describe("Cmd", func() {
 	Describe("ChdirOptions", func() {
 		It("should return the chdir when it is defined", func(ctx context.Context) {
-			o := work.ChdirOptions{Chdir: "blah"}
+			o := work.NewChdirOptions("blah")
 
 			p, err := o.Cwd(ctx)
 
