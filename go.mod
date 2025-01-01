@@ -14,7 +14,6 @@ require (
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.1
 	github.com/testcontainers/testcontainers-go v0.34.0
-	golang.org/x/mod v0.22.0
 )
 
 require (
