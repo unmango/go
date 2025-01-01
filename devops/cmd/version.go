@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	util "github.com/unmango/go/cmd"
@@ -22,12 +21,7 @@ func NewVersion() *cobra.Command {
 		Short: "Print the version of the specified dependency",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			work, err := opts.Cwd(cmd.Context())
-			if err != nil {
-				util.Fail(err)
-			}
-
-			if err = os.Chdir(work.Path()); err != nil {
+			if err := opts.Chdir(cmd.Context()); err != nil {
 				util.Fail(err)
 			}
 
