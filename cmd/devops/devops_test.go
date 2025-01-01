@@ -34,6 +34,22 @@ var _ = Describe("devops", func() {
 			Expect(ses.Out).To(gbytes.Say("^0.0.69\n"))
 		})
 
+		DescribeTable("should change to the specified directory",
+			Entry("Long option", "--chdir"),
+			Entry("Short option", "-C"),
+			func(opt string) {
+				cmd := exec.Command(cmdPath, "version", "test",
+					opt, filepath.Join(root, "testdata", "happypath"),
+				)
+
+				ses, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
+
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(ses).Should(gexec.Exit(0))
+				Expect(ses.Out).To(gbytes.Say("^0.0.69\n"))
+			},
+		)
+
 		It("should clean a prefixed version", Pending, func() {
 			cmd := exec.Command(cmdPath, "version", "test")
 			cmd.Dir = filepath.Join(root, "testdata", "prefixed")
