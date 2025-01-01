@@ -7,6 +7,7 @@ import (
 
 	"github.com/unmango/go/fs/github"
 	"github.com/unmango/go/lazy"
+	"golang.org/x/mod/semver"
 )
 
 type Source interface {
@@ -16,6 +17,8 @@ type Source interface {
 
 func GuessSource(s string) (Source, error) {
 	switch {
+	case semver.IsValid(s):
+		return String(s), nil
 	case strings.Contains("github", s):
 		return GitHub(s), nil
 	default:
@@ -37,4 +40,16 @@ func (g GitHub) Name(context.Context) (string, error) {
 // Latest implements Source.
 func (g GitHub) Latest(context.Context) (string, error) {
 	panic("unimplemented")
+}
+
+type String string
+
+// Latest implements Source.
+func (s String) Latest(context.Context) (string, error) {
+	return string(s), nil
+}
+
+// Name implements Source.
+func (s String) Name(context.Context) (string, error) {
+	return "", fmt.Errorf("invalid name: %s", s)
 }

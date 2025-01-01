@@ -8,6 +8,7 @@ import (
 	util "github.com/unmango/go/cmd"
 	"github.com/unmango/go/devops/version"
 	"github.com/unmango/go/devops/work"
+	"golang.org/x/mod/semver"
 )
 
 var (
@@ -28,7 +29,7 @@ type VersionOptions struct {
 
 type VersionArgs []string
 
-func (v VersionArgs) Source() string {
+func (v VersionArgs) Dep() string {
 	return v[0]
 }
 
@@ -46,21 +47,25 @@ func NewVersion() *cobra.Command {
 			}
 
 			var (
-				vargs = VersionArgs(args)
-				src   version.Source
-				err   error
+				dep = args[0]
+				src version.Source
+				err error
 			)
 
-			switch opts.Source {
-			case AutoVersionSource:
-				src, err = version.GuessSource(vargs.Source())
-			case GitHubVersionSource:
-				src = version.GitHub(vargs.Source())
-			default:
-				err = fmt.Errorf("unsupported source: %s", opts.Source)
-			}
-			if err != nil {
-				util.Fail(err)
+			if semver.IsValid(dep) {
+				src = version.String(dep)
+			} else {
+				switch opts.Source {
+				case AutoVersionSource:
+					src, err = version.GuessSource(dep)
+				case GitHubVersionSource:
+					src = version.GitHub(dep)
+				default:
+					err = fmt.Errorf("unsupported source: %s", opts.Source)
+				}
+				if err != nil {
+					util.Fail(err)
+				}
 			}
 
 			if err = version.Init(ctx, opts.Name, src); err != nil {

@@ -4,22 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/afero"
 	"github.com/unmango/go/option"
 )
-
-type Options struct {
-	fs afero.Fs
-}
-
-type Option func(*Options)
-
-func RelPath(name string) string {
-	return filepath.Join(DirName, name)
-}
 
 func ReadFile(name string, options ...Option) (string, error) {
 	opts := &Options{fs: afero.NewOsFs()}
@@ -31,11 +20,5 @@ func ReadFile(name string, options ...Option) (string, error) {
 		return "", fmt.Errorf("dependency not found: %s", name)
 	} else {
 		return "", err
-	}
-}
-
-func WithFs(fs afero.Fs) Option {
-	return func(o *Options) {
-		o.fs = fs
 	}
 }

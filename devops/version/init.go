@@ -2,31 +2,25 @@ package version
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/spf13/afero"
 	"github.com/unmango/go/option"
 )
 
-const DirName = ".versions"
-
-type InitOptions struct {
-	fs afero.Fs
-}
-
-type InitOption func(*InitOptions)
-
-func Init(ctx context.Context, name string, src Source, options ...InitOption) (err error) {
-	opts := InitOptions{fs: afero.NewOsFs()}
+func Init(ctx context.Context, name string, src Source, options ...Option) (err error) {
+	opts := Options{fs: afero.NewOsFs()}
 	option.ApplyAll(&opts, options)
 
 	if name == "" {
 		if name, err = src.Name(ctx); err != nil {
-			return
+			return fmt.Errorf("name is required")
 		}
 	}
 
-	if err = opts.fs.Mkdir(DirName, os.ModePerm); err != nil {
+	if err = opts.fs.Mkdir(DirName, os.ModePerm); !errors.Is(err, os.ErrExist) {
 		return
 	}
 
@@ -40,10 +34,4 @@ func Init(ctx context.Context, name string, src Source, options ...InitOption) (
 		[]byte(version+"\n"),
 		os.ModePerm,
 	)
-}
-
-func WithInitFs(fs afero.Fs) InitOption {
-	return func(o *InitOptions) {
-		o.fs = fs
-	}
 }
