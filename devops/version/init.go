@@ -33,7 +33,7 @@ func Init(ctx context.Context, name string, src Source, options ...Option) (err 
 
 	return afero.WriteFile(opts.fs,
 		filepath.Join(DirName, name),
-		[]byte(version+"\n"),
+		[]byte(Clean(version)+"\n"),
 		os.ModePerm,
 	)
 }
