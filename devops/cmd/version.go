@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	util "github.com/unmango/go/cmd"
@@ -12,31 +10,18 @@ import (
 )
 
 type VersionOptions struct {
-	Chdir string
-}
-
-func (o VersionOptions) Cwd(ctx context.Context) (work.Directory, error) {
-	if o.Chdir != "" {
-		return work.Directory(o.Chdir), nil
-	} else {
-		return work.Load(ctx)
-	}
+	work.ChdirOptions
 }
 
 func NewVersion() *cobra.Command {
 	opts := VersionOptions{}
 
 	cmd := &cobra.Command{
-		Use:   "version",
+		Use:   "version [name]",
 		Short: "Print the version of the specified dependency",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			work, err := opts.Cwd(cmd.Context())
-			if err != nil {
-				util.Fail(err)
-			}
-
-			if err = os.Chdir(work.Path()); err != nil {
+			if err := opts.Chdir(cmd.Context()); err != nil {
 				util.Fail(err)
 			}
 
@@ -49,7 +34,7 @@ func NewVersion() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.Chdir, "chdir", "C", "", "change to the specified directory before executing")
+	_ = work.ChdirFlag(cmd, &opts.ChdirOptions, "")
 
 	return cmd
 }

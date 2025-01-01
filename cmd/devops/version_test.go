@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
+	"github.com/unmango/go/testing"
 )
 
 var _ = Describe("devops", func() {
@@ -84,14 +86,10 @@ var _ = Describe("devops", func() {
 		})
 
 		Context("Git", func() {
-			BeforeEach(func() {
+			BeforeEach(func(ctx context.Context) {
 				By("Initializing a git repo in the working directory")
-				cmd := exec.Command("git", "init")
-				cmd.Dir = root
-				ses, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(ses).Should(gexec.Exit(0))
-				err = os.Mkdir(filepath.Join(root, "subdir"), os.ModePerm)
+				testing.GitInit(ctx, root)
+				err := os.Mkdir(filepath.Join(root, "subdir"), os.ModePerm)
 				Expect(err).NotTo(HaveOccurred())
 
 				By("Creating a test version file")

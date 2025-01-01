@@ -14,14 +14,16 @@ func Of[T any](x T) Lazy[T] {
 	}
 }
 
-func Lift[L ~func() T, T any](l L) Lazy[T] {
-	return Lazy[T](l)
-}
-
 func Once[L ~func() T, T any](l L) Lazy[T] {
 	return sync.OnceValue(l)
 }
 
 func Once2[L ~func() (T, V), T, V any](l L) Lazy2[T, V] {
 	return sync.OnceValues(l)
+}
+
+// Some of the best code I've ever written
+
+func Value[T any](l Lazy[T]) T {
+	return l()
 }
