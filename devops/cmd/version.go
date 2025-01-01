@@ -27,7 +27,7 @@ func NewVersion() *cobra.Command {
 	opts := VersionOptions{}
 
 	cmd := &cobra.Command{
-		Use:   "version",
+		Use:   "version [name]",
 		Short: "Print the version of the specified dependency",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -50,6 +50,7 @@ func NewVersion() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&opts.Chdir, "chdir", "C", "", "change to the specified directory before executing")
+	_ = cmd.MarkFlagDirname("chdir")
 
 	return cmd
 }
