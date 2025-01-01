@@ -4,17 +4,19 @@ import (
 	"context"
 	"os/exec"
 	"strings"
-
-	"github.com/unmango/go/option"
 )
 
-type rootOption func(*exec.Cmd)
+type (
+	wdKey struct{}
+)
 
-func Root(ctx context.Context, options ...rootOption) (string, error) {
+func Root(ctx context.Context) (string, error) {
 	cmd := exec.CommandContext(ctx,
 		"git", "rev-parse", "--show-toplevel",
 	)
-	option.ApplyAll(cmd, options)
+	if wd, ok := ctx.Value(wdKey{}).(string); ok && wd != "" {
+		cmd.Dir = wd
+	}
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -24,8 +26,6 @@ func Root(ctx context.Context, options ...rootOption) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func WithWorkingDirectory(path string) rootOption {
-	return func(c *exec.Cmd) {
-		c.Dir = path
-	}
+func WithWorkingDirectory(parent context.Context, path string) context.Context {
+	return context.WithValue(parent, wdKey{}, path)
 }
