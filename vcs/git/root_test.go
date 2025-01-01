@@ -3,14 +3,13 @@ package git_test
 import (
 	"context"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/onsi/gomega/gexec"
 
+	"github.com/unmango/go/testing"
 	"github.com/unmango/go/vcs/git"
 )
 
@@ -28,11 +27,7 @@ var _ = Describe("Root", func() {
 
 	It("should print the working directory's git root", func(ctx context.Context) {
 		wd := GinkgoT().TempDir()
-		cmd := exec.CommandContext(ctx, "git", "init")
-		cmd.Dir = wd
-		ses, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
-		Expect(err).NotTo(HaveOccurred())
-		Eventually(ses).Should(gexec.Exit(0))
+		testing.GitInit(ctx, wd)
 
 		By("Creating a subdirectory")
 		subdir := filepath.Join(wd, "subdir")

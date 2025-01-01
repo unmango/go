@@ -3,14 +3,13 @@ package work_test
 import (
 	"context"
 	"os"
-	"os/exec"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/onsi/gomega/gexec"
 
 	"github.com/unmango/go/devops/work"
+	"github.com/unmango/go/testing"
 	"github.com/unmango/go/vcs/git"
 )
 
@@ -24,11 +23,7 @@ var _ = Describe("Work", func() {
 	Describe("Git", func() {
 		It("should use the git path", func(ctx context.Context) {
 			By("Initializing a git repo")
-			cmd := exec.CommandContext(ctx, "git", "init")
-			cmd.Dir = root
-			ses, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
-			Expect(err).NotTo(HaveOccurred())
-			Eventually(ses).Should(gexec.Exit(0))
+			testing.GitInit(ctx, root)
 
 			c, err := work.Git(git.WithWorkingDirectory(ctx, root))
 
@@ -59,11 +54,7 @@ var _ = Describe("Work", func() {
 	Describe("Load", func() {
 		It("should use the git path when in a repo", func(ctx context.Context) {
 			By("Initializing a git repo")
-			cmd := exec.CommandContext(ctx, "git", "init")
-			cmd.Dir = root
-			ses, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
-			Expect(err).NotTo(HaveOccurred())
-			Eventually(ses).Should(gexec.Exit(0))
+			testing.GitInit(ctx, root)
 
 			c, err := work.Load(git.WithWorkingDirectory(ctx, root))
 
