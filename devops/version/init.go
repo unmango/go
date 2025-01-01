@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/afero"
 	"github.com/unmango/go/option"
@@ -20,7 +21,8 @@ func Init(ctx context.Context, name string, src Source, options ...Option) (err 
 		}
 	}
 
-	if err = opts.fs.Mkdir(DirName, os.ModePerm); !errors.Is(err, os.ErrExist) {
+	err = opts.fs.Mkdir(DirName, os.ModePerm)
+	if err != nil && !errors.Is(err, os.ErrExist) {
 		return
 	}
 
@@ -30,7 +32,7 @@ func Init(ctx context.Context, name string, src Source, options ...Option) (err 
 	}
 
 	return afero.WriteFile(opts.fs,
-		RelPath(name),
+		filepath.Join(DirName, name),
 		[]byte(version+"\n"),
 		os.ModePerm,
 	)

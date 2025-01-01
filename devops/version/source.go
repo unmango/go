@@ -3,12 +3,14 @@ package version
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/unmango/go/fs/github"
 	"github.com/unmango/go/lazy"
-	"golang.org/x/mod/semver"
 )
+
+var Regex = regexp.MustCompile(`v?\d+\.\d+\.\d+`)
 
 type Source interface {
 	Latest(context.Context) (string, error)
@@ -17,9 +19,9 @@ type Source interface {
 
 func GuessSource(s string) (Source, error) {
 	switch {
-	case semver.IsValid(s):
+	case Regex.MatchString(s):
 		return String(s), nil
-	case strings.Contains("github", s):
+	case strings.Contains(s, "github"):
 		return GitHub(s), nil
 	default:
 		return nil, fmt.Errorf("unrecognized source: %s", s)
