@@ -33,7 +33,7 @@ var _ = Describe("Work", func() {
 			c, err := work.Git(git.WithWorkingDirectory(ctx, root))
 
 			Expect(err).NotTo(HaveOccurred())
-			p := strings.TrimPrefix(c.Root(), "/private") // Mac crap
+			p := strings.TrimPrefix(c.Path(), "/private") // Mac crap
 			Expect(p).To(Equal(root))
 		})
 
@@ -52,7 +52,7 @@ var _ = Describe("Work", func() {
 			c, err := work.Cwd()
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(c.Root()).To(Equal(wd))
+			Expect(c.Path()).To(Equal(wd))
 		})
 	})
 
@@ -68,7 +68,7 @@ var _ = Describe("Work", func() {
 			c, err := work.Load(git.WithWorkingDirectory(ctx, root))
 
 			Expect(err).NotTo(HaveOccurred())
-			p := strings.TrimPrefix(c.Root(), "/private") // Mac crap
+			p := strings.TrimPrefix(c.Path(), "/private") // Mac crap
 			Expect(p).To(Equal(root))
 		})
 
@@ -79,7 +79,7 @@ var _ = Describe("Work", func() {
 			c, err := work.Load(git.WithWorkingDirectory(ctx, root))
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(c.Root()).To(Equal(wd))
+			Expect(c.Path()).To(Equal(wd))
 		})
 	})
 })

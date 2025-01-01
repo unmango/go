@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/charmbracelet/log"
 	"github.com/unmango/go/vcs/git"
@@ -12,36 +11,38 @@ import (
 
 type cwdKey struct{}
 
-type Context struct {
-	root string
+// A Directory defines a path to a valid, existing directory on the local filesystem
+type Directory string
+
+// Path returns the [Directory] path as a string
+func (c Directory) Path() string {
+	return string(c)
 }
 
-func (c *Context) Root() string {
-	return c.root
-}
-
-func (c *Context) JoinPath(elem ...string) string {
-	parts := append([]string{c.root}, elem...)
-	return filepath.Join(parts...)
-}
-
-func Git(ctx context.Context) (*Context, error) {
+// Git returns a [Directory] pointing to the git repository closest to the current working directory
+func Git(ctx context.Context) (work Directory, err error) {
 	if p, err := git.Root(ctx); err != nil {
-		return nil, err
+		return "", err
 	} else {
-		return &Context{root: p}, nil
+		return Directory(p), nil
 	}
 }
 
-func Cwd() (*Context, error) {
+// Cwd returns a [Directory] pointing to the current working directory
+func Cwd() (work Directory, err error) {
 	if p, err := os.Getwd(); err != nil {
-		return nil, err
+		return "", err
 	} else {
-		return &Context{root: p}, nil
+		return Directory(p), nil
 	}
 }
 
-func Load(ctx context.Context) (work *Context, err error) {
+// Load returns a [Directory] pointing to the first directory able to be resolved without error.
+//
+// Load will attempt directories in the following order:
+//   - [Git]
+//   - [Cwd]
+func Load(ctx context.Context) (work Directory, err error) {
 	if work, err = Git(ctx); err == nil {
 		return
 	} else {
@@ -54,5 +55,5 @@ func Load(ctx context.Context) (work *Context, err error) {
 		log.Debugf("loading cwd context: %s", err)
 	}
 
-	return nil, fmt.Errorf("failed to load current work context")
+	return "", fmt.Errorf("failed to load current work context")
 }
