@@ -18,7 +18,7 @@ type Options struct {
 type Option func(*Options)
 
 func RelPath(name string) string {
-	return filepath.Join(".versions", name)
+	return filepath.Join(DirName, name)
 }
 
 func ReadFile(name string, options ...Option) (string, error) {
