@@ -3,14 +3,11 @@ package version
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/unmango/go/fs/github"
 	"github.com/unmango/go/lazy"
 )
-
-var Regex = regexp.MustCompile(`v?\d+\.\d+\.\d+`)
 
 type Source interface {
 	Latest(context.Context) (string, error)
