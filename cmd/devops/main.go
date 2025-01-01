@@ -18,6 +18,7 @@ func main() {
 	log.SetLevel(log.ErrorLevel)
 
 	rootCmd.AddCommand(
+		cmd.NewInit(),
 		cmd.NewList(&cmd.ListOptions{}),
 		cmd.NewVersion(),
 	)
