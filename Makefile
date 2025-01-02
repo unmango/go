@@ -6,7 +6,9 @@ PKGS := iter maps result iter/seqs slices rx rx/observable option maybe
 WORKING_DIR := $(shell pwd)
 LOCALBIN    := ${WORKING_DIR}/bin
 
-DEVOPS := ${LOCALBIN}/devops
+export GOBIN := ${LOCALBIN}
+
+DEVCTL := ${LOCALBIN}/devctl
 GINKGO := ${LOCALBIN}/ginkgo
 
 ifeq ($(CI),)
@@ -15,19 +17,17 @@ else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
 
-build: bin/devops .make/build
+build: .make/build
 test: .make/test
 tidy: go.sum
 
 test_all:
 	$(GINKGO) run -r ./
 
-tidy: go.sum
-
 clean:
 	find . -name report.json -delete
 
-go.sum: go.mod $(shell $(DEVOPS) list --go)
+go.sum: go.mod $(shell $(DEVCTL) list --go) | bin/devctl
 	go mod tidy
 
 %_suite_test.go: | bin/ginkgo
@@ -37,19 +37,19 @@ go.sum: go.mod $(shell $(DEVOPS) list --go)
 	cd $(dir $@) && $(GINKGO) generate $(notdir $*)
 
 bin/ginkgo: go.mod
-	GOBIN=${LOCALBIN} go install github.com/onsi/ginkgo/v2/ginkgo
+	go install github.com/onsi/ginkgo/v2/ginkgo
 
-# This recursive dependency works 90% of the time, and when it doesn't its easy to fix
-bin/devops: $(shell $(DEVOPS) list --go --exclude-tests)
-	go build -o $@ cmd/devops/main.go
+bin/devctl: .versions/devctl
+	go install github.com/unmango/devctl/cmd@v$(shell cat $<)
+	mv ${LOCALBIN}/cmd $@
 
 .envrc: hack/example.envrc
 	cp $< $@
 
-.make/build: $(shell $(DEVOPS) list --go --exclude-tests)
+.make/build: $(shell $(DEVCTL) list --go --exclude-tests) | bin/devctl
 	go build ./...
 	@touch $@
 
-.make/test: $(shell $(DEVOPS) list --go) | bin/ginkgo
+.make/test: $(shell $(DEVCTL) list --go) | bin/ginkgo bin/devctl
 	$(GINKGO) run ${TEST_FLAGS} $(sort $(dir $?))
 	@touch $@

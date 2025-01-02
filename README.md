@@ -208,24 +208,6 @@ obs.OnNext(69)
 obs.OnComplete()
 ```
 
-## cmd
-
-The `cmd` package contains CLI utilities exposed by the repo.
-Currently the only published tool is `devops` which assists with listing files for `make` targets.
-
-```shell
-devops list --go
-# cmd/devops/main.go
-# devops/cmd/list.go
-# fp/constraint/constraints.go
-# ...
-```
-
-```makefile
-bin/my-tool: $(shell devops list --go --exclude-tests)
-	go build -o $@
-```
-
 ## Inspiration
 
 I stand on the shoulders of giants.
