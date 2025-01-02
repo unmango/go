@@ -1,7 +1,6 @@
-package main_test
+package cli_test
 
 import (
-	"embed"
 	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -9,19 +8,15 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-//go:embed testdata/happypath/*
-//go:embed testdata/prefixed/*
-var testdata embed.FS
-
 var cmdPath string
 
-func TestDevops(t *testing.T) {
+func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Devops Suite")
+	RunSpecs(t, "Cmd Suite")
 }
 
 var _ = BeforeSuite(func() {
-	p, err := gexec.Build("main.go")
+	p, err := gexec.Build("./testdata")
 	Expect(err).NotTo(HaveOccurred())
 	cmdPath = p
 })

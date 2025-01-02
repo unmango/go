@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/unmango/go/cmd"
+	"github.com/unmango/go/cli"
 )
 
 func main() {
@@ -12,5 +12,5 @@ func main() {
 		a = append(a, x)
 	}
 
-	cmd.Fail(a...)
+	cli.Fail(a...)
 }
