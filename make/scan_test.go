@@ -1,6 +1,7 @@
 package make_test
 
 import (
+	"bufio"
 	"bytes"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -214,6 +215,150 @@ target2:`)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(token).To(Equal(buf))
 			Expect(advance).To(Equal(22))
+		})
+	})
+
+	Describe("ScanTokens", func() {
+		It("should split a target", func() {
+			buf := bytes.NewBufferString("target:")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:"))
+		})
+
+		It("should split a target with a separating space", func() {
+			buf := bytes.NewBufferString("target :")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target :"))
+		})
+
+		It("should split multiple targets", func() {
+			buf := bytes.NewBufferString("target target2:")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target "))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target2:"))
+		})
+
+		It("should split multiple targets with a separating space", func() {
+			buf := bytes.NewBufferString("target target2 :")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target "))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target2 :"))
+		})
+
+		It("should split a target with a trailing newline", func() {
+			buf := bytes.NewBufferString("target:\n")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:\n"))
+		})
+
+		It("should split a target with a prereq", func() {
+			buf := bytes.NewBufferString("target: prereq")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal(" prereq"))
+		})
+
+		It("should split a target with a prereq and trailing newline", func() {
+			buf := bytes.NewBufferString("target: prereq\n")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal(" prereq\n"))
+		})
+
+		It("should split a target with prereqs", func() {
+			buf := bytes.NewBufferString("target: prereq prereq2")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal(" prereq"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal(" prereq2"))
+		})
+
+		It("should split a target with a recipe", func() {
+			buf := bytes.NewBufferString("target:\n\trecipe")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:\n"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("\trecipe"))
+		})
+
+		It("should split a comment", func() {
+			buf := bytes.NewBufferString("# comment")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("# comment"))
+		})
+
+		It("should split a comment with a trailing newline", func() {
+			buf := bytes.NewBufferString("# comment\n")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("# comment\n"))
+		})
+
+		It("should split target with a comment", func() {
+			buf := bytes.NewBufferString("target: # comment")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal(" # comment"))
+		})
+
+		It("should split a directive", func() {
+			buf := bytes.NewBufferString("define TEST")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("define TEST"))
+		})
+
+		It("should split a prefixed include directive", func() {
+			buf := bytes.NewBufferString("-include foo.mk")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("-include foo.mk"))
 		})
 	})
 })

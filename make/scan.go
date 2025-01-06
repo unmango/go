@@ -11,10 +11,15 @@ import (
 type Token string
 
 const (
-	CommentToken     Token = "comment"
-	RuleToken        Token = "rule"
-	UnsupportedToken Token = "unsupported"
-	WhitespaceToken  Token = "whitespace"
+	CommentToken      Token = "comment"
+	DirectiveToken    Token = "directive"
+	PreRequisiteToken Token = "prerequisite"
+	RecipeToken       Token = "recipe"
+	RuleToken         Token = "rule"
+	TargetToken       Token = "target"
+	UnsupportedToken  Token = "unsupported"
+	VariableToken     Token = "variable"
+	WhitespaceToken   Token = "whitespace"
 )
 
 type Scanner struct {
@@ -115,6 +120,43 @@ func ScanRules(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		}
 
 		return advance, data[:advance], nil
+	}
+
+	return 0, nil, nil
+}
+
+func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	// Look for hints to avoid looping
+	switch data[0] {
+	case '$':
+		// Skip the line for now, we'll add support later
+		fallthrough
+	case '#': // We're looking at a comment
+		// The rest of the line should be a part of the comment
+		if i := bytes.IndexRune(data, '\n'); i > 0 {
+			return i, data[:i], nil
+		} else {
+			return 0, nil, nil
+		}
+	}
+
+	// Are we looking at a target
+	if i := bytes.IndexRune(data, ':'); i > 0 {
+		if i+1 < len(data) && unicode.IsSpace(rune(data[i+1])) {
+			// Increment to include the trailing whitespace
+			i++
+		}
+		if s := bytes.IndexRune(data, ' '); s > 0 && s < i {
+			// There are mutliple targets, take the first one
+			i = s
+		}
+
+		// Add 1 to include the ':'
+		return i + 1, data[:i+1], nil
 	}
 
 	return 0, nil, nil
