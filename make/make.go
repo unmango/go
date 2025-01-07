@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"io"
 	"strings"
-
-	"github.com/charmbracelet/log"
 )
 
 const (
@@ -200,6 +198,12 @@ var BuiltinTargets = []string{
 	PosixTarget,
 }
 
+type (
+	Target string
+	PreReq string
+	Recipe string
+)
+
 type Rule struct {
 	Target  []string
 	PreReqs []string
@@ -230,7 +234,6 @@ func Parse(r io.Reader) (*Makefile, error) {
 		}
 
 		if t, p, found := strings.Cut(token, ":"); found {
-			log.Info("found", "t", t, "p", p, "token", token)
 			ruleIdx++
 			m.Rules = append(m.Rules, Rule{
 				Target:  strings.Fields(t),

@@ -60,34 +60,6 @@ func (s *Scanner) Scan() bool {
 	return s.s.Scan()
 }
 
-func (s *Scanner) Token() interface{} {
-	switch s.Type() {
-	case RuleToken:
-		lines := strings.Split(s.s.Text(), "\n")
-		t, p, ok := strings.Cut(lines[0], ":")
-		if !ok {
-			panic("invalid rule")
-		}
-
-		recipe := []string{}
-		if len(lines) > 1 {
-			recipe = lines[1:]
-		}
-
-		return Rule{
-			Target:  strings.Fields(t),
-			PreReqs: strings.Fields(p),
-			Recipe:  recipe,
-		}
-	case WhitespaceToken:
-		return s.s.Text()
-	case CommentToken:
-		return s.s.Text()
-	default:
-		return nil
-	}
-}
-
 func NewScanner(r io.Reader) *Scanner {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(ScanRules)
@@ -188,6 +160,47 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 
 	if atEOF {
 		return len(data), data, nil
+	} else {
+		return 0, nil, nil
+	}
+}
+
+func ScanTokens2(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	switch data[0] {
+	case ':':
+		fallthrough
+	case '#':
+		if len(data) > 1 && data[1] == ' ' {
+			return 2, data[:1], nil
+		}
+
+		fallthrough
+	case '\n':
+		fallthrough
+	case '\t':
+		return 1, data[:1], nil
+	}
+
+	i := bytes.IndexFunc(data, func(r rune) bool {
+		switch r {
+		case '\n':
+			fallthrough
+		case '\t':
+			fallthrough
+		case ':':
+			fallthrough
+		case ' ':
+			return true
+		default:
+			return false
+		}
+	})
+	if i > 0 {
+		return i, data[:i], nil
 	} else {
 		return 0, nil, nil
 	}
