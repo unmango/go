@@ -261,7 +261,7 @@ target2:`)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target:"))
+			Expect(s.Text()).To(Equal("target:\n"))
 		})
 
 		It("should split a target with a prereq", func() {
@@ -283,7 +283,7 @@ target2:`)
 			Expect(s.Scan()).To(BeTrue())
 			Expect(s.Text()).To(Equal("target:"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("prereq"))
+			Expect(s.Text()).To(Equal("prereq\n"))
 		})
 
 		It("should split a target with prereqs", func() {
@@ -298,14 +298,38 @@ target2:`)
 		})
 
 		It("should split a target with a recipe", func() {
-			buf := bytes.NewBufferString("target:\nrecipe")
+			buf := bytes.NewBufferString("target:\n\trecipe")
 			s := bufio.NewScanner(buf)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target:"))
+			Expect(s.Text()).To(Equal("target:\n"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("recipe"))
+			Expect(s.Text()).To(Equal("\trecipe"))
+		})
+
+		It("should split a target with a recipe and trailing newline", func() {
+			buf := bytes.NewBufferString("target:\n\trecipe\n")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:\n"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("\trecipe\n"))
+		})
+
+		It("should split a target with multiple recipes", func() {
+			buf := bytes.NewBufferString("target:\n\trecipe\n\trecipe2")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("target:\n"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("\trecipe\n"))
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("\trecipe2"))
 		})
 
 		It("should split a comment", func() {
@@ -323,7 +347,7 @@ target2:`)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("# comment"))
+			Expect(s.Text()).To(Equal("# comment\n"))
 		})
 
 		It("should split target with a comment", func() {
@@ -353,6 +377,24 @@ target2:`)
 
 			Expect(s.Scan()).To(BeTrue())
 			Expect(s.Text()).To(Equal("-include foo.mk"))
+		})
+
+		It("should split a variable", func() {
+			buf := bytes.NewBufferString("VAR := test")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("VAR := test"))
+		})
+
+		It("should split a variable with a trailing newline", func() {
+			buf := bytes.NewBufferString("VAR := test\n")
+			s := bufio.NewScanner(buf)
+			s.Split(make.ScanTokens)
+
+			Expect(s.Scan()).To(BeTrue())
+			Expect(s.Text()).To(Equal("VAR := test\n"))
 		})
 	})
 })

@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"io"
 	"strings"
+
+	"github.com/charmbracelet/log"
 )
 
 const (
@@ -216,13 +218,24 @@ func Parse(r io.Reader) (*Makefile, error) {
 	s := bufio.NewScanner(r)
 	s.Split(ScanTokens)
 
+	var ruleIdx int = -1
+
 	for s.Scan() {
 		token := s.Text()
+		if token[0] == '\t' && ruleIdx >= 0 {
+			m.Rules[ruleIdx].Recipe = append(
+				m.Rules[ruleIdx].Recipe,
+				strings.TrimSpace(token),
+			)
+		}
 
 		if t, p, found := strings.Cut(token, ":"); found {
+			log.Info("found", "t", t, "p", p, "token", token)
+			ruleIdx++
 			m.Rules = append(m.Rules, Rule{
 				Target:  strings.Fields(t),
 				PreReqs: strings.Fields(p),
+				Recipe:  []string{},
 			})
 		}
 	}

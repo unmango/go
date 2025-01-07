@@ -133,34 +133,66 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 	// Look for hints to avoid looping
 	switch data[0] {
 	case '$':
-		// Skip the line for now, we'll add support later
+		// Skip for now, I'll add support later
 		fallthrough
+	case '\t': // We're looking at a recipe
+		// Consume until we find a comment or the end of the line
+		if i := bytes.IndexFunc(data, LineOrComment); i > 0 {
+			if data[i] == '#' { // If a comment is next we're done
+				return i, data[:i], nil
+			}
+		}
+
+		fallthrough // Otherwise consume the rest of the line
 	case '#': // We're looking at a comment
 		// The rest of the line should be a part of the comment
 		if i := bytes.IndexRune(data, '\n'); i > 0 {
-			return i, bytes.TrimSpace(data[:i]), nil
+			i++ // Include the '\n'
+			return i, data[:i], nil
 		} else if atEOF {
-			return len(data), bytes.TrimSpace(data), nil
+			return len(data), data, nil
 		} else {
 			return 0, nil, nil
 		}
 	}
 
-	// Are we looking at a target
 	if i := bytes.IndexRune(data, ':'); i > 0 {
-		// Eat the remaining space
-		for i = i + 1; i < len(data); i++ {
-			if !unicode.IsSpace(rune(data[i])) {
-				break
+		if i+1 < len(data) && data[i+1] == '=' { // We're looking at a variable
+			// Consume until we find a comment or the end of the line
+			for i = i + 1; i < len(data); i++ {
+				if data[i] == '\n' {
+					i++ // Include the '\n'
+					break
+				}
+				if data[i] == '#' {
+					break
+				}
+			}
+		} else { // We're looking at a target
+			// Eat the remaining space
+			for i = i + 1; i < len(data); i++ {
+				if data[i] == ' ' || data[i] == '\n' {
+					continue
+				} else {
+					break
+				}
 			}
 		}
 
-		return i, bytes.TrimSpace(data[:i]), nil
+		token = bytes.TrimRightFunc(data[:i], func(r rune) bool {
+			return r != '\n' && unicode.IsSpace(r)
+		})
+
+		return i, token, nil
 	}
 
 	if atEOF {
-		return len(data), bytes.TrimSpace(data), nil
+		return len(data), data, nil
 	} else {
 		return 0, nil, nil
 	}
+}
+
+func LineOrComment(r rune) bool {
+	return r == '\n' || r == '#'
 }
