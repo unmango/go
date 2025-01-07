@@ -1,7 +1,9 @@
 package make
 
 import (
+	"bufio"
 	"io"
+	"strings"
 )
 
 const (
@@ -211,16 +213,17 @@ func Parse(r io.Reader) (*Makefile, error) {
 		Rules: make([]Rule, 0),
 	}
 
-	s := NewScanner(r)
-	for s.Scan() {
-		token := s.Token()
-		if token == nil {
-			continue
-		}
+	s := bufio.NewScanner(r)
+	s.Split(ScanTokens)
 
-		switch n := token.(type) {
-		case Rule:
-			m.Rules = append(m.Rules, n)
+	for s.Scan() {
+		token := s.Text()
+
+		if t, p, found := strings.Cut(token, ":"); found {
+			m.Rules = append(m.Rules, Rule{
+				Target:  strings.Fields(t),
+				PreReqs: strings.Fields(p),
+			})
 		}
 	}
 
