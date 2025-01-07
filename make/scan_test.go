@@ -243,9 +243,7 @@ target2:`)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target "))
-			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target2:"))
+			Expect(s.Text()).To(Equal("target target2:"))
 		})
 
 		It("should split multiple targets with a separating space", func() {
@@ -254,9 +252,7 @@ target2:`)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target "))
-			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target2 :"))
+			Expect(s.Text()).To(Equal("target target2 :"))
 		})
 
 		It("should split a target with a trailing newline", func() {
@@ -265,7 +261,7 @@ target2:`)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target:\n"))
+			Expect(s.Text()).To(Equal("target:"))
 		})
 
 		It("should split a target with a prereq", func() {
@@ -276,7 +272,7 @@ target2:`)
 			Expect(s.Scan()).To(BeTrue())
 			Expect(s.Text()).To(Equal("target:"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal(" prereq"))
+			Expect(s.Text()).To(Equal("prereq"))
 		})
 
 		It("should split a target with a prereq and trailing newline", func() {
@@ -287,7 +283,7 @@ target2:`)
 			Expect(s.Scan()).To(BeTrue())
 			Expect(s.Text()).To(Equal("target:"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal(" prereq\n"))
+			Expect(s.Text()).To(Equal("prereq"))
 		})
 
 		It("should split a target with prereqs", func() {
@@ -298,20 +294,18 @@ target2:`)
 			Expect(s.Scan()).To(BeTrue())
 			Expect(s.Text()).To(Equal("target:"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal(" prereq"))
-			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal(" prereq2"))
+			Expect(s.Text()).To(Equal("prereq prereq2"))
 		})
 
 		It("should split a target with a recipe", func() {
-			buf := bytes.NewBufferString("target:\n\trecipe")
+			buf := bytes.NewBufferString("target:\nrecipe")
 			s := bufio.NewScanner(buf)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("target:\n"))
+			Expect(s.Text()).To(Equal("target:"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("\trecipe"))
+			Expect(s.Text()).To(Equal("recipe"))
 		})
 
 		It("should split a comment", func() {
@@ -329,7 +323,7 @@ target2:`)
 			s.Split(make.ScanTokens)
 
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal("# comment\n"))
+			Expect(s.Text()).To(Equal("# comment"))
 		})
 
 		It("should split target with a comment", func() {
@@ -340,7 +334,7 @@ target2:`)
 			Expect(s.Scan()).To(BeTrue())
 			Expect(s.Text()).To(Equal("target:"))
 			Expect(s.Scan()).To(BeTrue())
-			Expect(s.Text()).To(Equal(" # comment"))
+			Expect(s.Text()).To(Equal("# comment"))
 		})
 
 		It("should split a directive", func() {

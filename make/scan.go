@@ -138,7 +138,9 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 	case '#': // We're looking at a comment
 		// The rest of the line should be a part of the comment
 		if i := bytes.IndexRune(data, '\n'); i > 0 {
-			return i, data[:i], nil
+			return i, bytes.TrimSpace(data[:i]), nil
+		} else if atEOF {
+			return len(data), bytes.TrimSpace(data), nil
 		} else {
 			return 0, nil, nil
 		}
@@ -146,18 +148,19 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 
 	// Are we looking at a target
 	if i := bytes.IndexRune(data, ':'); i > 0 {
-		if i+1 < len(data) && unicode.IsSpace(rune(data[i+1])) {
-			// Increment to include the trailing whitespace
-			i++
-		}
-		if s := bytes.IndexRune(data, ' '); s > 0 && s < i {
-			// There are mutliple targets, take the first one
-			i = s
+		// Eat the remaining space
+		for i = i + 1; i < len(data); i++ {
+			if !unicode.IsSpace(rune(data[i])) {
+				break
+			}
 		}
 
-		// Add 1 to include the ':'
-		return i + 1, data[:i+1], nil
+		return i, bytes.TrimSpace(data[:i]), nil
 	}
 
-	return 0, nil, nil
+	if atEOF {
+		return len(data), bytes.TrimSpace(data), nil
+	} else {
+		return 0, nil, nil
+	}
 }
