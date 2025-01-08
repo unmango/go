@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"strings"
 )
 
 type Token string
@@ -21,49 +20,146 @@ const (
 	WhitespaceToken   Token = "whitespace"
 )
 
+type SplitFunc func(data []string, atEOF bool) (advance int, token interface{}, err error)
+
+const maxConsecutiveEmptyReads = 100
+
 type Scanner struct {
-	s *bufio.Scanner
+	s          *bufio.Scanner
+	split      SplitFunc
+	token      interface{}
+	buf        []string
+	start      int
+	end        int
+	empties    int
+	err        error
+	scanCalled bool
+	done       bool
 }
 
-func (s *Scanner) Split(split bufio.SplitFunc) {
-	s.s.Split(split)
+func (s *Scanner) Split(split SplitFunc) {
+	if s.scanCalled {
+		panic("Split called after Scan")
+	}
+
+	s.split = split
 }
 
-func (s *Scanner) Type() Token {
-	text := s.s.Text()
-	if strings.TrimSpace(text) == "" {
-		return WhitespaceToken
-	}
-	if strings.HasPrefix(text, "#") {
-		return CommentToken
-	}
-
-	lines := strings.Split(s.s.Text(), "\n")
-	if len(lines) == 0 {
-		panic("newline delimeted text was empty")
-	}
-
-	switch {
-	case strings.ContainsRune(lines[0], ':'):
-		return RuleToken
-	default:
-		return UnsupportedToken
-	}
-}
-
-func (s *Scanner) Err() error {
-	return s.s.Err()
+func (s *Scanner) Token() interface{} {
+	return s.token
 }
 
 func (s *Scanner) Scan() bool {
-	return s.s.Scan()
+	// Nearly identical logic as bufio except [token]
+	// is an interface{} and [buf] is a []string
+
+	if s.done {
+		return false
+	}
+	s.scanCalled = true
+
+	for {
+		if s.end > s.start || s.err != nil {
+			advance, token, err := s.split(s.buf[s.start:s.end], s.err != nil)
+			if err != nil {
+				if err == bufio.ErrFinalToken {
+					s.token = token
+					s.done = true
+					return token != nil
+				}
+
+				s.setErr(err)
+				return false
+			}
+
+			if !s.advance(advance) {
+				return false
+			}
+
+			s.token = token
+			if token != nil {
+				if s.err == nil || advance > 0 {
+					s.empties = 0
+				} else {
+					s.empties++
+					if s.empties > maxConsecutiveEmptyReads {
+						panic("make.Scan: too many emtpy tokens without progressing")
+					}
+				}
+			}
+
+			return true
+		}
+
+		if s.err != nil {
+			s.start = 0
+			s.end = 0
+			return false
+		}
+
+		if s.start > 0 && (s.end == len(s.buf) || s.start > len(s.buf)/2) {
+			copy(s.buf, s.buf[s.start:s.end])
+			s.end -= s.start
+			s.start = 0
+		}
+
+		if s.end == len(s.buf) {
+			const maxInt = int(^uint(0) >> 1)
+			if len(s.buf) >= bufio.MaxScanTokenSize || len(s.buf) > maxInt/2 {
+				s.setErr(bufio.ErrTooLong)
+				return false
+			}
+
+			newSize := len(s.buf) * 2
+			if newSize == 0 {
+				newSize = 1024
+			}
+			newSize = min(newSize, bufio.MaxScanTokenSize)
+			newBuf := make([]string, newSize)
+			copy(newBuf, s.buf[s.start:s.end])
+			s.buf = newBuf
+			s.end -= s.start
+			s.start = 0
+		}
+
+		if s.s.Scan() {
+			s.empties = 0
+			s.buf[s.end] = s.s.Text()
+			s.end++
+		} else {
+			s.setErr(s.s.Err())
+		}
+	}
+}
+
+func (s *Scanner) advance(n int) bool {
+	if n < 0 {
+		s.setErr(bufio.ErrNegativeAdvance)
+		return false
+	}
+	if n > s.end-s.start {
+		s.setErr(bufio.ErrAdvanceTooFar)
+		return false
+	}
+
+	s.start += n
+	return true
+}
+
+func (s *Scanner) setErr(err error) {
+	if s.err == nil || s.err == io.EOF {
+		s.err = err
+	}
 }
 
 func NewScanner(r io.Reader) *Scanner {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(ScanTokens)
 
-	return &Scanner{s: scanner}
+	return &Scanner{
+		s:     scanner,
+		split: ScanRules,
+	}
 }
 
 func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -112,6 +208,6 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 	}
 }
 
-func LineOrComment(r rune) bool {
-	return r == '\n' || r == '#'
+func ScanRules(data []string, atEOF bool) (advance int, token interface{}, err error) {
+	return 0, nil, nil // TODO
 }

@@ -222,12 +222,9 @@ func Parse(r io.Reader) (*Makefile, error) {
 	s := bufio.NewScanner(r)
 	s.Split(ScanTokens)
 
+	buf := []string{}
 	for s.Scan() {
-		if r, err := ScanRule(s); err != nil {
-			return nil, err
-		} else {
-			m.Rules = append(m.Rules, r)
-		}
+		buf = append(buf, s.Text())
 	}
 
 	if s.Err() != nil {
