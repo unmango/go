@@ -1,8 +1,6 @@
 package make
 
 import (
-	"bufio"
-	"fmt"
 	"io"
 )
 
@@ -219,12 +217,12 @@ func Parse(r io.Reader) (*Makefile, error) {
 		Rules: make([]Rule, 0),
 	}
 
-	s := bufio.NewScanner(r)
-	s.Split(ScanTokens)
-
-	buf := []string{}
+	s := NewScanner(r)
 	for s.Scan() {
-		buf = append(buf, s.Text())
+		switch tok := s.Token().(type) {
+		case Rule:
+			m.Rules = append(m.Rules, tok)
+		}
 	}
 
 	if s.Err() != nil {
@@ -232,41 +230,4 @@ func Parse(r io.Reader) (*Makefile, error) {
 	} else {
 		return m, nil
 	}
-}
-
-func ScanRule(s *bufio.Scanner) (r Rule, err error) {
-	var found bool
-	if r.Target, found = until(s, ":"); !found {
-		return r, fmt.Errorf("expected ':'")
-	}
-
-	if r.PreReqs, found = until(s, "\n"); !found {
-		r.PreReqs = []string{}
-		r.Recipe = []string{}
-		return
-	}
-
-	for s.Scan() && s.Text() == "\t" {
-		if s.Scan() {
-			r.Recipe = append(r.Recipe, s.Text())
-		}
-	}
-
-	if err = s.Err(); err != nil {
-		return Rule{}, err
-	} else {
-		return
-	}
-}
-
-func until(s *bufio.Scanner, t string) (buf []string, found bool) {
-	for s.Scan() {
-		if txt := s.Text(); t == txt {
-			return buf, true
-		} else {
-			buf = append(buf, txt)
-		}
-	}
-
-	return buf, false
 }
