@@ -2,8 +2,8 @@ package make
 
 import (
 	"bufio"
+	"fmt"
 	"io"
-	"strings"
 )
 
 const (
@@ -222,24 +222,11 @@ func Parse(r io.Reader) (*Makefile, error) {
 	s := bufio.NewScanner(r)
 	s.Split(ScanTokens)
 
-	var ruleIdx int = -1
-
 	for s.Scan() {
-		token := s.Text()
-		if token[0] == '\t' && ruleIdx >= 0 {
-			m.Rules[ruleIdx].Recipe = append(
-				m.Rules[ruleIdx].Recipe,
-				strings.TrimSpace(token),
-			)
-		}
-
-		if t, p, found := strings.Cut(token, ":"); found {
-			ruleIdx++
-			m.Rules = append(m.Rules, Rule{
-				Target:  strings.Fields(t),
-				PreReqs: strings.Fields(p),
-				Recipe:  []string{},
-			})
+		if r, err := ScanRule(s); err != nil {
+			return nil, err
+		} else {
+			m.Rules = append(m.Rules, r)
 		}
 	}
 
@@ -248,4 +235,41 @@ func Parse(r io.Reader) (*Makefile, error) {
 	} else {
 		return m, nil
 	}
+}
+
+func ScanRule(s *bufio.Scanner) (r Rule, err error) {
+	var found bool
+	if r.Target, found = until(s, ":"); !found {
+		return r, fmt.Errorf("expected ':'")
+	}
+
+	if r.PreReqs, found = until(s, "\n"); !found {
+		r.PreReqs = []string{}
+		r.Recipe = []string{}
+		return
+	}
+
+	for s.Scan() && s.Text() == "\t" {
+		if s.Scan() {
+			r.Recipe = append(r.Recipe, s.Text())
+		}
+	}
+
+	if err = s.Err(); err != nil {
+		return Rule{}, err
+	} else {
+		return
+	}
+}
+
+func until(s *bufio.Scanner, t string) (buf []string, found bool) {
+	for s.Scan() {
+		if txt := s.Text(); t == txt {
+			return buf, true
+		} else {
+			buf = append(buf, txt)
+		}
+	}
+
+	return buf, false
 }
