@@ -94,4 +94,15 @@ var _ = FDescribe("Write", func() {
 
 		Expect(err).To(MatchError("no targets"))
 	})
+
+	It("should write multiple rules", func() {
+		buf := &bytes.Buffer{}
+		w := make.NewWriter(buf)
+
+		_, err := w.WriteRule(make.Rule{Target: []string{"target"}})
+		Expect(err).NotTo(HaveOccurred())
+		_, err = w.WriteRule(make.Rule{Target: []string{"target2"}})
+		Expect(err).NotTo(HaveOccurred())
+		Expect(buf.String()).To(Equal("target:\ntarget2:\n"))
+	})
 })
