@@ -9,7 +9,7 @@ import (
 	"github.com/unmango/go/make"
 )
 
-var _ = FDescribe("Write", func() {
+var _ = Describe("Write", func() {
 	It("should write a line", func() {
 		buf := &bytes.Buffer{}
 		w := make.NewWriter(buf)
