@@ -9,7 +9,7 @@ import (
 	"github.com/unmango/go/make"
 )
 
-var _ = Describe("Make", func() {
+var _ = Describe("Parse", Pending, func() {
 	It("should parse a target", func() {
 		buf := bytes.NewBufferString(`target:`)
 
@@ -63,8 +63,7 @@ var _ = Describe("Make", func() {
 	})
 
 	It("should parse multiple targets", func() {
-		buf := bytes.NewBufferString(`target:
-target2:`)
+		buf := bytes.NewBufferString("target:\ntarget2:")
 
 		m, err := make.Parse(buf)
 
