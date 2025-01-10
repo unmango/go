@@ -12,7 +12,7 @@ require (
 	github.com/onsi/gomega v1.36.2
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 	github.com/spf13/afero v1.12.0
-	github.com/testcontainers/testcontainers-go v0.34.0
+	github.com/testcontainers/testcontainers-go v0.35.0
 )
 
 require (
