@@ -9,7 +9,7 @@ import (
 	"github.com/unmango/go/make"
 )
 
-var _ = Describe("Parse", Pending, func() {
+var _ = Describe("Parse", func() {
 	It("should parse a target", func() {
 		buf := bytes.NewBufferString(`target:`)
 
@@ -23,8 +23,8 @@ var _ = Describe("Parse", Pending, func() {
 		}))
 	})
 
-	It("should parse prereqs", func() {
-		buf := bytes.NewBufferString(`target: prereq`)
+	It("should parse a prereq", func() {
+		buf := bytes.NewBufferString("target: prereq\n")
 
 		m, err := make.Parse(buf)
 
@@ -37,7 +37,7 @@ var _ = Describe("Parse", Pending, func() {
 	})
 
 	It("should parse multiple prereqs", func() {
-		buf := bytes.NewBufferString(`target: prereq prereq2`)
+		buf := bytes.NewBufferString("target: prereq prereq2\n")
 
 		m, err := make.Parse(buf)
 
@@ -96,9 +96,7 @@ var _ = Describe("Parse", Pending, func() {
 	})
 
 	It("should ignore separating newlines", func() {
-		buf := bytes.NewBufferString(`target:
-
-target2:`)
+		buf := bytes.NewBufferString("target:\n\ntarget2:")
 
 		m, err := make.Parse(buf)
 
@@ -127,6 +125,19 @@ target2:`)
 			Target:  []string{"target"},
 			PreReqs: []string{},
 			Recipe:  []string{},
+		}))
+	})
+
+	It("should parse recipes", func() {
+		buf := bytes.NewBufferString("target:\n\trecipe\n")
+
+		m, err := make.Parse(buf)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(m.Rules).To(ConsistOf(make.Rule{
+			Target:  []string{"target"},
+			PreReqs: []string{},
+			Recipe:  []string{"recipe"},
 		}))
 	})
 })
