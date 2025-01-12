@@ -70,7 +70,7 @@ var _ = Describe("Scanner", func() {
 		Entry(nil, "ident )"),
 		Entry(nil, "ident {"),
 		Entry(nil, "ident }"),
-		Entry(nil, "ident ,", Pending),
+		Entry(nil, "ident ,"),
 		Entry(nil, "ident\n\t"),
 		func(input string) {
 			buf := bytes.NewBufferString(input)
@@ -97,8 +97,7 @@ var _ = Describe("Scanner", func() {
 		Entry(nil, ")", token.RPAREN),
 		Entry(nil, "{", token.LBRACE),
 		Entry(nil, "}", token.RBRACE),
-		Entry(nil, ",", token.COMMA, Pending),
-		Entry(nil, "\n", token.NEWLINE, Pending),
+		Entry(nil, ",", token.COMMA),
 		Entry(nil, "\t", token.TAB),
 		func(input string, expected token.Token) {
 			buf := bytes.NewBufferString(input)
@@ -110,4 +109,12 @@ var _ = Describe("Scanner", func() {
 			Expect(more).To(BeTrueBecause("more to scan"))
 		},
 	)
+
+	It("should scan newline followed by token", func() {
+		buf := bytes.NewBufferString("\n ident")
+		s := make.NewScanner(buf)
+
+		Expect(s.Scan()).To(BeTrue())
+		Expect(s.Token()).To(Equal(token.NEWLINE))
+	})
 })

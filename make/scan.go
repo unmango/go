@@ -39,15 +39,15 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 		}
 
 		fallthrough
-	case '\n', '\t', '$', '(', ')', '{', '}':
+	case '\n', '\t', '$', '(', ')', '{', '}', ',':
 		return 1, data[:1], nil
 	}
 
-	if i := bytes.IndexAny(data, ":\n\t (){}"); i > 0 {
+	if i := bytes.IndexAny(data, ":\n\t (){},"); i > 0 {
 		switch data[i] {
 		case ' ':
 			return i + 1, data[:i], nil
-		case ':', '\n', '\t', '(', ')', '{', '}':
+		case ':', '\n', '\t', '(', ')', '{', '}', ',':
 			return i, data[:i], nil
 		}
 	}

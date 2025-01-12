@@ -89,6 +89,9 @@ var _ = Describe("Scan", func() {
 			Entry("info function",
 				"$(info thing)", []string{"$", "(", "info", "thing", ")"},
 			),
+			Entry("subst function",
+				"$(subst from,to,text)", []string{"$", "(", "subst", "from", ",", "to", ",", "text", ")"},
+			),
 			func(text string, expected []string) {
 				buf := bytes.NewBufferString(text)
 				s := bufio.NewScanner(buf)
