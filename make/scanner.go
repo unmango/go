@@ -2,35 +2,24 @@ package make
 
 import (
 	"bufio"
-	"bytes"
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/unmango/go/make/token"
 )
 
 type Scanner struct {
-	s    *bufio.Scanner
-	file *token.File
+	s *bufio.Scanner
 
 	tok token.Token
 	lit string
 
-	done       bool
-	offset     int
-	rdOffset   int
-	lineOffset int
-	nlPos      token.Pos
+	done bool
 }
 
-func NewScanner(r io.Reader, file *token.File) *Scanner {
-	s := &Scanner{
-		s:    bufio.NewScanner(r),
-		file: file,
-	}
+func NewScanner(r io.Reader) *Scanner {
+	s := &Scanner{s: bufio.NewScanner(r)}
 	s.s.Split(ScanTokens)
-	s.next()
+	s.done = !s.s.Scan()
 
 	return s
 }
@@ -47,11 +36,14 @@ func (s Scanner) Literal() string {
 	return s.lit
 }
 
-func (s Scanner) Pos() token.Pos {
-	return s.file.Pos(s.offset)
-}
-
 func (s *Scanner) Scan() bool {
+	if s.done {
+		s.tok = token.EOF
+		return false
+	}
+
+	var atNewline bool
+
 	switch txt := s.s.Text(); {
 	case token.IsIdentifier(txt):
 		s.lit = txt
@@ -61,7 +53,6 @@ func (s *Scanner) Scan() bool {
 			s.tok = token.IDENT
 		}
 	default:
-		s.next()
 		switch txt {
 		case "=":
 			s.tok = token.RECURSIVE_ASSIGN
@@ -78,6 +69,7 @@ func (s *Scanner) Scan() bool {
 		case ",":
 			s.tok = token.COMMA
 		case "\n":
+			atNewline = true
 			s.tok = token.NEWLINE
 		case "\t":
 			s.tok = token.TAB
@@ -94,7 +86,8 @@ func (s *Scanner) Scan() bool {
 		case ":":
 			s.tok = token.COLON
 		case "#":
-			s.lit = s.scanComment()
+			// TODO
+			// s.lit = s.scanComment()
 			s.tok = token.COMMENT
 		default:
 			s.tok = token.UNSUPPORTED
@@ -102,50 +95,11 @@ func (s *Scanner) Scan() bool {
 		}
 	}
 
-	return !s.done
-}
-
-func (s *Scanner) next() {
-	fmt.Println(s.done)
-	if s.done {
-		s.offset += len(s.s.Bytes())
-		if s.isNewline() {
-			s.lineOffset = s.offset
-			s.file.AddLine(s.offset)
-		}
+	s.done = !s.s.Scan()
+	if atNewline && s.done {
 		s.tok = token.EOF
+		return false
 	} else {
-		s.offset = s.rdOffset
-		if s.isNewline() {
-			s.lineOffset = s.offset
-			s.file.AddLine(s.offset)
-		}
-
-		s.rdOffset += len(s.s.Bytes())
-		s.done = !s.s.Scan()
+		return true
 	}
-}
-
-func (s Scanner) isNewline() bool {
-	return bytes.ContainsRune(s.s.Bytes(), '\n')
-}
-
-func (s *Scanner) skipWhitespace() {
-	for bytes.ContainsAny(s.s.Bytes(), " \t\n\r") {
-		s.next()
-	}
-}
-
-func (s *Scanner) scanComment() string {
-	b := &strings.Builder{}
-	s.next() // Skip #
-	for !s.done && !s.isNewline() {
-		b.Write(s.s.Bytes())
-		s.next()
-	}
-	if s.isNewline() {
-		s.next() // Skip trailing \n
-	}
-
-	return b.String()
 }

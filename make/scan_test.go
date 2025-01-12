@@ -11,7 +11,7 @@ import (
 )
 
 var _ = Describe("Scan", func() {
-	FDescribe("ScanTokens", func() {
+	Describe("ScanTokens", func() {
 		DescribeTable("Scanner",
 			Entry("target",
 				"target:", []string{"target", ":"},
