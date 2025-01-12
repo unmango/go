@@ -1,0 +1,27 @@
+mode: set
+github.com/unmango/go/make/token/token.go:185.34,187.42 2 1
+github.com/unmango/go/make/token/token.go:187.42,189.3 1 1
+github.com/unmango/go/make/token/token.go:190.2,190.13 1 1
+github.com/unmango/go/make/token/token.go:190.13,192.3 1 1
+github.com/unmango/go/make/token/token.go:194.2,194.10 1 1
+github.com/unmango/go/make/token/token.go:203.13,205.53 2 1
+github.com/unmango/go/make/token/token.go:205.53,207.3 1 1
+github.com/unmango/go/make/token/token.go:209.2,210.51 2 1
+github.com/unmango/go/make/token/token.go:210.51,212.3 1 1
+github.com/unmango/go/make/token/token.go:214.2,215.31 2 1
+github.com/unmango/go/make/token/token.go:215.31,217.3 1 1
+github.com/unmango/go/make/token/token.go:218.2,218.30 1 1
+github.com/unmango/go/make/token/token.go:218.30,220.3 1 1
+github.com/unmango/go/make/token/token.go:223.33,224.36 1 1
+github.com/unmango/go/make/token/token.go:224.36,226.3 1 1
+github.com/unmango/go/make/token/token.go:228.2,228.14 1 1
+github.com/unmango/go/make/token/token.go:232.35,234.2 1 1
+github.com/unmango/go/make/token/token.go:237.36,239.2 1 1
+github.com/unmango/go/make/token/token.go:242.37,244.2 1 1
+github.com/unmango/go/make/token/token.go:247.43,249.2 1 1
+github.com/unmango/go/make/token/token.go:253.34,255.2 1 1
+github.com/unmango/go/make/token/token.go:258.36,261.2 2 1
+github.com/unmango/go/make/token/token.go:264.42,267.2 2 1
+github.com/unmango/go/make/token/token.go:271.37,272.35 1 1
+github.com/unmango/go/make/token/token.go:272.35,274.3 1 1
+github.com/unmango/go/make/token/token.go:277.2,277.13 1 1

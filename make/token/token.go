@@ -181,7 +181,7 @@ var tokens = [...]string{
 	VALUE:      "value",
 }
 
-// Strings returns the string corresponding to the token tok.
+// String returns the string corresponding to the token tok.
 func (tok Token) String() string {
 	s := ""
 	if 0 <= tok && tok < Token(len(tokens)) {
