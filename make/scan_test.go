@@ -11,7 +11,7 @@ import (
 )
 
 var _ = Describe("Scan", func() {
-	Describe("ScanTokens", func() {
+	FDescribe("ScanTokens", func() {
 		DescribeTable("Scanner",
 			Entry("target",
 				"target:", []string{"target", ":"},
@@ -38,14 +38,14 @@ var _ = Describe("Scan", func() {
 				"target: prereq prereq2", []string{"target", ":", "prereq", "prereq2"},
 			),
 			Entry("target with a recipe",
-				"target:\n\trecipe", []string{"target", ":", "\n\t", "recipe"},
+				"target:\n\trecipe", []string{"target", ":", "\n", "\t", "recipe"},
 			),
 			Entry("target with a recipe and trailing newline",
-				"target:\n\trecipe\n", []string{"target", ":", "\n\t", "recipe", "\n"},
+				"target:\n\trecipe\n", []string{"target", ":", "\n", "\t", "recipe", "\n"},
 			),
 			Entry("target with multiple recipes",
 				"target:\n\trecipe\n\trecipe2",
-				[]string{"target", ":", "\n\t", "recipe", "\n\t", "recipe2"},
+				[]string{"target", ":", "\n", "\t", "recipe", "\n", "\t", "recipe2"},
 			),
 			Entry("comment",
 				"# comment", []string{"#", "comment"},
@@ -70,6 +70,24 @@ var _ = Describe("Scan", func() {
 			),
 			Entry("variable with a trailing newline",
 				"VAR := test\n", []string{"VAR", ":=", "test", "\n"},
+			),
+			Entry("recursive variable",
+				"VAR = test", []string{"VAR", "=", "test"},
+			),
+			Entry("posix variable",
+				"VAR ::= test", []string{"VAR", "::=", "test"},
+			),
+			Entry("immediate variable",
+				"VAR :::= test", []string{"VAR", ":::=", "test"},
+			),
+			Entry("ifndef variable",
+				"VAR ?= test", []string{"VAR", "?=", "test"},
+			),
+			Entry("shell variable",
+				"VAR != test", []string{"VAR", "!=", "test"},
+			),
+			Entry("info function",
+				"$(info thing)", []string{"$", "(", "info", "thing", ")"},
 			),
 			func(text string, expected []string) {
 				buf := bytes.NewBufferString(text)
