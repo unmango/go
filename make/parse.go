@@ -5,6 +5,20 @@ import (
 	"io"
 )
 
+type Token string
+
+const (
+	CommentToken      Token = "comment"
+	DirectiveToken    Token = "directive"
+	PreRequisiteToken Token = "prerequisite"
+	RecipeToken       Token = "recipe"
+	RuleToken         Token = "rule"
+	TargetToken       Token = "target"
+	UnsupportedToken  Token = "unsupported"
+	VariableToken     Token = "variable"
+	WhitespaceToken   Token = "whitespace"
+)
+
 var emtpyRule = Rule{
 	Target:  []string{},
 	PreReqs: []string{},

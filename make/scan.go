@@ -4,20 +4,8 @@ import (
 	"bytes"
 )
 
-type Token string
-
-const (
-	CommentToken      Token = "comment"
-	DirectiveToken    Token = "directive"
-	PreRequisiteToken Token = "prerequisite"
-	RecipeToken       Token = "recipe"
-	RuleToken         Token = "rule"
-	TargetToken       Token = "target"
-	UnsupportedToken  Token = "unsupported"
-	VariableToken     Token = "variable"
-	WhitespaceToken   Token = "whitespace"
-)
-
+// ScanTokens is a [bufio.SplitFunc] for a [bufio.Scanner] that
+// scans for tokens supported by the make syntax.
 func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	if atEOF && len(data) == 0 {
 		return 0, nil, nil
@@ -25,7 +13,7 @@ func ScanTokens(data []byte, atEOF bool) (advance int, token []byte, err error) 
 
 	switch data[0] {
 	case ' ':
-		return 1, nil, nil
+		return 1, nil, nil // TODO: Treat this as a token
 	case ':':
 		if len(data) > 1 && data[1] == '=' {
 			return 2, data[:2], nil

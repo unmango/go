@@ -4,7 +4,9 @@
 // [go/token package]: https://pkg.go.dev/go/token
 package token
 
-import "strconv"
+import (
+	"strconv"
+)
 
 // Token defines the set of lexical tokens of a Makefile.
 // [Quick Reference]
@@ -19,18 +21,20 @@ const (
 	COMMENT // #comment text
 
 	literal_beg
-	IDENT // name
+	IDENT // some_name
 	literal_end
 
 	operator_beg
 	// Operators and delimiters
-	LPAREN // (
-	LBRACE // {
-	RPAREN // )
-	RBRACE // }
-	DOLLAR // $
-	COLON  // :
-	COMMA  // ,
+	LPAREN  // (
+	LBRACE  // {
+	RPAREN  // )
+	RBRACE  // }
+	DOLLAR  // $
+	COLON   // :
+	COMMA   // ,
+	NEWLINE // \n
+	TAB     // \t
 
 	RECURSIVE_ASSIGN // =
 	SIMPLE_ASSIGN    // :=
@@ -109,13 +113,15 @@ var tokens = [...]string{
 	COMMENT: "COMMENT",
 	IDENT:   "IDENT",
 
-	LPAREN: "(",
-	LBRACE: "{",
-	RPAREN: ")",
-	RBRACE: "}",
-	DOLLAR: "$",
-	COLON:  ":",
-	COMMA:  ",",
+	LPAREN:  "(",
+	LBRACE:  "{",
+	RPAREN:  ")",
+	RBRACE:  "}",
+	DOLLAR:  "$",
+	COLON:   ":",
+	COMMA:   ",",
+	NEWLINE: "\n",
+	TAB:     "\t",
 
 	RECURSIVE_ASSIGN: "=",
 	SIMPLE_ASSIGN:    ":=",
@@ -272,7 +278,12 @@ func IsIdentifier(name string) bool {
 	if name == "" || IsKeyword(name) {
 		return false
 	}
+	switch name {
+	case "(", ")", "{", "}", "$", ":", ",", "\n", "\t":
+		fallthrough
+	case "=", ":=", "::=", ":::=", "?=", "!=":
+		return false
+	}
 
-	// TODO: There is more logic here, not sure what it is yet though
 	return true
 }
