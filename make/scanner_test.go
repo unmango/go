@@ -76,11 +76,38 @@ var _ = Describe("Scanner", func() {
 			buf := bytes.NewBufferString(input)
 			s := make.NewScanner(buf)
 
-			cont := s.Scan()
+			more := s.Scan()
 
 			Expect(s.Token()).To(Equal(token.IDENT))
 			Expect(s.Literal()).To(Equal("ident"))
-			Expect(cont).To(BeTrue())
+			Expect(more).To(BeTrueBecause("more to scan"))
+		},
+	)
+
+	DescribeTable("Scan non-ident tokens",
+		Entry(nil, "$", token.DOLLAR),
+		Entry(nil, ":", token.COLON),
+		Entry(nil, "=", token.RECURSIVE_ASSIGN),
+		Entry(nil, ":=", token.SIMPLE_ASSIGN),
+		Entry(nil, "::=", token.POSIX_ASSIGN),
+		Entry(nil, ":::=", token.IMMEDIATE_ASSIGN),
+		Entry(nil, "?=", token.IFNDEF_ASSIGN),
+		Entry(nil, "!=", token.SHELL_ASSIGN),
+		Entry(nil, "(", token.LPAREN),
+		Entry(nil, ")", token.RPAREN),
+		Entry(nil, "{", token.LBRACE),
+		Entry(nil, "}", token.RBRACE),
+		Entry(nil, ",", token.COMMA, Pending),
+		Entry(nil, "\n", token.NEWLINE, Pending),
+		Entry(nil, "\t", token.TAB),
+		func(input string, expected token.Token) {
+			buf := bytes.NewBufferString(input)
+			s := make.NewScanner(buf)
+
+			more := s.Scan()
+
+			Expect(s.Token()).To(Equal(expected))
+			Expect(more).To(BeTrueBecause("more to scan"))
 		},
 	)
 })
