@@ -4,15 +4,7 @@ import (
 	"iter"
 )
 
-type Seq2[K, V any] iter.Seq2[K, V]
-
-func D2[K, V any](seq Seq2[K, V]) iter.Seq2[K, V] {
-	return iter.Seq2[K, V](seq)
-}
-
-func U2[K, V any](seq iter.Seq2[K, V]) Seq2[K, V] {
-	return Seq2[K, V](seq)
-}
+type Seq2[K, V any] = iter.Seq2[K, V]
 
 func DropFirst2[T, U any](seq Seq2[T, U]) Seq[U] {
 	return func(yield func(U) bool) {

@@ -22,7 +22,7 @@ var _ = Describe("Adapters", func() {
 				b := maps.All(m)
 
 				as := gmaps.Collect(a)
-				bs := gmaps.Collect(iter.D2(b))
+				bs := gmaps.Collect(b)
 
 				return gmaps.Equal(as, bs)
 			}
@@ -44,7 +44,7 @@ var _ = Describe("Adapters", func() {
 			fn := func(m map[string]string) bool {
 				seq := gmaps.All(m)
 				a := gmaps.Collect(seq)
-				b := maps.Collect(iter.U2(seq))
+				b := maps.Collect(seq)
 
 				return gmaps.Equal(a, b)
 			}
@@ -60,7 +60,7 @@ var _ = Describe("Adapters", func() {
 				b := maps.Keys(m)
 
 				as := gslices.Collect(a)
-				bs := gslices.Collect(iter.D(b))
+				bs := gslices.Collect(b)
 
 				less := func(a, b string) bool { return a < b }
 				return cmp.Equal(as, bs, cmpopts.SortSlices(less))
@@ -77,7 +77,7 @@ var _ = Describe("Adapters", func() {
 				b := maps.Values(m)
 
 				as := gslices.Collect(a)
-				bs := gslices.Collect(iter.D(b))
+				bs := gslices.Collect(b)
 
 				less := func(a, b string) bool { return a < b }
 				return cmp.Equal(as, bs, cmpopts.SortSlices(less))
