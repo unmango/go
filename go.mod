@@ -3,7 +3,7 @@ module github.com/unmango/go
 go 1.24.0
 
 require (
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 )
