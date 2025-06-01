@@ -27,6 +27,12 @@ var _ = Describe("Seq", func() {
 
 			Expect(seq).To(HaveExactElements("a"))
 		})
+
+		It("should append all values", func() {
+			seq := iter.Append(nil, "a", "b")
+
+			Expect(seq).To(HaveExactElements("a", "b"))
+		})
 	})
 
 	Describe("Bind", func() {

@@ -7,22 +7,12 @@ import (
 
 type Seq[V any] = iter.Seq[V]
 
-func Append[V any](seq Seq[V], v V) Seq[V] {
+func Append[V any](seq Seq[V], v ...V) Seq[V] {
 	if seq == nil {
-		return Singleton(v)
+		return Values(v...)
 	}
 
-	return func(yield func(V) bool) {
-		cont := true
-		seq(func(v V) bool {
-			cont = yield(v)
-			return cont
-		})
-
-		if cont {
-			_ = yield(v)
-		}
-	}
+	return Concat(seq, Values(v...))
 }
 
 func Bind[V, X any](seq Seq[V], fn func(V) Seq[X]) Seq[X] {
@@ -32,6 +22,21 @@ func Bind[V, X any](seq Seq[V], fn func(V) Seq[X]) Seq[X] {
 				if !yield(x) {
 					return
 				}
+			}
+		}
+	}
+}
+
+func Concat[V any](seq Seq[V], other Seq[V]) Seq[V] {
+	return func(yield func(V) bool) {
+		for x := range seq {
+			if !yield(x) {
+				return
+			}
+		}
+		for x := range other {
+			if !yield(x) {
+				return
 			}
 		}
 	}
