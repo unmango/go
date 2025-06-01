@@ -8,6 +8,10 @@ import (
 type Seq[V any] = iter.Seq[V]
 
 func Append[V any](seq Seq[V], v V) Seq[V] {
+	if seq == nil {
+		return Singleton(v)
+	}
+
 	return func(yield func(V) bool) {
 		cont := true
 		seq(func(v V) bool {
