@@ -6,6 +6,22 @@ import (
 
 type Seq2[K, V any] = iter.Seq2[K, V]
 
+func Append2[K, V any](seq Seq2[K, V], k K, v V) Seq2[K, V] {
+	if seq == nil {
+		return Singleton2(k, v)
+	}
+
+	return func(yield func(K, V) bool) {
+		for a, b := range seq {
+			if !yield(a, b) {
+				return
+			}
+		}
+
+		_ = yield(k, v)
+	}
+}
+
 func DropFirst2[T, U any](seq Seq2[T, U]) Seq[U] {
 	return func(yield func(U) bool) {
 		seq(func(_ T, u U) bool {
