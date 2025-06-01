@@ -58,7 +58,7 @@ func Map2[K, V, X, Y any](seq Seq2[K, V], fn func(K, V) (X, Y)) Seq2[X, Y] {
 }
 
 func Pull2[K, V any](seq Seq2[K, V]) (next func() (K, V, bool), stop func()) {
-	return iter.Pull2(iter.Seq2[K, V](seq))
+	return iter.Pull2(seq)
 }
 
 func Singleton2[K, V any](k K, v V) Seq2[K, V] {

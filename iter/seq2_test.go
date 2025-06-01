@@ -79,6 +79,19 @@ var _ = Describe("Seq2", func() {
 		})
 	})
 
+	Describe("Pull", func() {
+		It("should pull", func() {
+			seq := iter.Singleton2("a", 1)
+
+			next, _ := iter.Pull2(seq)
+			a, b, ok := next()
+
+			Expect(ok).To(BeTrue())
+			Expect(a).To(Equal("a"))
+			Expect(b).To(Equal(1))
+		})
+	})
+
 	Describe("Singleton", func() {
 		It("should yield a single element", func() {
 			seq := iter.Singleton2(69, "420")

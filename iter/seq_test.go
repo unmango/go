@@ -137,6 +137,18 @@ var _ = Describe("Seq", func() {
 		})
 	})
 
+	Describe("Pull", func() {
+		It("should pull", func() {
+			seq := iter.Singleton("a")
+
+			next, _ := iter.Pull(seq)
+			elem, ok := next()
+
+			Expect(ok).To(BeTrue())
+			Expect(elem).To(Equal("a"))
+		})
+	})
+
 	Describe("Remove", func() {
 		It("should remove the given element", func() {
 			s := slices.Values([]int{1, 2, 3, 4})
