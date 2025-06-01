@@ -111,7 +111,7 @@ func Map[V, X any](seq Seq[V], fn func(V) X) Seq[X] {
 }
 
 func Pull[V any](seq Seq[V]) (next func() (V, bool), stop func()) {
-	return iter.Pull(iter.Seq[V](seq))
+	return iter.Pull(seq)
 }
 
 func Remove[V comparable](seq Seq[V], r V) Seq[V] {
