@@ -1,6 +1,8 @@
 package iter_test
 
 import (
+	"maps"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -9,6 +11,27 @@ import (
 )
 
 var _ = Describe("Seq2", func() {
+	Describe("Append", func() {
+		It("should append", func() {
+			seq := iter.Singleton2("a", 1)
+
+			seq = iter.Append2(seq, "b", 2)
+
+			Expect(maps.Collect(seq)).To(Equal(map[string]int{
+				"a": 1,
+				"b": 2,
+			}))
+		})
+
+		It("should ignore nil seqs", func() {
+			seq := iter.Append2(nil, "a", 1)
+
+			Expect(maps.Collect(seq)).To(Equal(map[string]int{
+				"a": 1,
+			}))
+		})
+	})
+
 	Describe("DropFirst", func() {
 		It("should yield the last element of the tuple", func() {
 			seq := iter.Singleton2(69, "420")
