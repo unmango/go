@@ -13,6 +13,28 @@ type bindStub struct {
 }
 
 var _ = Describe("Seq", func() {
+	Describe("Append", func() {
+		It("should append a value", func() {
+			seq := slices.Values([]string{"a"})
+
+			seq = iter.Append(seq, "b")
+
+			Expect(seq).To(HaveExactElements("a", "b"))
+		})
+
+		It("should ignore nil seqs", func() {
+			seq := iter.Append(nil, "a")
+
+			Expect(seq).To(HaveExactElements("a"))
+		})
+
+		It("should append all values", func() {
+			seq := iter.Append(nil, "a", "b")
+
+			Expect(seq).To(HaveExactElements("a", "b"))
+		})
+	})
+
 	Describe("Bind", func() {
 		It("should bind", func() {
 			a := iter.Singleton(69)
