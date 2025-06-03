@@ -14,7 +14,7 @@ var (
 
 type Codec interface {
 	Marshaler
-	Unmarhsaler
+	Unmarshaler
 }
 
 type Decoder interface {
@@ -29,6 +29,6 @@ type Marshaler interface {
 	Marshal(v any) ([]byte, error)
 }
 
-type Unmarhsaler interface {
+type Unmarshaler interface {
 	Unmarshal(data []byte, v any) error
 }
