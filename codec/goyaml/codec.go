@@ -1,11 +1,23 @@
 package goyaml
 
-import "gopkg.in/yaml.v3"
+import (
+	"io"
+
+	"gopkg.in/yaml.v3"
+)
 
 var DefaultCodec = Codec{}
 
 // Coded implements https://github.com/go-yaml/yaml
 type Codec struct{}
+
+func (Codec) NewDecoder(r io.Reader) *yaml.Decoder {
+	return yaml.NewDecoder(r)
+}
+
+func (Codec) NewEncoder(w io.Writer) *yaml.Encoder {
+	return yaml.NewEncoder(w)
+}
 
 func (Codec) Marshal(v any) ([]byte, error) {
 	return yaml.Marshal(v)
