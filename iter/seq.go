@@ -27,6 +27,33 @@ func Bind[V, X any](seq Seq[V], fn func(V) Seq[X]) Seq[X] {
 	}
 }
 
+func Compact[S Seq[V], V comparable](seq S) []V {
+	// if len(s) < 2 {
+	// 	return s
+	// }
+	// for k := 1; k < len(s); k++ {
+	// 	if s[k] == s[k-1] {
+	// 		s2 := s[k:]
+	// 		for k2 := 1; k2 < len(s2); k2++ {
+	// 			if s2[k2] != s2[k2-1] {
+	// 				s[k] = s2[k2]
+	// 				k++
+	// 			}
+	// 		}
+
+	// 		clear(s[k:]) // zero/nil out the obsolete elements, for GC
+	// 		return s[:k]
+	// 	}
+	// }
+	// return s
+	s := []V{}
+	for i, v := range Indexed(seq) {
+		
+	}
+
+	return s
+}
+
 func Concat[V any](seq Seq[V], other Seq[V]) Seq[V] {
 	return func(yield func(V) bool) {
 		for x := range seq {
@@ -168,6 +195,18 @@ func Values[V any](values ...V) Seq[V] {
 			if !yield(v) {
 				return
 			}
+		}
+	}
+}
+
+func Indexed[S Seq[V], V any](s S) Seq2[int, V] {
+	var c int
+	return func(yield func(int, V) bool) {
+		for x := range s {
+			if !yield(c, x) {
+				return
+			}
+			c++
 		}
 	}
 }
