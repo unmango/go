@@ -8,6 +8,18 @@ import (
 
 type Seq[V any] = iter.Seq[V]
 
+func All[S Seq[V], V any](s S) Seq2[int, V] {
+	var c int
+	return func(yield func(int, V) bool) {
+		for x := range s {
+			if !yield(c, x) {
+				return
+			}
+			c++
+		}
+	}
+}
+
 func Append[V any](seq Seq[V], v ...V) Seq[V] {
 	if seq == nil {
 		return Values(v...)
@@ -177,18 +189,6 @@ func Values[V any](values ...V) Seq[V] {
 			if !yield(v) {
 				return
 			}
-		}
-	}
-}
-
-func Indexed[S Seq[V], V any](s S) Seq2[int, V] {
-	var c int
-	return func(yield func(int, V) bool) {
-		for x := range s {
-			if !yield(c, x) {
-				return
-			}
-			c++
 		}
 	}
 }

@@ -1,6 +1,8 @@
 package slices_test
 
 import (
+	"maps"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -25,5 +27,18 @@ var _ = Describe("Slices", func() {
 		})
 
 		Expect(res).To(Equal([]int{1, 2, 3}))
+	})
+
+	It("should zip", func() {
+		a := []int{1, 2, 3}
+		b := []int{4, 5, 6}
+
+		res := slices.Zip(a, b)
+
+		Expect(maps.Collect(res)).To(Equal(map[int]int{
+			1: 4,
+			2: 5,
+			3: 6,
+		}))
 	})
 })

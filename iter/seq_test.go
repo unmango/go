@@ -1,6 +1,8 @@
 package iter_test
 
 import (
+	"maps"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -48,6 +50,28 @@ var _ = Describe("Seq", func() {
 		})
 	})
 
+	Describe("Compact", func() {
+		It("should compact", func() {
+			seq := slices.Values([]int{1, 2, 2, 3})
+
+			res := iter.Compact(seq)
+
+			Expect(res).To(HaveExactElements(1, 2, 3))
+		})
+	})
+
+	Describe("CompactFunc", func() {
+		It("should compact", func() {
+			seq := slices.Values([]int{1, 2, 2, 3})
+
+			res := iter.CompactFunc(seq, func(a, b int) bool {
+				return a == b
+			})
+
+			Expect(res).To(HaveExactElements(1, 2, 3))
+		})
+	})
+
 	Describe("Empty", func() {
 		It("should not yield any elements", func() {
 			seq := iter.Empty[int]()
@@ -84,6 +108,18 @@ var _ = Describe("Seq", func() {
 			_, err := iter.Head(s)
 
 			Expect(err).To(MatchError("empty sequence"))
+		})
+	})
+
+	Describe("All", func() {
+		It("should create a sequence with the index", func() {
+			seq := slices.Values([]int{2})
+
+			res := iter.All(seq)
+
+			Expect(maps.Collect(res)).To(Equal(map[int]int{
+				0: 2,
+			}))
 		})
 	})
 
