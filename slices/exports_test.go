@@ -30,4 +30,33 @@ var _ = Describe("Collect", func() {
 
 		Expect(quick.Check(f, nil)).To(Succeed())
 	})
+
+	It("should equal slices.Compact", func() {
+		f := func(s []int) bool {
+			slice := []int{69}
+
+			a := slices.Compact(slice)
+			b := goslices.Compact(slice)
+
+			return goslices.Equal(a, b)
+		}
+
+		Expect(quick.Check(f, nil)).To(Succeed())
+	})
+
+	It("should equal slices.CompactFunc", func() {
+		f := func(s []int) bool {
+			slice := []int{69}
+			eq := func(a, b int) bool {
+				return a == b
+			}
+
+			a := slices.CompactFunc(slice, eq)
+			b := goslices.CompactFunc(slice, eq)
+
+			return goslices.Equal(a, b)
+		}
+
+		Expect(quick.Check(f, nil)).To(Succeed())
+	})
 })
