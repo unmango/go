@@ -2,9 +2,8 @@ package slices
 
 import (
 	"cmp"
+	"iter"
 	"slices"
-
-	"github.com/unmango/go/iter"
 )
 
 func All[S ~[]E, E any](s S) iter.Seq2[int, E] {
@@ -17,6 +16,14 @@ func AppendSeq[S ~[]E, E any](s S, seq iter.Seq[E]) S {
 
 func Backward[S ~[]E, E any](s S) iter.Seq2[int, E] {
 	return slices.Backward(s)
+}
+
+func Compact[S ~[]E, E comparable](s S) []E {
+	return slices.Compact(s)
+}
+
+func CompactFunc[S ~[]E, E any](s S, eq func(E, E) bool) []E {
+	return slices.CompactFunc(s, eq)
 }
 
 func Chunk[S ~[]E, E any](s S, n int) iter.Seq[S] {
