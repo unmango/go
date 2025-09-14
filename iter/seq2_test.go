@@ -64,7 +64,7 @@ var _ = Describe("Seq2", func() {
 
 	Describe("Fold", func() {
 		It("should fold", func() {
-			s := slices.Values2([]int{69, 420}, []string{"69", "420"})
+			s := slices.Zip([]int{69, 420}, []string{"69", "420"})
 
 			r := iter.Fold2(s, func(sum int, i int, _ string) int {
 				return sum + i
@@ -76,7 +76,7 @@ var _ = Describe("Seq2", func() {
 
 	Describe("Filter", func() {
 		It("should not yield the filtered element", func() {
-			s := slices.Values2([]int{69, 420}, []string{"69", "420"})
+			s := slices.Zip([]int{69, 420}, []string{"69", "420"})
 
 			r := iter.Filter2(s, func(i int, _ string) bool {
 				return i == 69
@@ -90,7 +90,7 @@ var _ = Describe("Seq2", func() {
 
 	Describe("Map", func() {
 		It("should map", func() {
-			s := slices.Values2([]int{69, 420}, []string{"69", "420"})
+			s := slices.Zip([]int{69, 420}, []string{"69", "420"})
 
 			r := iter.Map2(s, func(i int, s string) (int, string) {
 				return i + 1, s

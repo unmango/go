@@ -3,9 +3,22 @@ package iter
 import (
 	"errors"
 	"iter"
+	"slices"
 )
 
 type Seq[V any] = iter.Seq[V]
+
+func All[S Seq[V], V any](s S) Seq2[int, V] {
+	var c int
+	return func(yield func(int, V) bool) {
+		for x := range s {
+			if !yield(c, x) {
+				return
+			}
+			c++
+		}
+	}
+}
 
 func Append[V any](seq Seq[V], v ...V) Seq[V] {
 	if seq == nil {
@@ -27,6 +40,14 @@ func Bind[V, X any](seq Seq[V], fn func(V) Seq[X]) Seq[X] {
 	}
 }
 
+func Compact[V comparable](seq Seq[V]) Seq[V] {
+	return slices.Values(slices.Compact(slices.Collect(seq)))
+}
+
+func CompactFunc[V any](seq Seq[V], eq func(V, V) bool) Seq[V] {
+	return slices.Values(slices.CompactFunc(slices.Collect(seq), eq))
+}
+
 func Concat[V any](seq Seq[V], other Seq[V]) Seq[V] {
 	return func(yield func(V) bool) {
 		for x := range seq {
@@ -46,10 +67,10 @@ func Empty[V any]() Seq[V] {
 	return func(yield func(V) bool) {}
 }
 
-func Filter[V any](seq Seq[V], predicate func(V) bool) Seq[V] {
+func Filter[V any](seq Seq[V], pred func(V) bool) Seq[V] {
 	return func(yield func(V) bool) {
 		for v := range seq {
-			if !predicate(v) {
+			if !pred(v) {
 				continue
 			}
 			if !yield(v) {

@@ -55,28 +55,28 @@ func Collect3[T, U, V any](seq iter.Seq3[T, U, V]) (a []T, b []U, c []V) {
 	return
 }
 
-func Values2[T, U any](t []T, u []U) iter.Seq2[T, U] {
-	if len(t) != len(u) {
-		panic(fmt.Sprintf("invalid source elements: t=%d u=%d", len(t), len(u)))
-	}
+func CompactSeq[E comparable](seq iter.Seq[E]) []E {
+	return Compact(Collect(seq))
+}
 
-	return func(yield func(T, U) bool) {
-		for i := range t {
-			if !yield(t[i], u[i]) {
+func CompactSeqFunc[E any](seq iter.Seq[E], eq func(E, E) bool) []E {
+	return CompactFunc(Collect(seq), eq)
+}
+
+func Zip[A, B any](as []A, bs []B) iter.Seq2[A, B] {
+	return func(yield func(A, B) bool) {
+		for i := 0; i < len(as) && i < len(bs); i++ {
+			if !yield(as[i], bs[i]) {
 				return
 			}
 		}
 	}
 }
 
-func Values3[T, U, V any](t []T, u []U, v []V) iter.Seq3[T, U, V] {
-	if len(t) != len(u) || len(t) != len(v) || len(u) != len(v) {
-		panic(fmt.Sprintf("invalid source elements: t=%d u=%d v=%d", len(t), len(u), len(v)))
-	}
-
-	return func(yield func(T, U, V) bool) {
-		for i := range t {
-			if !yield(t[i], u[i], v[i]) {
+func Values3[A, B, C any](as []A, bs []B, cs []C) iter.Seq3[A, B, C] {
+	return func(yield func(A, B, C) bool) {
+		for i := 0; i < len(as) && i < len(bs) && i < len(cs); i++ {
+			if !yield(as[i], bs[i], cs[i]) {
 				return
 			}
 		}
