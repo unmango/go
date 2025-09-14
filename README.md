@@ -1,8 +1,15 @@
 <!-- markdownlint-disable-file MD010 -->
 
-# Go Source code for UnMango
+# Go Utils
 
-A collection of random Go packages.
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/unmango/go/ci.yml)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/unmango/go/main)
+![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/unmango/go)
+![Codecov](https://img.shields.io/codecov/c/github/unmango/go)
+![GitHub Release](https://img.shields.io/github/v/release/unmango/go)
+![GitHub Release Date](https://img.shields.io/github/release-date/unmango/go)
+
+Dumping ground for shared Go packages.
 
 ## iter
 
