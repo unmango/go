@@ -1,8 +1,6 @@
 package os
 
-import (
-	"os"
-)
+import "os"
 
 const (
 	O_RDONLY = os.O_RDONLY
