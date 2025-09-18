@@ -11,6 +11,10 @@ var System = sys{}
 
 type sys struct{}
 
+func (sys) Args() []string {
+	return os.Args
+}
+
 func (sys) Chdir(dir string) error {
 	return os.Chdir(dir)
 }
@@ -103,6 +107,10 @@ func (sys) Hostname() (name string, err error) {
 	return os.Hostname()
 }
 
+func (sys) IsPathSeparator(c uint8) bool {
+	return os.IsPathSeparator(c)
+}
+
 func (sys) Lchown(name string, uid, gid int) error {
 	return os.Lchown(name, uid, gid)
 }
@@ -127,6 +135,42 @@ func (sys) MkdirTemp(dir, pattern string) (string, error) {
 	return os.MkdirTemp(dir, pattern)
 }
 
+func (sys) Pipe() (r io.Reader, w io.Writer, err error) {
+	return os.Pipe()
+}
+
+func (sys) ReadDir(name string) ([]DirEntry, error) {
+	return os.ReadDir(name)
+}
+
+func (sys) ReadFile(name string) ([]byte, error) {
+	return os.ReadFile(name)
+}
+
+func (sys) Readlink(name string) (string, error) {
+	return os.Readlink(name)
+}
+
+func (sys) Remove(name string) error {
+	return os.Remove(name)
+}
+
+func (sys) RemoveAll(path string) error {
+	return os.RemoveAll(path)
+}
+
+func (sys) Rename(oldpath string, newpath string) error {
+	return os.Rename(oldpath, newpath)
+}
+
+func (sys) SameFile(fi1 FileInfo, fi2 FileInfo) bool {
+	return os.SameFile(fi1, fi2)
+}
+
+func (sys) Setenv(key string, value string) error {
+	return os.Setenv(key, value)
+}
+
 func (sys) Stderr() io.Writer {
 	return os.Stderr
 }
@@ -139,6 +183,34 @@ func (sys) Stdout() io.Writer {
 	return os.Stdout
 }
 
+func (sys) Symlink(oldname string, newname string) error {
+	return os.Symlink(oldname, newname)
+}
+
 func (sys) TempDir() string {
 	return os.TempDir()
+}
+
+func (sys) Truncate(name string, size int64) error {
+	return os.Truncate(name, size)
+}
+
+func (sys) Unsetenv(key string) error {
+	return os.Unsetenv(key)
+}
+
+func (sys) UserCacheDir() (string, error) {
+	return os.UserCacheDir()
+}
+
+func (sys) UserConfigDir() (string, error) {
+	return os.UserConfigDir()
+}
+
+func (sys) UserHomeDir() (string, error) {
+	return os.UserHomeDir()
+}
+
+func (sys) WriteFile(name string, data []byte, perm FileMode) error {
+	return os.WriteFile(name, data, perm)
 }
