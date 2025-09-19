@@ -1,4 +1,4 @@
-package json
+package encodingjson
 
 import (
 	"encoding/json"
@@ -6,6 +6,13 @@ import (
 )
 
 var DefaultCodec = Codec{}
+
+type (
+	Encoder     = json.Encoder
+	Decoder     = json.Decoder
+	Marshaler   = json.Marshaler
+	Unmarshaler = json.Unmarshaler
+)
 
 // Codec implements https://pkg.go.dev/encoding/json
 type Codec struct{}
