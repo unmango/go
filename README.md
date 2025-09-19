@@ -4,12 +4,13 @@
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/unmango/go/ci.yml)
 ![GitHub branch check runs](https://img.shields.io/github/check-runs/unmango/go/main)
-![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/unmango/go)
 ![Codecov](https://img.shields.io/codecov/c/github/unmango/go)
 ![GitHub Release](https://img.shields.io/github/v/release/unmango/go)
 ![GitHub Release Date](https://img.shields.io/github/release-date/unmango/go)
 
 Dumping ground for shared Go packages.
+Some experiments with functional programming in packages like `iter`, `result`, and `rx`.
+Some moderately useful abstractions in `codec` and `os`
 
 ## iter
 
@@ -84,7 +85,6 @@ func main() {
 ## slices
 
 The `slices` package re-exports functions and types from the standard `slices` package for convenience.
-Due to Go not currently supporting generic type aliases, these functions adapt the standard `slices` seq to this module's `slices` package.
 
 ## rx
 
@@ -103,11 +103,10 @@ obs.OnNext(69)
 obs.OnComplete()
 ```
 
-## Inspiration
+## References
 
-I stand on the shoulders of giants.
 A lot of this is inspired by the works of others, be sure to check out these repos as well.
-(They're much smarter than me)
+They're much more interesting than anything you'll find here.
 
 <https://github.com/fogfish/golem>
 
