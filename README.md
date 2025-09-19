@@ -8,7 +8,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/unmango/go)
 ![GitHub Release Date](https://img.shields.io/github/release-date/unmango/go)
 
-Dumping ground for shared Go packages.
+Dumping ground for Go packages.
 Some experiments with functional programming in packages like `iter`, `result`, and `rx`.
 Some moderately useful abstractions in `codec` and `os`
 
