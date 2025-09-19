@@ -1,21 +1,19 @@
-package goyaml
+package goccy
 
 import (
 	"io"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 var DefaultCodec = Codec{}
 
 type (
-	Encoder     = yaml.Encoder
-	Decoder     = yaml.Decoder
-	Marshaler   = yaml.Marshaler
-	Unmarshaler = yaml.Unmarshaler
+	Encoder = yaml.Encoder
+	Decoder = yaml.Decoder
 )
 
-// Codec implements https://github.com/go-yaml/yaml
+// Codec implements https://github.com/goccy/go-yaml
 type Codec struct{}
 
 func (Codec) NewDecoder(r io.Reader) *yaml.Decoder {

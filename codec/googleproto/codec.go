@@ -6,20 +6,22 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var DefaultCodec = Codec{
-	ErrorHandler: PanicHandler,
-}
+var DefaultCodec = Codec{}
+
+type (
+	MarshalOptions   = proto.MarshalOptions
+	Message          = proto.Message
+	UnmarshalOptions = proto.UnmarshalOptions
+)
 
 // Codec implements https://pkg.go.dev/google.golang.org/protobuf/proto
-type Codec struct {
-	ErrorHandler func(any) error
-}
+type Codec struct{}
 
 func (c Codec) Marshal(v any) ([]byte, error) {
 	if msg, ok := v.(proto.Message); ok {
 		return proto.Marshal(msg)
 	} else {
-		return nil, c.ErrorHandler(v)
+		return nil, fmt.Errorf("not a proto.Message: %#v", v)
 	}
 }
 
@@ -27,10 +29,6 @@ func (c Codec) Unmarshal(data []byte, v any) error {
 	if msg, ok := v.(proto.Message); ok {
 		return proto.Unmarshal(data, msg)
 	} else {
-		return c.ErrorHandler(v)
+		return fmt.Errorf("not a proto.Message: %#v", v)
 	}
-}
-
-func PanicHandler(v any) error {
-	panic(fmt.Sprintf("not a proto.Message: %v", v))
 }
