@@ -13,6 +13,10 @@ type (
 )
 
 func Root(ctx context.Context) (string, error) {
+	if env, ok := os.LookupEnv("GIT_ROOT"); ok {
+		return env, nil
+	}
+
 	git, err := gitPath(ctx)
 	if err != nil {
 		return "", err
