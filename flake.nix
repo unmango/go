@@ -8,6 +8,13 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
   };
 
   outputs =
@@ -16,6 +23,7 @@
       nixpkgs,
       flake-utils,
       treefmt-nix,
+      gomod2nix,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
