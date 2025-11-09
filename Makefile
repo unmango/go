@@ -8,8 +8,11 @@ LOCALBIN    := ${WORKING_DIR}/bin
 
 export GOBIN := ${LOCALBIN}
 
-DEVCTL := go tool devctl
-GINKGO := go tool ginkgo
+GO        ?= go
+DEVCTL    ?= $(GO) tool devctl
+GINKGO    ?= $(GO) tool ginkgo
+GOMOD2NIX ?= gomod2nix
+NIX       ?= nix
 
 ifeq ($(CI),)
 TEST_FLAGS := --label-filter !E2E
@@ -27,8 +30,14 @@ test_all:
 clean:
 	find . -name report.json -delete
 
+result:
+	$(NIX) build
+
 go.sum: go.mod $(shell $(DEVCTL) list --go)
 	go mod tidy
+
+gomod2nix.toml: go.mod
+	$(GOMOD2NIX)
 
 %_suite_test.go:
 	cd $(dir $@) && $(GINKGO) bootstrap
@@ -42,6 +51,9 @@ go.sum: go.mod $(shell $(DEVCTL) list --go)
 .make/build: $(shell $(DEVCTL) list --go --exclude-tests)
 	go build ./...
 	@touch $@
+
+.make/nix-build:
+	$(NIX) build
 
 .make/test: $(shell $(DEVCTL) list --go)
 	$(GINKGO) run ${TEST_FLAGS} $(sort $(dir $?))

@@ -14,7 +14,7 @@ import (
 	"github.com/unmango/go/vcs/git"
 )
 
-var _ = Describe("Root", func() {
+var _ = Describe("Root", Label("Dependency:Git"), func() {
 	It("should print the current git root", func(ctx context.Context) {
 		wd, err := os.Getwd()
 		Expect(err).NotTo(HaveOccurred())

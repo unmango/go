@@ -8,6 +8,13 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
+    };
   };
 
   outputs =
@@ -16,6 +23,7 @@
       nixpkgs,
       flake-utils,
       treefmt-nix,
+      gomod2nix,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -29,13 +37,12 @@
           programs.nixfmt.enable = true;
         };
 
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            git
-            gnumake
-            go
-            ginkgo
-          ];
+        packages.default = pkgs.callPackage ./. {
+          inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
+        };
+
+        devShells.default = pkgs.callPackage ./shell.nix {
+          inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;
         };
       }
     );
