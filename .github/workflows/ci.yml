@@ -47,3 +47,16 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - run: nix flake check --all-systems
+
+  gomod2nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - run: go tool gomod2nix
+      - run: git diff --exit-code gomod2nix.toml
