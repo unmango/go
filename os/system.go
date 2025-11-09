@@ -119,6 +119,10 @@ func (sys) Link(oldname, newname string) error {
 	return os.Link(oldname, newname)
 }
 
+func (sys) Lstat(name string) (FileInfo, error) {
+	return os.Lstat(name)
+}
+
 func (sys) LookupEnv(key string) (string, bool) {
 	return os.LookupEnv(key)
 }
@@ -169,6 +173,10 @@ func (sys) SameFile(fi1 FileInfo, fi2 FileInfo) bool {
 
 func (sys) Setenv(key string, value string) error {
 	return os.Setenv(key, value)
+}
+
+func (sys) Stat(name string) (FileInfo, error) {
+	return os.Stat(name)
 }
 
 func (sys) Stderr() io.Writer {
