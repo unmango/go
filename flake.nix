@@ -29,6 +29,9 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        go = pkgs.callPackage ./. {
+          inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
+        };
       in
       {
         formatter = treefmt-nix.lib.mkWrapper pkgs {
@@ -37,9 +40,8 @@
           programs.nixfmt.enable = true;
         };
 
-        packages.default = pkgs.callPackage ./. {
-          inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
-        };
+        packages.unmangoGo = go;
+        packages.default = go;
 
         devShells.default = pkgs.callPackage ./shell.nix {
           inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;
