@@ -37,14 +37,7 @@
           programs.nixfmt.enable = true;
         };
 
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            git
-            gnumake
-            go
-            ginkgo
-          ];
-        };
+        devShells.default = import ./shell.nix { inherit pkgs; };
       }
     );
 }
