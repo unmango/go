@@ -10,19 +10,12 @@
       ];
     }
   ),
-  mkGoEnv ? pkgs.mkGoEnv,
-  gomod2nix ? pkgs.gomod2nix,
+  buildGoApplication ? pkgs.buildGoApplication,
 }:
-let
-  goEnv = mkGoEnv { pwd = ./.; };
-in
-pkgs.mkShell {
-  packages = with pkgs; [
-    git
-    gnumake
-    go
-    gomod2nix
-    ginkgo
-    goEnv
-  ];
+
+buildGoApplication {
+  pname = "go";
+  version = "0.0.8";
+  src = ./.;
+  modules = ./gomod2nix.toml;
 }
