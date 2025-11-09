@@ -18,4 +18,12 @@ buildGoApplication {
   version = "0.0.8";
   src = ./.;
   modules = ./gomod2nix.toml;
+
+  nativeBuildInputs = with pkgs; [
+    ginkgo
+  ];
+
+  checkPhase = ''
+    ginkgo -r --label-filter="Dependency: isEmpty"
+  '';
 }

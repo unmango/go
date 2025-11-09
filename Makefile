@@ -8,8 +8,9 @@ LOCALBIN    := ${WORKING_DIR}/bin
 
 export GOBIN := ${LOCALBIN}
 
-DEVCTL    ?= go tool devctl
-GINKGO    ?= go tool ginkgo
+GO        ?= go
+DEVCTL    ?= $(GO) tool devctl
+GINKGO    ?= $(GO) tool ginkgo
 GOMOD2NIX ?= gomod2nix
 NIX       ?= nix
 
@@ -50,6 +51,9 @@ gomod2nix.toml: go.mod
 .make/build: $(shell $(DEVCTL) list --go --exclude-tests)
 	go build ./...
 	@touch $@
+
+.make/nix-build:
+	$(NIX) build
 
 .make/test: $(shell $(DEVCTL) list --go)
 	$(GINKGO) run ${TEST_FLAGS} $(sort $(dir $?))
