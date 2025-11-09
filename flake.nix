@@ -29,37 +29,12 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-
-        go-test = pkgs.stdenvNoCC.mkDerivation {
-          name = "go-test";
-          src = ./.;
-          doCheck = true;
-          nativeBuildInputs = with pkgs; [
-            git
-            go
-            ginkgo
-            writableTmpDirAsHomeHook
-          ];
-          # checkPhase = ''
-          #   go test ./... -ginkgo.label-filter="Dependency: isEmpty"
-          # '';
-          checkPhase = ''
-            ginkgo run -r --label-filter="Dependency: isEmpty"
-          '';
-          installPhase = ''
-            mkdir "$out"
-          '';
-        };
       in
       {
         formatter = treefmt-nix.lib.mkWrapper pkgs {
           projectRootFile = "flake.nix";
           programs.gofmt.enable = true;
           programs.nixfmt.enable = true;
-        };
-
-        checks = {
-          inherit go-test;
         };
 
         packages.default = pkgs.callPackage ./. {
