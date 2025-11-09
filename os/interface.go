@@ -38,6 +38,7 @@ type Fs interface {
 	IsPathSeparator(c uint8) bool
 	Lchown(name string, uid, gid int) error
 	Link(oldname, newname string) error
+	Lstat(name string) (FileInfo, error)
 	Mkdir(name string, mode FileMode) error
 	MkdirAll(path string, mode FileMode) error
 	MkdirTemp(dir, pattern string) (string, error)
@@ -49,6 +50,7 @@ type Fs interface {
 	RemoveAll(path string) error
 	Rename(oldpath, newpath string) error
 	SameFile(fi1, fi2 FileInfo) bool
+	Stat(name string) (FileInfo, error)
 	Symlink(oldname, newname string) error
 	TempDir() string
 	Truncate(name string, size int64) error
