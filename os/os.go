@@ -32,10 +32,21 @@ const (
 )
 
 var (
-	Args   = os.Args
-	Stderr = os.Stderr
-	Stdin  = os.Stdin
-	Stdout = os.Stdout
+	Args      = os.Args
+	Stderr    = os.Stderr
+	Stdin     = os.Stdin
+	Stdout    = os.Stdout
+	Interrupt = os.Interrupt
+
+	ErrClosed           = os.ErrClosed
+	ErrDeadlineExceeded = os.ErrDeadlineExceeded
+	ErrExist            = os.ErrExist
+	ErrInvalid          = os.ErrInvalid
+	ErrNoDeadline       = os.ErrNoDeadline
+	ErrNotExist         = os.ErrNotExist
+	ErrPermission       = os.ErrPermission
+	ErrProcessDone      = os.ErrProcessDone
+	NewSyscallError     = os.NewSyscallError
 
 	Chdir       = os.Chdir
 	Clearenv    = os.Clearenv
@@ -50,17 +61,11 @@ var (
 	Geteuid     = os.Geteuid
 	Getgid      = os.Getgid
 	Getuid      = os.Getuid
-	Interrupt   = os.Interrupt
-
-	ErrClosed           = os.ErrClosed
-	ErrDeadlineExceeded = os.ErrDeadlineExceeded
-	ErrExist            = os.ErrExist
-	ErrInvalid          = os.ErrInvalid
-	ErrNoDeadline       = os.ErrNoDeadline
-	ErrNotExist         = os.ErrNotExist
-	ErrPermission       = os.ErrPermission
-	ErrProcessDone      = os.ErrProcessDone
-	NewSyscallError     = os.NewSyscallError
+	LookupEnv   = os.LookupEnv
+	MkdirTemp   = os.MkdirTemp
+	Setenv      = os.Setenv
+	Unsetenv    = os.Unsetenv
+	UserHomeDir = os.UserHomeDir
 
 	Chmod      = os.Chmod
 	Chtimes    = os.Chtimes
