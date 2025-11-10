@@ -62,7 +62,6 @@ var (
 	Getgid      = os.Getgid
 	Getuid      = os.Getuid
 	LookupEnv   = os.LookupEnv
-	MkdirTemp   = os.MkdirTemp
 	Setenv      = os.Setenv
 	Unsetenv    = os.Unsetenv
 	UserHomeDir = os.UserHomeDir
@@ -79,6 +78,7 @@ var (
 	Link       = os.Link
 	Mkdir      = os.Mkdir
 	MkdirAll   = os.MkdirAll
+	MkdirTemp  = os.MkdirTemp
 	NewFile    = os.NewFile
 	Remove     = os.Remove
 	RemoveAll  = os.RemoveAll
