@@ -37,6 +37,8 @@ func RootContext(ctx context.Context) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
+// Deprecated: Root will not accept a [context.Context] in the future.
+// Use [RootContext] instead.
 func Root(ctx context.Context) (string, error) {
 	return RootContext(ctx)
 }
