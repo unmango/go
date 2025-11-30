@@ -2,6 +2,7 @@ package git
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -31,7 +32,7 @@ func RootContext(ctx context.Context) (string, error) {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %s", err, output)
 	}
 
 	return strings.TrimSpace(string(output)), nil

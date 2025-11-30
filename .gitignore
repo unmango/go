@@ -7,3 +7,4 @@ go.work*
 *.test
 .envrc
 .direnv/
+*.out

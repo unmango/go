@@ -83,6 +83,17 @@ var _ = Describe("RootContext", Label("Dependency:Git"), func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(p).To(Equal(expected))
 	})
+
+	It("should include the error on failure", func(ctx context.Context) {
+		os.Setenv("GIT_PATH", "should-not-exist")
+		DeferCleanup(func() {
+			os.Unsetenv("GIT_PATH")
+		})
+
+		_, err := git.RootContext(ctx)
+
+		Expect(err).To(MatchError(ContainSubstring("not found")))
+	})
 })
 
 var _ = Describe("Root", Label("Dependency:Git"), func() {
