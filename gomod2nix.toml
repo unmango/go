@@ -47,8 +47,8 @@ schema = 3
     version = "v2.4.0"
     hash = "sha256-lLfcV9z4n94hDhgyXJlde4bFB0hfzlbh+polqcJCwGE="
   [mod."github.com/goccy/go-yaml"]
-    version = "v1.18.0"
-    hash = "sha256-7WH1WraWyGj7SvrOCnZkWdoGOVrQ9dkpj/zrckHq9+I="
+    version = "v1.19.0"
+    hash = "sha256-FGgqrnwUfS57PpVTWurZH9kZOChOyp/mW7nkdR+5Dbs="
   [mod."github.com/google/go-cmp"]
     version = "v0.7.0"
     hash = "sha256-JbxZFBFGCh/Rj5XZ1vG94V2x7c18L8XKB0N9ZD5F2rM="
