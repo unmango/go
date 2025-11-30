@@ -12,7 +12,7 @@ type (
 	gitKey struct{}
 )
 
-func Root(ctx context.Context) (string, error) {
+func RootContext(ctx context.Context) (string, error) {
 	if env, ok := os.LookupEnv("GIT_ROOT"); ok {
 		return env, nil
 	}
@@ -35,6 +35,10 @@ func Root(ctx context.Context) (string, error) {
 	}
 
 	return strings.TrimSpace(string(output)), nil
+}
+
+func Root(ctx context.Context) (string, error) {
+	return RootContext(ctx)
 }
 
 func WithGitPath(parent context.Context, path string) context.Context {
