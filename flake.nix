@@ -27,7 +27,12 @@
       imports = [ inputs.treefmt-nix.flakeModule ];
 
       perSystem =
-        { inputs', pkgs, system, ... }:
+        {
+          inputs',
+          pkgs,
+          system,
+          ...
+        }:
         let
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication mkGoEnv;
 
