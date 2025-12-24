@@ -20,7 +20,7 @@ else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
 
-build: .make/build
+build: .make/build bin/nix
 test: .make/test
 tidy: go.sum
 
@@ -30,8 +30,8 @@ test_all:
 clean:
 	find . -name report.json -delete
 
-result:
-	$(NIX) build
+bin/nix:
+	$(NIX) build --out-link $@
 
 go.sum: go.mod $(shell $(DEVCTL) list --go)
 	go mod tidy

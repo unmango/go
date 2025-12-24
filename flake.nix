@@ -3,49 +3,71 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    systems.url = "github:nix-systems/default";
     flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     gomod2nix = {
       url = "github:nix-community/gomod2nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-      treefmt-nix,
-      gomod2nix,
-    }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        go = pkgs.callPackage ./. {
-          inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
-        };
-      in
-      {
-        formatter = treefmt-nix.lib.mkWrapper pkgs {
-          projectRootFile = "flake.nix";
-          programs.gofmt.enable = true;
-          programs.nixfmt.enable = true;
-        };
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = import inputs.systems;
 
-        packages.unmangoGo = go;
-        packages.default = go;
+      imports = [ inputs.treefmt-nix.flakeModule ];
 
-        devShells.default = pkgs.callPackage ./shell.nix {
-          inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;
+      perSystem =
+        { inputs', pkgs, system, ... }:
+        let
+          inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication mkGoEnv;
+
+          mangoGo = buildGoApplication {
+            pname = "go";
+            version = "0.10.2";
+            src = ./.;
+            modules = ./gomod2nix.toml;
+
+            nativeBuildInputs = [ pkgs.ginkgo ];
+
+            checkPhase = ''
+              ginkgo -r --label-filter="Dependency: isEmpty"
+            '';
+          };
+        in
+        {
+          _module.args.pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [ inputs.gomod2nix.overlays.default ];
+          };
+
+          packages.mangoGo = mangoGo;
+          packages.default = mangoGo;
+
+          devShells.default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              git
+              gnumake
+              go
+              gomod2nix
+              ginkgo
+              nixfmt
+            ];
+          };
+
+          treefmt = {
+            programs.nixfmt.enable = true;
+            programs.gofmt.enable = true;
+          };
         };
-      }
-    );
+    };
 }
