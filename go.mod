@@ -11,7 +11,7 @@ tool (
 require (
 	github.com/goccy/go-yaml v1.19.1
 	github.com/google/go-cmp v0.7.0
-	github.com/onsi/ginkgo/v2 v2.27.2
+	github.com/onsi/ginkgo/v2 v2.27.3
 	github.com/onsi/gomega v1.38.2
 	google.golang.org/protobuf v1.36.10
 	gopkg.in/yaml.v3 v3.0.1
