@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     systems.url = "github:nix-systems/default";
-    flake-utils.url = "github:numtide/flake-utils";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     treefmt-nix = {
@@ -15,7 +14,6 @@
     gomod2nix = {
       url = "github:nix-community/gomod2nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
   };
 
@@ -36,7 +34,9 @@
         let
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication mkGoEnv;
 
-          mangoGo = buildGoApplication {
+          goEnv = mkGoEnv { pwd = ./.; };
+
+          unmangoGo = buildGoApplication {
             pname = "go";
             version = "0.10.2";
             src = ./.;
@@ -55,14 +55,15 @@
             overlays = [ inputs.gomod2nix.overlays.default ];
           };
 
-          packages.mangoGo = mangoGo;
-          packages.default = mangoGo;
+          packages.unmangoGo = unmangoGo;
+          packages.default = unmangoGo;
 
           devShells.default = pkgs.mkShell {
             buildInputs = with pkgs; [
               git
               gnumake
               go
+              goEnv
               gomod2nix
               ginkgo
               nixfmt
