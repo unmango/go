@@ -43,6 +43,8 @@ type Fs interface {
 	MkdirAll(path string, mode FileMode) error
 	MkdirTemp(dir, pattern string) (string, error)
 	Pipe() (r io.Reader, w io.Writer, err error)
+	OpenInRoot(dir, name string) (*File, error)
+	OpenRoot(name string) (*Root, error)
 	ReadDir(name string) ([]DirEntry, error)
 	ReadFile(name string) ([]byte, error)
 	Readlink(name string) (string, error)
