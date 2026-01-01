@@ -38,7 +38,7 @@
 
           unmangoGo = buildGoApplication {
             pname = "go";
-            version = "0.10.2";
+            version = "0.10.3";
             src = ./.;
             modules = ./gomod2nix.toml;
 

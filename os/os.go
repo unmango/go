@@ -74,6 +74,8 @@ var (
 	CopyFS     = os.CopyFS
 	Open       = os.Open
 	OpenFile   = os.OpenFile
+	OpenInRoot = os.OpenInRoot
+	OpenRoot   = os.OpenRoot
 	Lchown     = os.Lchown
 	Link       = os.Link
 	Mkdir      = os.Mkdir
