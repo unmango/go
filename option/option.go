@@ -1,3 +1,4 @@
+// Deprecated: Use fopt package instead.
 package option
 
 // Is there a cleaner way to do this?

@@ -1,4 +1,4 @@
-package option_test
+package fopt_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
