@@ -52,3 +52,24 @@ func From2[T, V any](t T, v V, err error) Result2[T, V] {
 		return t, v, err
 	}
 }
+
+func Map2[TA, VA, TB, VB any, R Result2[TA, VA]](result R, fn func(TA, VA) (TB, VB)) Result2[TB, VB] {
+	return func() (TB, VB, error) {
+		if t, v, err := result(); err != nil {
+			return *new(TB), *new(VB), err
+		} else {
+			tb, vb := fn(t, v)
+			return tb, vb, nil
+		}
+	}
+}
+
+func Bind2[TA, VA, TB, VB any, R Result2[TA, VA]](result R, fn func(TA, VA) Result2[TB, VB]) Result2[TB, VB] {
+	return func() (TB, VB, error) {
+		if t, v, err := result(); err != nil {
+			return *new(TB), *new(VB), err
+		} else {
+			return fn(t, v)()
+		}
+	}
+}
