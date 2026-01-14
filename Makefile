@@ -11,7 +11,7 @@ export GOBIN := ${LOCALBIN}
 GO        ?= go
 DEVCTL    ?= $(GO) tool devctl
 GINKGO    ?= $(GO) tool ginkgo
-GOMOD2NIX ?= gomod2nix
+GOMOD2NIX ?= $(GO) tool gomod2nix
 NIX       ?= nix
 
 ifeq ($(CI),)

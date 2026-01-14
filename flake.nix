@@ -68,6 +68,10 @@
               ginkgo
               nixfmt
             ];
+
+            GINKGO = "${pkgs.ginkgo}/bin/ginkgo";
+            GO = "${pkgs.go}/bin/go";
+            GOMOD2NIX = "${pkgs.gomod2nix}/bin/gomod2nix";
           };
 
           treefmt = {
