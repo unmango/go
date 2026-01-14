@@ -1,6 +1,8 @@
 package fopt_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -13,8 +15,9 @@ type mopts struct {
 }
 
 type (
-	M func(*mopts)
-	I func(mopts) mopts
+	M  func(*mopts)
+	I  func(mopts) mopts
+	Ma func(*mopts) error
 )
 
 var _ = Describe("Option", func() {
@@ -77,6 +80,90 @@ var _ = Describe("Option", func() {
 			Expect(options.numberField).To(BeZero())
 			Expect(actual.textField).To(Equal("expected"))
 			Expect(actual.numberField).To(Equal(69))
+		})
+	})
+
+	Context("Maybe", func() {
+		It("should apply without error", func() {
+			options := &mopts{}
+
+			err := fopt.TryApply(options, func(o *mopts) error {
+				o.textField = "expected"
+				return nil
+			})
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(options.textField).To(Equal("expected"))
+		})
+
+		It("should apply all without error", func() {
+			options := &mopts{}
+
+			err := fopt.TryApply(options,
+				func(o *mopts) error {
+					o.textField = "expected"
+					return nil
+				},
+				func(o *mopts) error {
+					o.numberField = 69
+					return nil
+				},
+			)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(options.textField).To(Equal("expected"))
+			Expect(options.numberField).To(Equal(69))
+		})
+
+		It("should return error from first failing option", func() {
+			options := &mopts{}
+			expectedErr := errors.New("option failed")
+
+			err := fopt.TryApply(options,
+				func(o *mopts) error {
+					o.textField = "expected"
+					return nil
+				},
+				func(o *mopts) error {
+					return expectedErr
+				},
+				func(o *mopts) error {
+					o.numberField = 69
+					return nil
+				},
+			)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err).To(Equal(expectedErr))
+			Expect(options.textField).To(Equal("expected"))
+			Expect(options.numberField).To(BeZero())
+		})
+
+		It("should handle empty options list", func() {
+			options := &mopts{}
+			var emptyOptions []Ma
+
+			err := fopt.TryApplyAll(options, emptyOptions)
+
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("should return error immediately on first failure", func() {
+			options := &mopts{}
+			firstErr := errors.New("first option failed")
+
+			err := fopt.TryApply(options,
+				func(o *mopts) error {
+					return firstErr
+				},
+				func(o *mopts) error {
+					o.textField = "should not be set"
+					return nil
+				},
+			)
+
+			Expect(err).To(Equal(firstErr))
+			Expect(options.textField).To(BeEmpty())
 		})
 	})
 
