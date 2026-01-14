@@ -66,12 +66,12 @@ seq = maps.AppendSeq(seq, map[string]string{"bin": "baz"})
 
 ## either
 
-The `either` pakcage adds the `Either` type representing exactly one of two possible values.
+The `either` package adds the `Either` type representing exactly one of two possible values.
 It also adds various operations such as `Map` and `Bind`.
 
 ```go
 func main() {
-	var m either.Either[int, string] = either.From[int, string](420)
+	var m either.Either[int, string] = either.Left[int, string](420)
 
 	m = either.MapLeft(m, func(x int) int {
 		return x+1
@@ -89,7 +89,7 @@ It also adds various result operations such as `Map` and `Bind`.
 
 ```go
 func main() {
-	var r result.Result[int] =  result.From(420)
+	var r result.Result[int] = result.Ok(420)
 
 	r = result.Map(r, func(x int) int {
 		return x+1
@@ -107,7 +107,7 @@ It also adds various operations such as `Map` and `Bind`.
 
 ```go
 func main() {
-	var m maybe.Maybe[int] = maybe.From(420)
+	var m maybe.Maybe[int] = maybe.Some(420)
 
 	m = maybe.Map(m, func(x int) int {
 		return x+1
