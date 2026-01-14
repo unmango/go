@@ -44,7 +44,7 @@ func MapRight[L, RA, RB comparable, E Either[L, RA]](either E, fn func(RA) RB) E
 
 func Bind[LA, LB, RA, RB comparable, E Either[LA, RA]](either E, fn func(LA, RA) Either[LB, RB]) Either[LB, RB] {
 	return func() (LB, RB) {
-		return eval(fn(either()))
+		return fn(either())()
 	}
 }
 
@@ -66,11 +66,6 @@ func BindRight[L, RA, RB comparable, E Either[L, RA]](either E, fn func(RA) Eith
 			return fn(r)
 		}
 	})
-}
-
-// eval simply avoids weird syntax like fn(r)()
-func eval[L, R any](either Either[L, R]) (L, R) {
-	return either()
 }
 
 func isZero[T comparable](t T) bool {
