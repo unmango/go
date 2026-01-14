@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/unmango/go/result"
+	"github.com/unmango/go/either/result"
 )
 
 var _ = Describe("Result", func() {
@@ -18,7 +18,8 @@ var _ = Describe("Result", func() {
 				return 69, err
 			}
 
-			Expect(r.Err()).To(BeIdenticalTo(err))
+			_, actual := r()
+			Expect(actual).To(BeIdenticalTo(err))
 		})
 	})
 })
