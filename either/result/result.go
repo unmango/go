@@ -29,11 +29,11 @@ func From[T any](t T, err error) Result[T] {
 	return either.From(t, err)
 }
 
-func Map[A, B comparable, R Result[A]](result R, fn func(A) B) Result[B] {
+func Map[A comparable, B any, R Result[A]](result R, fn func(A) B) Result[B] {
 	return either.MapLeft(result, fn)
 }
 
-func Bind[A, B comparable, R Result[A]](result R, fn func(A) Result[B]) Result[B] {
+func Bind[A comparable, B any, R Result[A]](result R, fn func(A) Result[B]) Result[B] {
 	return either.BindLeft(result, fn)
 }
 

@@ -16,13 +16,13 @@ func From[L, R any](left L, right R) Either[L, R] {
 	}
 }
 
-func Map[LA, LB, RA, RB comparable, E Either[LA, RA]](either E, fn func(LA, RA) (LB, RB)) Either[LB, RB] {
+func Map[LA, LB, RA, RB any, E Either[LA, RA]](either E, fn func(LA, RA) (LB, RB)) Either[LB, RB] {
 	return func() (LB, RB) {
 		return fn(either())
 	}
 }
 
-func MapLeft[LA, LB, R comparable, E Either[LA, R]](either E, fn func(LA) LB) Either[LB, R] {
+func MapLeft[LA comparable, LB, R any, E Either[LA, R]](either E, fn func(LA) LB) Either[LB, R] {
 	return Map(either, func(l LA, r R) (LB, R) {
 		if isZero(l) {
 			return *new(LB), r
@@ -32,7 +32,7 @@ func MapLeft[LA, LB, R comparable, E Either[LA, R]](either E, fn func(LA) LB) Ei
 	})
 }
 
-func MapRight[L, RA, RB comparable, E Either[L, RA]](either E, fn func(RA) RB) Either[L, RB] {
+func MapRight[L any, RA, RB comparable, E Either[L, RA]](either E, fn func(RA) RB) Either[L, RB] {
 	return Map(either, func(l L, r RA) (L, RB) {
 		if isZero(r) {
 			return l, *new(RB)
@@ -42,13 +42,13 @@ func MapRight[L, RA, RB comparable, E Either[L, RA]](either E, fn func(RA) RB) E
 	})
 }
 
-func Bind[LA, LB, RA, RB comparable, E Either[LA, RA]](either E, fn func(LA, RA) Either[LB, RB]) Either[LB, RB] {
+func Bind[LA, LB, RA, RB any, E Either[LA, RA]](either E, fn func(LA, RA) Either[LB, RB]) Either[LB, RB] {
 	return func() (LB, RB) {
 		return fn(either())()
 	}
 }
 
-func BindLeft[LA, LB, R comparable, A Either[LA, R]](either A, fn func(LA) Either[LB, R]) Either[LB, R] {
+func BindLeft[LA comparable, LB, R any, A Either[LA, R]](either A, fn func(LA) Either[LB, R]) Either[LB, R] {
 	return Bind(either, func(l LA, r R) Either[LB, R] {
 		if isZero(l) {
 			return Right[LB](r)
@@ -58,7 +58,7 @@ func BindLeft[LA, LB, R comparable, A Either[LA, R]](either A, fn func(LA) Eithe
 	})
 }
 
-func BindRight[L, RA, RB comparable, E Either[L, RA]](either E, fn func(RA) Either[L, RB]) Either[L, RB] {
+func BindRight[L any, RA comparable, RB any, E Either[L, RA]](either E, fn func(RA) Either[L, RB]) Either[L, RB] {
 	return Bind(either, func(l L, r RA) Either[L, RB] {
 		if isZero(r) {
 			return Left[L, RB](l)
