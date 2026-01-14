@@ -8,3 +8,4 @@ go.work*
 .envrc
 .direnv/
 *.out
+/result
