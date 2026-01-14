@@ -1,7 +1,4 @@
-package option
-
-// Is there a cleaner way to do this?
-type ptr[T any] interface{ ~*T }
+package fopt
 
 type Option[T any] interface {
 	Mutable[T] | Immutable[T] | Maybe[T]
@@ -54,6 +51,9 @@ func WithAll[T any, O Immutable[T]](opts T, options []O) T {
 
 	return opts
 }
+
+// Is there a cleaner way to do this?
+type ptr[T any] interface{ ~*T }
 
 func Mut[T any, P ptr[T], I Immutable[T]](option func(P)) I {
 	return func(x T) T {

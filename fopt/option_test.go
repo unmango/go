@@ -4,25 +4,25 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/unmango/go/option"
+	"github.com/unmango/go/fopt"
 )
 
-type MockOptions struct {
+type mopts struct {
 	textField   string
 	numberField int
 }
 
 type (
-	M func(*MockOptions)
-	I func(MockOptions) MockOptions
+	M func(*mopts)
+	I func(mopts) mopts
 )
 
 var _ = Describe("Option", func() {
 	Context("Mutable", func() {
 		It("should apply", func() {
-			options := &MockOptions{}
+			options := &mopts{}
 
-			option.Apply(options, func(o *MockOptions) {
+			fopt.Apply(options, func(o *mopts) {
 				o.textField = "expected"
 			})
 
@@ -30,13 +30,13 @@ var _ = Describe("Option", func() {
 		})
 
 		It("should apply all", func() {
-			options := &MockOptions{}
+			options := &mopts{}
 
-			option.Apply(options,
-				func(o *MockOptions) {
+			fopt.Apply(options,
+				func(o *mopts) {
 					o.textField = "expected"
 				},
-				func(o *MockOptions) {
+				func(o *mopts) {
 					o.numberField = 69
 				},
 			)
@@ -48,9 +48,9 @@ var _ = Describe("Option", func() {
 
 	Context("Immutable", func() {
 		It("should apply", func() {
-			options := MockOptions{}
+			options := mopts{}
 
-			actual := option.With(options, func(o MockOptions) MockOptions {
+			actual := fopt.With(options, func(o mopts) mopts {
 				o.textField = "expected"
 				return o
 			})
@@ -60,14 +60,14 @@ var _ = Describe("Option", func() {
 		})
 
 		It("should apply all", func() {
-			options := MockOptions{}
+			options := mopts{}
 
-			actual := option.With(options,
-				func(o MockOptions) MockOptions {
+			actual := fopt.With(options,
+				func(o mopts) mopts {
 					o.textField = "expected"
 					return o
 				},
-				func(o MockOptions) MockOptions {
+				func(o mopts) mopts {
 					o.numberField = 69
 					return o
 				},
@@ -84,26 +84,26 @@ var _ = Describe("Option", func() {
 		var op I
 
 		BeforeEach(func() {
-			op = option.Mut[MockOptions, *MockOptions, I](func(o *MockOptions) {
+			op = fopt.Mut[mopts, *mopts, I](func(o *mopts) {
 				o.textField = "expected"
 			})
 		})
 
 		It("should apply", func() {
-			options := MockOptions{}
+			options := mopts{}
 
-			actual := option.With(options, op)
+			actual := fopt.With(options, op)
 
 			Expect(options.textField).To(BeEmpty())
 			Expect(actual.textField).To(Equal("expected"))
 		})
 
 		It("should apply all", func() {
-			options := MockOptions{}
+			options := mopts{}
 
-			actual := option.With(options,
+			actual := fopt.With(options,
 				op,
-				func(o MockOptions) MockOptions {
+				func(o mopts) mopts {
 					o.numberField = 69
 					return o
 				},
