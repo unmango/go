@@ -48,7 +48,6 @@ filtered := iter.Filter(seq, func(i int) bool {
 ## maps
 
 Primarily re-exports functions and types for convenience.
-Due to Go not currently supporting generic type aliases, these functions adapt the standard `iter` seq to this module's `iter` package.
 
 ```go
 func Test(seq iter.Seq2[string, int]) {
@@ -65,20 +64,57 @@ seq := maps.All(map[string]string{"foo": "bar"})
 seq = maps.AppendSeq(seq, map[string]string{"bin": "baz"})
 ```
 
-## result
+## either
+
+The `either` pakcage adds the `Either` type representing exactly one of two possible values.
+It also adds various operations such as `Map` and `Bind`.
+
+```go
+func main() {
+	var m either.Either[int, string] = either.From[int, string](420)
+
+	m = either.MapLeft(m, func(x int) int {
+		return x+1
+	})
+
+	// 421
+	v, _ := m()
+}
+```
+
+## either/result
 
 The `result` pakcage adds the `Result` type representing either success or error.
 It also adds various result operations such as `Map` and `Bind`.
 
 ```go
 func main() {
-	var r Result[int] = func() (int, error) {
-		return 420, nil
-	}
+	var r result.Result[int] =  result.From(420)
 
 	r = result.Map(r, func(x int) int {
 		return x+1
 	})
+
+	// 421
+	v, _ := r()
+}
+```
+
+## either/maybe
+
+The `maybe` pakcage adds the `Maybe` type representing either some value, or none.
+It also adds various operations such as `Map` and `Bind`.
+
+```go
+func main() {
+	var m maybe.Maybe[int] = maybe.From(420)
+
+	m = maybe.Map(m, func(x int) int {
+		return x+1
+	})
+
+	// 421
+	v, _ := m()
 }
 ```
 
