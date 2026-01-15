@@ -12,10 +12,9 @@ var _ = Describe("Maybe", func() {
 		It("should be Some", func() {
 			m := maybe.Some(69)
 
-			v, err := m()
+			v := m()
 
-			Expect(err).To(BeNil())
-			Expect(v).To(Equal(69))
+			Expect(*v).To(Equal(69))
 		})
 	})
 
@@ -23,10 +22,9 @@ var _ = Describe("Maybe", func() {
 		It("should be None", func() {
 			m := maybe.None[any]()
 
-			v, err := m()
+			v := m()
 
 			Expect(v).To(BeNil())
-			Expect(err).To(BeIdenticalTo(maybe.ErrNone))
 		})
 	})
 
@@ -38,9 +36,8 @@ var _ = Describe("Maybe", func() {
 				return v * 2
 			})
 
-			v, err := mapped()
-			Expect(v).To(Equal(84))
-			Expect(err).To(BeNil())
+			v := mapped()
+			Expect(*v).To(Equal(84))
 		})
 
 		It("should not map None value", func() {
@@ -50,9 +47,8 @@ var _ = Describe("Maybe", func() {
 				return v * 2
 			})
 
-			v, err := mapped()
-			Expect(v).To(Equal(0))
-			Expect(err).To(BeIdenticalTo(maybe.ErrNone))
+			v := mapped()
+			Expect(v).To(BeNil())
 		})
 	})
 
@@ -64,9 +60,8 @@ var _ = Describe("Maybe", func() {
 				return maybe.Some(v * 2)
 			})
 
-			v, err := bound()
-			Expect(v).To(Equal(84))
-			Expect(err).To(BeNil())
+			v := bound()
+			Expect(*v).To(Equal(84))
 		})
 
 		It("should not bind None value", func() {
@@ -76,9 +71,8 @@ var _ = Describe("Maybe", func() {
 				return maybe.Some(v * 2)
 			})
 
-			v, err := bound()
-			Expect(v).To(Equal(0))
-			Expect(err).To(BeIdenticalTo(maybe.ErrNone))
+			v := bound()
+			Expect(v).To(BeNil())
 		})
 
 		It("should propagate None from bind function", func() {
@@ -88,9 +82,8 @@ var _ = Describe("Maybe", func() {
 				return maybe.None[int]()
 			})
 
-			v, err := bound()
-			Expect(v).To(Equal(0))
-			Expect(err).To(BeIdenticalTo(maybe.ErrNone))
+			v := bound()
+			Expect(v).To(BeNil())
 		})
 	})
 })

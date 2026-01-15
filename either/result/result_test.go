@@ -55,27 +55,6 @@ var _ = Describe("Result", func() {
 		})
 	})
 
-	Describe("From", func() {
-		It("should return the value with no error", func() {
-			r := result.From(42, nil)
-
-			v, err := r()
-
-			Expect(v).To(Equal(42))
-			Expect(err).To(BeNil())
-		})
-
-		It("should return the value with error", func() {
-			testErr := errors.New("test error")
-			r := result.From(42, testErr)
-
-			v, err := r()
-
-			Expect(v).To(Equal(42))
-			Expect(err).To(BeIdenticalTo(testErr))
-		})
-	})
-
 	Describe("Map", func() {
 		It("should map the ok value", func() {
 			r := result.Ok(42)
@@ -165,29 +144,6 @@ var _ = Describe("Result", func() {
 
 				Expect(v1).To(Equal(0))
 				Expect(v2).To(Equal(""))
-				Expect(err).To(BeIdenticalTo(testErr))
-			})
-		})
-
-		Describe("From2", func() {
-			It("should return both values with no error", func() {
-				r := result.From2(42, "test", nil)
-
-				v1, v2, err := r()
-
-				Expect(v1).To(Equal(42))
-				Expect(v2).To(Equal("test"))
-				Expect(err).To(BeNil())
-			})
-
-			It("should return both values with error", func() {
-				testErr := errors.New("test error")
-				r := result.From2(42, "test", testErr)
-
-				v1, v2, err := r()
-
-				Expect(v1).To(Equal(42))
-				Expect(v2).To(Equal("test"))
 				Expect(err).To(BeIdenticalTo(testErr))
 			})
 		})

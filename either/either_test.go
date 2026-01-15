@@ -7,26 +7,16 @@ import (
 	"github.com/unmango/go/either"
 )
 
+// Comprehensive tests for Either[L,R] type with pointer semantics
 var _ = Describe("Either", func() {
-	Describe("From", func() {
-		It("should return the given values", func() {
-			e := either.From(69, 420)
-
-			a, b := e()
-
-			Expect(a).To(Equal(69))
-			Expect(b).To(Equal(420))
-		})
-	})
-
 	Describe("Left", func() {
 		It("should return the given value", func() {
-			e := either.Left[int, int](69)
+			e := either.Left[int](69)
 
 			a, b := e()
 
-			Expect(a).To(Equal(69))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(69))
+			Expect(b).To(BeNil())
 		})
 	})
 
@@ -36,39 +26,25 @@ var _ = Describe("Either", func() {
 
 			a, b := e()
 
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(420))
-		})
-	})
-
-	Describe("Map", func() {
-		It("should map both values", func() {
-			e := either.From(69, 420)
-
-			r := either.Map(e, func(a, b int) (string, string) {
-				return "left", "right"
-			})
-
-			a, b := r()
-			Expect(a).To(Equal("left"))
-			Expect(b).To(Equal("right"))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(420))
 		})
 	})
 
 	Describe("MapLeft", func() {
 		It("should map the left value", func() {
-			e := either.Left[int, int](69)
+			e := either.Left[int](69)
 
 			r := either.MapLeft(e, func(a int) int {
 				return a + 420
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(489))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(489))
+			Expect(b).To(BeNil())
 		})
 
-		It("should not map when left is zero", func() {
+		It("should not map when left is nil", func() {
 			e := either.Right[int](420)
 
 			r := either.MapLeft(e, func(a int) int {
@@ -76,8 +52,8 @@ var _ = Describe("Either", func() {
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(420))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(420))
 		})
 	})
 
@@ -90,60 +66,46 @@ var _ = Describe("Either", func() {
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(489))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(489))
 		})
 
-		It("should not map when right is zero", func() {
-			e := either.Left[int, int](69)
+		It("should not map when right is nil", func() {
+			e := either.Left[int](69)
 
 			r := either.MapRight(e, func(b int) int {
 				return b + 1000
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(69))
-			Expect(b).To(Equal(0))
-		})
-	})
-
-	Describe("Bind", func() {
-		It("should bind both values", func() {
-			e := either.From(69, 420)
-
-			r := either.Bind(e, func(a, b int) either.Either[int, int] {
-				return either.From(a*2, b*2)
-			})
-
-			a, b := r()
-			Expect(a).To(Equal(138))
-			Expect(b).To(Equal(840))
+			Expect(*a).To(Equal(69))
+			Expect(b).To(BeNil())
 		})
 	})
 
 	Describe("BindLeft", func() {
 		It("should bind the left value", func() {
-			e := either.Left[int, int](69)
+			e := either.Left[int](69)
 
 			r := either.BindLeft(e, func(a int) either.Either[int, int] {
-				return either.From(a+420, 0)
+				return either.Left[int](a + 420)
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(489))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(489))
+			Expect(b).To(BeNil())
 		})
 
-		It("should return right when left is zero", func() {
+		It("should return right when left is nil", func() {
 			e := either.Right[int](420)
 
 			r := either.BindLeft(e, func(a int) either.Either[int, int] {
-				return either.From(a+1000, 0)
+				return either.Left[int](a + 1000)
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(420))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(420))
 		})
 	})
 
@@ -152,24 +114,24 @@ var _ = Describe("Either", func() {
 			e := either.Right[int](420)
 
 			r := either.BindRight(e, func(b int) either.Either[int, int] {
-				return either.From(0, b+69)
+				return either.Right[int](b + 69)
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(489))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(489))
 		})
 
-		It("should return left when right is zero", func() {
-			e := either.Left[int, int](69)
+		It("should return left when right is nil", func() {
+			e := either.Left[int](69)
 
 			r := either.BindRight(e, func(b int) either.Either[int, int] {
-				return either.From(0, b+1000)
+				return either.Right[int](b + 1000)
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(69))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(69))
+			Expect(b).To(BeNil())
 		})
 	})
 })
