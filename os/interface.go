@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-// TODO: Figure out what to do with *File and the io.* types
-
 type Ent interface {
 	Args() []string
 	Executable() (string, error)
@@ -43,6 +41,7 @@ type Fs interface {
 	MkdirAll(path string, mode FileMode) error
 	MkdirTemp(dir, pattern string) (string, error)
 	Pipe() (r io.Reader, w io.Writer, err error)
+	Open(name string) (*File, error)
 	OpenInRoot(dir, name string) (*File, error)
 	OpenRoot(name string) (*Root, error)
 	ReadDir(name string) ([]DirEntry, error)
