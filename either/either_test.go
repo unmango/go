@@ -8,25 +8,14 @@ import (
 )
 
 var _ = Describe("Either", func() {
-	Describe("From", func() {
-		It("should return the given values", func() {
-			e := either.From(69, 420)
-
-			a, b := e()
-
-			Expect(a).To(Equal(69))
-			Expect(b).To(Equal(420))
-		})
-	})
-
 	Describe("Left", func() {
 		It("should return the given value", func() {
-			e := either.Left[int, int](69)
+			e := either.Left[int](69)
 
 			a, b := e()
 
-			Expect(a).To(Equal(69))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(69))
+			Expect(b).To(BeNil())
 		})
 	})
 
@@ -36,22 +25,22 @@ var _ = Describe("Either", func() {
 
 			a, b := e()
 
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(420))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(420))
 		})
 	})
 
 	Describe("MapLeft", func() {
 		It("should map the given value", func() {
-			e := either.Left[int, int](69)
+			e := either.Left[int](69)
 
 			r := either.MapLeft(e, func(a int) int {
 				return a + 420
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(489))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(489))
+			Expect(b).To(BeNil())
 		})
 	})
 
@@ -64,22 +53,22 @@ var _ = Describe("Either", func() {
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(489))
+			Expect(a).To(BeNil())
+			Expect(*b).To(Equal(489))
 		})
 	})
 
 	Describe("BindLeft", func() {
 		It("should bind the given value", func() {
-			e := either.Left[int, int](69)
+			e := either.Left[int](69)
 
 			r := either.BindLeft(e, func(a int) either.Either[int, int] {
-				return either.From(a+420, 0)
+				return either.Left[int](a + 420)
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(489))
-			Expect(b).To(Equal(0))
+			Expect(*a).To(Equal(489))
+			Expect(b).To(BeNil())
 		})
 	})
 
@@ -88,12 +77,12 @@ var _ = Describe("Either", func() {
 			e := either.Right[int](420)
 
 			r := either.BindRight(e, func(b int) either.Either[int, int] {
-				return either.From(0, b+69)
+				return either.Right[int](b + 69)
 			})
 
 			a, b := r()
-			Expect(a).To(Equal(0))
-			Expect(b).To(Equal(489))
+			Expect(a).To(BeNil())
+			Expect(*b).To(BeEquivalentTo(489))
 		})
 	})
 })

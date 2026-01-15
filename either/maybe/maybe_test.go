@@ -12,10 +12,9 @@ var _ = Describe("Maybe", func() {
 		It("should be Some", func() {
 			m := maybe.Some(69)
 
-			v, err := m()
+			v := m()
 
-			Expect(err).To(BeNil())
-			Expect(v).To(Equal(69))
+			Expect(*v).To(Equal(69))
 		})
 	})
 
@@ -23,10 +22,9 @@ var _ = Describe("Maybe", func() {
 		It("should be None", func() {
 			m := maybe.None[any]()
 
-			v, err := m()
+			v := m()
 
 			Expect(v).To(BeNil())
-			Expect(err).To(BeIdenticalTo(maybe.ErrNone))
 		})
 	})
 })
