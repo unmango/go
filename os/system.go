@@ -139,6 +139,10 @@ func (sys) MkdirTemp(dir, pattern string) (string, error) {
 	return os.MkdirTemp(dir, pattern)
 }
 
+func (sys) Open(name string) (*File, error) {
+	return os.Open(name)
+}
+
 func (sys) OpenInRoot(dir, name string) (*File, error) {
 	return os.OpenInRoot(dir, name)
 }
