@@ -21,7 +21,6 @@
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
-
       imports = [ inputs.treefmt-nix.flakeModule ];
 
       perSystem =
@@ -33,21 +32,7 @@
         }:
         let
           inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication mkGoEnv;
-
           goEnv = mkGoEnv { pwd = ./.; };
-
-          unmangoGo = buildGoApplication {
-            pname = "go";
-            version = "0.12.1";
-            src = ./.;
-            modules = ./gomod2nix.toml;
-
-            nativeBuildInputs = [ pkgs.ginkgo ];
-
-            checkPhase = ''
-              ginkgo -r --label-filter="Dependency: isEmpty"
-            '';
-          };
         in
         {
           _module.args.pkgs = import inputs.nixpkgs {
@@ -55,8 +40,17 @@
             overlays = [ inputs.gomod2nix.overlays.default ];
           };
 
-          packages.unmangoGo = unmangoGo;
-          packages.default = unmangoGo;
+          packages.default = buildGoApplication {
+            pname = "go";
+            version = "0.12.1";
+            src = ./.;
+            modules = ./gomod2nix.toml;
+            nativeBuildInputs = [ pkgs.ginkgo ];
+
+            checkPhase = ''
+              ginkgo -r --label-filter="Dependency: isEmpty"
+            '';
+          };
 
           devShells.default = pkgs.mkShell {
             buildInputs = with pkgs; [
