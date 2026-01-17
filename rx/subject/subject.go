@@ -1,8 +1,8 @@
 package subject
 
 import (
+	"github.com/unmango/go/fopt"
 	"github.com/unmango/go/iter"
-	"github.com/unmango/go/option"
 	"github.com/unmango/go/rx"
 )
 
@@ -45,7 +45,7 @@ func (s *subject[T]) Subscribe(observer rx.Observer[T]) rx.Subscription {
 func New[T any](options ...Option[T]) rx.Subject[T] {
 	subs := iter.Empty[rx.Observer[T]]()
 	subject := &subject[T]{subs}
-	option.ApplyAll(subject, options)
+	fopt.ApplyAll(subject, options)
 
 	return subject
 }

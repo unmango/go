@@ -33,7 +33,7 @@ clean:
 bin/nix:
 	$(NIX) build --out-link $@
 
-go.sum: go.mod $(shell $(DEVCTL) list --go)
+go.sum: go.mod $(shell find . -name '*.go')
 	go mod tidy
 
 gomod2nix.toml: go.mod
@@ -48,13 +48,13 @@ gomod2nix.toml: go.mod
 .envrc: hack/example.envrc
 	cp $< $@
 
-.make/build: $(shell $(DEVCTL) list --go --exclude-tests)
+.make/build: $(shell find . -name '*.go')
 	go build ./...
 	@touch $@
 
 .make/nix-build:
 	$(NIX) build
 
-.make/test: $(shell $(DEVCTL) list --go)
+.make/test: $(shell find . -name '*.go')
 	$(GINKGO) run ${TEST_FLAGS} $(sort $(dir $?))
 	@touch $@
