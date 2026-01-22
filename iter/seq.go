@@ -1,7 +1,6 @@
 package iter
 
 import (
-	"errors"
 	"iter"
 	"slices"
 )
@@ -85,7 +84,7 @@ func Head[V any](seq Seq[V]) (v V, err error) {
 		return
 	}
 
-	return v, errors.New("empty sequence")
+	return v, ErrEmpty
 }
 
 func Flat[T Seq[V], V any](seq Seq[T]) Seq[V] {
@@ -134,6 +133,8 @@ func Map[V, X any](seq Seq[V], fn func(V) X) Seq[X] {
 func Pull[V any](seq Seq[V]) (next func() (V, bool), stop func()) {
 	return iter.Pull(seq)
 }
+
+// TODO: RemoveAll is probably a better name for this
 
 func Remove[V comparable](seq Seq[V], r V) Seq[V] {
 	return func(yield func(V) bool) {
