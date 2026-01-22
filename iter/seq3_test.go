@@ -9,6 +9,38 @@ import (
 )
 
 var _ = Describe("Seq3", func() {
+	Describe("Bind3", func() {
+		It("should bind sequences", func() {
+			seq := slices.Values3([]int{1, 2}, []string{"a", "b"}, []bool{true, false})
+
+			result := iter.Bind3(seq, func(i int, s string, b bool) iter.Seq3[int, string, bool] {
+				return iter.Singleton3(i*2, s+s, !b)
+			})
+
+			a, b, c := slices.Collect3(result)
+			Expect(a).To(ConsistOf(2, 4))
+			Expect(b).To(ConsistOf("aa", "bb"))
+			Expect(c).To(ConsistOf(false, true))
+		})
+
+		It("should handle early termination in inner sequence", func() {
+			seq := iter.Singleton3(1, "a", true)
+
+			result := iter.Bind3(seq, func(i int, s string, b bool) iter.Seq3[int, string, bool] {
+				return slices.Values3(
+					[]int{i, i * 2, i * 3},
+					[]string{s, s + s, s + s + s},
+					[]bool{b, !b, b},
+				)
+			})
+
+			a, b, c := slices.Collect3(result)
+			Expect(a).To(HaveExactElements(1, 2, 3))
+			Expect(b).To(HaveExactElements("a", "aa", "aaa"))
+			Expect(c).To(HaveExactElements(true, false, true))
+		})
+	})
+
 	Describe("Empty", func() {
 		It("should not yield any elements", func() {
 			seq := iter.Empty3[int, string, bool]()
@@ -151,6 +183,20 @@ var _ = Describe("Seq3", func() {
 			Expect(a).To(ConsistOf(70, 421))
 			Expect(b).To(ConsistOf("69", "420"))
 			Expect(c).To(ConsistOf(true, true))
+		})
+	})
+
+	Describe("FailFast3", func() {
+		It("should return error on first error", func() {
+			seq := slices.Values3(
+				[]int{1, 2, 3},
+				[]string{"a", "b", "c"},
+				[]error{nil, nil, nil},
+			)
+
+			_, err := iter.FailFast3(seq)
+
+			Expect(err).NotTo(HaveOccurred())
 		})
 	})
 })

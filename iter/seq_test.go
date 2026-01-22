@@ -48,6 +48,18 @@ var _ = Describe("Seq", func() {
 
 			Expect(r).To(ConsistOf(69))
 		})
+
+		It("should handle early termination from inner sequence", func() {
+			a := slices.Values([]int{1, 2, 3})
+			b := iter.Singleton(bindStub{a})
+
+			r := iter.Bind(b, func(s bindStub) iter.Seq[int] {
+				return s.seq
+			})
+
+			result := iter.Take(r, 2)
+			Expect(result).To(HaveExactElements(1, 2))
+		})
 	})
 
 	Describe("Compact", func() {
@@ -72,6 +84,37 @@ var _ = Describe("Seq", func() {
 		})
 	})
 
+	Describe("Concat", func() {
+		It("should concatenate sequences", func() {
+			a := slices.Values([]int{1, 2})
+			b := slices.Values([]int{3, 4})
+
+			r := iter.Concat(a, b)
+
+			Expect(r).To(HaveExactElements(1, 2, 3, 4))
+		})
+
+		It("should handle early termination in first sequence", func() {
+			a := slices.Values([]int{1, 2, 3})
+			b := slices.Values([]int{4, 5})
+
+			r := iter.Concat(a, b)
+			result := iter.Take(r, 2)
+
+			Expect(result).To(HaveExactElements(1, 2))
+		})
+
+		It("should handle early termination in second sequence", func() {
+			a := slices.Values([]int{1, 2})
+			b := slices.Values([]int{3, 4, 5})
+
+			r := iter.Concat(a, b)
+			result := iter.Take(r, 3)
+
+			Expect(result).To(HaveExactElements(1, 2, 3))
+		})
+	})
+
 	Describe("Empty", func() {
 		It("should not yield any elements", func() {
 			seq := iter.Empty[int]()
@@ -89,6 +132,17 @@ var _ = Describe("Seq", func() {
 			})
 
 			Expect(r).To(ConsistOf(69))
+		})
+
+		It("should handle early termination", func() {
+			s := slices.Values([]int{1, 2, 3, 4, 5})
+
+			r := iter.Filter(s, func(i int) bool {
+				return i > 1
+			})
+			result := iter.Take(r, 2)
+
+			Expect(result).To(HaveExactElements(2, 3))
 		})
 	})
 
@@ -121,6 +175,17 @@ var _ = Describe("Seq", func() {
 				0: 2,
 			}))
 		})
+
+		It("should handle early termination", func() {
+			seq := slices.Values([]int{1, 2, 3, 4})
+
+			res := iter.All(seq)
+			taken := iter.Take2(res, 2)
+
+			a, b := slices.Collect2(taken)
+			Expect(a).To(HaveExactElements(0, 1))
+			Expect(b).To(HaveExactElements(1, 2))
+		})
 	})
 
 	Describe("Flat", func() {
@@ -132,6 +197,17 @@ var _ = Describe("Seq", func() {
 			r := iter.Flat(c)
 
 			Expect(r).To(ConsistOf(69, 420))
+		})
+
+		It("should handle early termination", func() {
+			a := slices.Values([]int{1, 2, 3})
+			b := slices.Values([]int{4, 5, 6})
+			c := slices.Values([]iter.Seq[int]{a, b})
+
+			r := iter.Flat(c)
+			result := iter.Take(r, 4)
+
+			Expect(result).To(HaveExactElements(1, 2, 3, 4))
 		})
 	})
 
@@ -147,6 +223,19 @@ var _ = Describe("Seq", func() {
 
 			Expect(r).To(ConsistOf(70, 421))
 		})
+
+		It("should handle early termination", func() {
+			a := slices.Values([]int{1, 2, 3})
+			b := slices.Values([]int{4, 5, 6})
+			c := slices.Values([]iter.Seq[int]{a, b})
+
+			r := iter.FlatMap(c, func(i int) int {
+				return i * 2
+			})
+			result := iter.Take(r, 4)
+
+			Expect(result).To(HaveExactElements(2, 4, 6, 8))
+		})
 	})
 
 	Describe("Fold", func() {
@@ -161,7 +250,7 @@ var _ = Describe("Seq", func() {
 		})
 	})
 
-	Describe("Fold", func() {
+	Describe("Map", func() {
 		It("should map", func() {
 			s := slices.Values([]int{69, 420})
 
@@ -170,6 +259,17 @@ var _ = Describe("Seq", func() {
 			})
 
 			Expect(r).To(ConsistOf(70, 421))
+		})
+
+		It("should handle early termination", func() {
+			s := slices.Values([]int{1, 2, 3, 4})
+
+			r := iter.Map(s, func(x int) int {
+				return x * 2
+			})
+			result := iter.Take(r, 2)
+
+			Expect(result).To(HaveExactElements(2, 4))
 		})
 	})
 
@@ -192,6 +292,15 @@ var _ = Describe("Seq", func() {
 			r := iter.Remove(s, 3)
 
 			Expect(r).To(ConsistOf(1, 2, 4))
+		})
+
+		It("should handle early termination", func() {
+			s := slices.Values([]int{1, 2, 3, 4, 5})
+
+			r := iter.Remove(s, 3)
+			result := iter.Take(r, 2)
+
+			Expect(result).To(HaveExactElements(1, 2))
 		})
 	})
 
@@ -227,6 +336,15 @@ var _ = Describe("Seq", func() {
 
 			Expect(r).To(BeEmpty())
 		})
+
+		It("should handle early termination", func() {
+			s := slices.Values([]int{1, 2, 3, 4, 5})
+
+			r := iter.Skip(s, 2)
+			result := iter.Take(r, 2)
+
+			Expect(result).To(HaveExactElements(3, 4))
+		})
 	})
 
 	Describe("Take", func() {
@@ -253,6 +371,15 @@ var _ = Describe("Seq", func() {
 
 			Expect(r).To(ConsistOf(69, 420))
 		})
+
+		It("should handle early termination before limit", func() {
+			s := slices.Values([]int{1, 2, 3, 4, 5})
+
+			r := iter.Take(s, 5)
+			result := iter.Take(r, 3)
+
+			Expect(result).To(HaveExactElements(1, 2, 3))
+		})
 	})
 
 	Describe("Values", func() {
@@ -260,6 +387,14 @@ var _ = Describe("Seq", func() {
 			s := iter.Values(1, 2, 3, 4)
 
 			Expect(s).To(ConsistOf(1, 2, 3, 4))
+		})
+
+		It("should handle early termination", func() {
+			s := iter.Values(1, 2, 3, 4, 5)
+
+			result := iter.Take(s, 3)
+
+			Expect(result).To(HaveExactElements(1, 2, 3))
 		})
 	})
 })
