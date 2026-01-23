@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
-type Ent interface {
+type Cmd interface {
 	Args() []string
 	Executable() (string, error)
 	Exit(code int)
+	Getwd() (string, error)
 }
 
 type Env interface {
@@ -17,8 +18,10 @@ type Env interface {
 	Environ() []string
 	ExpandEnv(s string) string
 	Getenv(key string) string
+	IsPathSeparator(c uint8) bool
 	LookupEnv(key string) (string, bool)
 	Setenv(key, value string) error
+	TempDir() string
 	Unsetenv(key string) error
 	UserCacheDir() (string, error)
 	UserConfigDir() (string, error)
@@ -32,15 +35,12 @@ type Fs interface {
 	Chmod(name string, mode FileMode) error
 	Chown(name string, uid, gid int) error
 	Chtimes(name string, atime, mtime time.Time) error
-	Getwd() (string, error)
-	IsPathSeparator(c uint8) bool
 	Lchown(name string, uid, gid int) error
 	Link(oldname, newname string) error
 	Lstat(name string) (FileInfo, error)
 	Mkdir(name string, mode FileMode) error
 	MkdirAll(path string, mode FileMode) error
 	MkdirTemp(dir, pattern string) (string, error)
-	Pipe() (r io.Reader, w io.Writer, err error)
 	Open(name string) (fs.File, error)
 	OpenInRoot(dir, name string) (fs.File, error)
 	OpenRoot(name string) (*Root, error)
@@ -53,7 +53,6 @@ type Fs interface {
 	SameFile(fi1, fi2 FileInfo) bool
 	Stat(name string) (FileInfo, error)
 	Symlink(oldname, newname string) error
-	TempDir() string
 	Truncate(name string, size int64) error
 	WriteFile(name string, data []byte, perm FileMode) error
 }
@@ -74,6 +73,7 @@ type Stdio interface {
 	Stderr() io.Writer
 	Stdin() io.Reader
 	Stdout() io.Writer
+	Pipe() (r io.Reader, w io.Writer, err error)
 }
 
 type Sys interface {
@@ -83,7 +83,7 @@ type Sys interface {
 }
 
 type Os interface {
-	Ent
+	Cmd
 	Env
 	Fs
 	Id
