@@ -1,6 +1,8 @@
 package iter_test
 
 import (
+	"errors"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -38,6 +40,22 @@ var _ = Describe("Seq3", func() {
 			Expect(a).To(HaveExactElements(1, 2, 3))
 			Expect(b).To(HaveExactElements("a", "aa", "aaa"))
 			Expect(c).To(HaveExactElements(true, false, true))
+		})
+
+		It("should handle empty inner sequence", func() {
+			seq := slices.Values3([]int{1, 2, 3}, []string{"a", "b", "c"}, []bool{true, false, true})
+
+			result := iter.Bind3(seq, func(i int, s string, b bool) iter.Seq3[int, string, bool] {
+				if i == 2 {
+					return iter.Empty3[int, string, bool]()
+				}
+				return iter.Singleton3(i*2, s+s, !b)
+			})
+
+			a, b, c := slices.Collect3(result)
+			Expect(a).To(ConsistOf(2, 6))
+			Expect(b).To(ConsistOf("aa", "cc"))
+			Expect(c).To(ConsistOf(false, false))
 		})
 	})
 
@@ -197,6 +215,19 @@ var _ = Describe("Seq3", func() {
 			_, err := iter.FailFast3(seq)
 
 			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("should return the first error encountered", func() {
+			expectedErr := errors.New("test error")
+			seq := slices.Values3(
+				[]int{1, 2, 3},
+				[]string{"a", "b", "c"},
+				[]error{nil, expectedErr, errors.New("should not reach")},
+			)
+
+			_, err := iter.FailFast3(seq)
+
+			Expect(err).To(Equal(expectedErr))
 		})
 	})
 })
