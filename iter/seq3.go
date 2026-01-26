@@ -2,6 +2,20 @@ package iter
 
 type Seq3[T, U, V any] func(yield func(T, U, V) bool)
 
+func Bind3[TA, UA, VA, TB, UB, VB any](seq Seq3[TA, UA, VA], fn func(TA, UA, VA) Seq3[TB, UB, VB]) Seq3[TB, UB, VB] {
+	return func(yield func(TB, UB, VB) bool) {
+		seq(func(t TA, u UA, v VA) bool {
+			cont := true
+			next := fn(t, u, v)
+			next(func(tb TB, ub UB, vb VB) bool {
+				cont = yield(tb, ub, vb)
+				return cont
+			})
+			return cont
+		})
+	}
+}
+
 func DropLast3[T, U, V any](seq Seq3[T, U, V]) Seq2[T, U] {
 	return func(yield func(T, U) bool) {
 		seq(func(t T, u U, _ V) bool {
@@ -34,7 +48,7 @@ func FailFast3[T, U any](seq Seq3[T, U, error]) (res Seq2[T, U], err error) {
 	res = Empty2[T, U]()
 	seq(func(t T, u U, e error) bool {
 		err = e
-		return err != nil
+		return err == nil
 	})
 
 	return
