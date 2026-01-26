@@ -81,6 +81,21 @@ var _ = Describe("Seq2", func() {
 			Expect(len(a)).To(Equal(3))
 			Expect(len(b)).To(Equal(3))
 		})
+
+		It("should handle empty inner sequence", func() {
+			seq := slices.Zip([]int{1, 2, 3}, []string{"a", "b", "c"})
+
+			result := iter.Bind2(seq, func(k int, v string) iter.Seq2[int, string] {
+				if k == 2 {
+					return iter.Empty2[int, string]()
+				}
+				return iter.Singleton2(k*2, v+v)
+			})
+
+			a, b := slices.Collect2(result)
+			Expect(a).To(ConsistOf(2, 6))
+			Expect(b).To(ConsistOf("aa", "cc"))
+		})
 	})
 
 	Describe("DropFirst", func() {
