@@ -44,16 +44,6 @@ func Empty3[T, U, V any]() Seq3[T, U, V] {
 	return func(yield func(T, U, V) bool) {}
 }
 
-func FailFast3[T, U any](seq Seq3[T, U, error]) (res Seq2[T, U], err error) {
-	res = Empty2[T, U]()
-	seq(func(t T, u U, e error) bool {
-		err = e
-		return err == nil
-	})
-
-	return
-}
-
 func Filter3[T, U, V any](seq Seq3[T, U, V], predicate func(T, U, V) bool) Seq3[T, U, V] {
 	return func(yield func(T, U, V) bool) {
 		seq(func(t T, u U, v V) bool {

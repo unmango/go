@@ -1,8 +1,6 @@
 package iter_test
 
 import (
-	"errors"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -201,33 +199,6 @@ var _ = Describe("Seq3", func() {
 			Expect(a).To(ConsistOf(70, 421))
 			Expect(b).To(ConsistOf("69", "420"))
 			Expect(c).To(ConsistOf(true, true))
-		})
-	})
-
-	Describe("FailFast3", func() {
-		It("should return error on first error", func() {
-			seq := slices.Values3(
-				[]int{1, 2, 3},
-				[]string{"a", "b", "c"},
-				[]error{nil, nil, nil},
-			)
-
-			_, err := iter.FailFast3(seq)
-
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		It("should return the first error encountered", func() {
-			expectedErr := errors.New("test error")
-			seq := slices.Values3(
-				[]int{1, 2, 3},
-				[]string{"a", "b", "c"},
-				[]error{nil, expectedErr, errors.New("should not reach")},
-			)
-
-			_, err := iter.FailFast3(seq)
-
-			Expect(err).To(Equal(expectedErr))
 		})
 	})
 })
