@@ -1,42 +1,63 @@
 package codec
 
-import (
-	"github.com/unmango/go/codec/encodingjson"
-	"github.com/unmango/go/codec/goccy"
-	"github.com/unmango/go/codec/googleproto"
-	"github.com/unmango/go/codec/goyaml"
-)
+import "io"
 
-var (
-	Goccy        Codec = goccy.DefaultCodec
-	GoogleProto  Codec = googleproto.DefaultCodec
-	GoYaml       Codec = goyaml.DefaultCodec
-	EncodingJson Codec = encodingjson.DefaultCodec
+type Any = Codec[any]
 
-	// Defaults
+type Codec[T any] interface {
+	Marshaler[T]
 
-	Json     = EncodingJson
-	Yaml     = Goccy
-	Protobuf = GoogleProto
-)
-
-type Codec interface {
-	Marshaler
-	Unmarshaler
+	NewDecoder(io.Reader) Decoder[T]
+	NewEncoder(io.Writer) Encoder[T]
 }
 
-type Decoder interface {
-	Decode(v any) error
+type Decoder[T any] interface {
+	Decode(v T) error
 }
 
-type Encoder interface {
-	Encode(v any) error
+type Encoder[T any] interface {
+	Encode(v T) error
 }
 
-type Marshaler interface {
-	Marshal(v any) ([]byte, error)
+type Marshaler[T any] interface {
+	Marshal(v T) ([]byte, error)
+	Unmarshal(data []byte, v T) error
 }
 
-type Unmarshaler interface {
-	Unmarshal(data []byte, v any) error
+type decoder[T any] struct{ d Decoder[any] }
+
+func (d decoder[T]) Decode(v T) error {
+	return d.d.Decode(v)
+}
+
+type encoder[T any] struct{ e Encoder[any] }
+
+func (e encoder[T]) Encode(v T) error {
+	return e.e.Encode(v)
+}
+
+type cast[T any] struct{ c Codec[any] }
+
+func Cast[T any, C Codec[any]](c C) Codec[T] {
+	return cast[T]{c}
+}
+
+// Marshal implements [Codec].
+func (c cast[T]) Marshal(v T) ([]byte, error) {
+	return c.c.Marshal(v)
+}
+
+// NewDecoder implements [Codec].
+func (c cast[T]) NewDecoder(r io.Reader) Decoder[T] {
+	return decoder[T]{c.c.NewDecoder(r)}
+}
+
+// NewEncoder implements [Codec].
+func (c cast[T]) NewEncoder(w io.Writer) Encoder[T] {
+	return encoder[T]{c.c.NewEncoder(w)}
+}
+
+// Unmarshal implements [Codec].
+func (c cast[T]) Unmarshal(b []byte, v T) error {
+	return c.c.Unmarshal(b, v)
 }
