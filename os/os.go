@@ -67,6 +67,7 @@ var (
 	UserHomeDir = os.UserHomeDir
 
 	Chmod      = os.Chmod
+	Chown      = os.Chown
 	Chtimes    = os.Chtimes
 	Create     = os.Create
 	CreateTemp = os.CreateTemp
@@ -88,6 +89,7 @@ var (
 	Stat       = os.Stat
 	Symlink    = os.Symlink
 	Truncate   = os.Truncate
+	WriteFile  = os.WriteFile
 )
 
 type (
