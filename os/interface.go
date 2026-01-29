@@ -30,11 +30,12 @@ type Env interface {
 
 type Fs interface {
 	CopyFS(dir string, fsys fs.FS) error
-	DirFS(dir string) fs.FS
 	Chdir(dir string) error
 	Chmod(name string, mode FileMode) error
 	Chown(name string, uid, gid int) error
 	Chtimes(name string, atime, mtime time.Time) error
+	CreateTemp(dir, pattern string) (fs.File, error)
+	DirFS(dir string) fs.FS
 	Lchown(name string, uid, gid int) error
 	Link(oldname, newname string) error
 	Lstat(name string) (FileInfo, error)

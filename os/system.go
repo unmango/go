@@ -39,6 +39,10 @@ func (sys) CopyFS(dir string, fsys fs.FS) error {
 	return os.CopyFS(dir, fsys)
 }
 
+func (sys) CreateTemp(dir, pattern string) (fs.File, error) {
+	return os.CreateTemp(dir, pattern)
+}
+
 func (sys) DirFS(dir string) fs.FS {
 	return os.DirFS(dir)
 }
