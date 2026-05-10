@@ -94,7 +94,7 @@ var (
 
 type (
 	DirEntry     = os.DirEntry
-	File         = os.File
+	OsFile       = os.File
 	FileInfo     = os.FileInfo
 	FileMode     = os.FileMode
 	LinkError    = os.LinkError

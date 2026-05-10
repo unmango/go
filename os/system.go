@@ -39,7 +39,11 @@ func (sys) CopyFS(dir string, fsys fs.FS) error {
 	return os.CopyFS(dir, fsys)
 }
 
-func (sys) CreateTemp(dir, pattern string) (fs.File, error) {
+func (sys) Create(name string) (File, error) {
+	return os.Create(name)
+}
+
+func (sys) CreateTemp(dir, pattern string) (File, error) {
 	return os.CreateTemp(dir, pattern)
 }
 
@@ -143,11 +147,15 @@ func (sys) MkdirTemp(dir, pattern string) (string, error) {
 	return os.MkdirTemp(dir, pattern)
 }
 
-func (sys) Open(name string) (fs.File, error) {
+func (sys) Open(name string) (File, error) {
 	return os.Open(name)
 }
 
-func (sys) OpenInRoot(dir, name string) (fs.File, error) {
+func (sys) OpenFile(name string, flag int, perm FileMode) (File, error) {
+	return os.OpenFile(name, flag, perm)
+}
+
+func (sys) OpenInRoot(dir, name string) (File, error) {
 	return os.OpenInRoot(dir, name)
 }
 
