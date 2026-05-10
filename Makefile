@@ -37,7 +37,7 @@ go.sum: go.mod ${GO_SRC}
 	@touch $@
 
 nix/gomod2nix.toml: go.mod go.sum
-	$(GOMOD2NIX) generate
+	$(GOMOD2NIX) generate --outdir nix
 
 %_suite_test.go:
 	cd $(dir $@) && $(GINKGO) bootstrap
