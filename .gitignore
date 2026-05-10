@@ -9,3 +9,4 @@ go.work*
 .direnv/
 *.out
 /result
+.claude/*.local.json

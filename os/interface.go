@@ -16,6 +16,7 @@ type Cmd interface {
 type Env interface {
 	Clearenv()
 	Environ() []string
+	Expand(s string, mapping func(string) string) string
 	ExpandEnv(s string) string
 	Getenv(key string) string
 	IsPathSeparator(c uint8) bool
@@ -28,13 +29,24 @@ type Env interface {
 	UserHomeDir() (string, error)
 }
 
+type File interface {
+	fs.File
+	io.Closer
+	io.ReaderAt
+	io.Seeker
+	io.Writer
+	io.WriterAt
+	io.WriterTo
+}
+
 type Fs interface {
 	CopyFS(dir string, fsys fs.FS) error
 	Chdir(dir string) error
 	Chmod(name string, mode FileMode) error
 	Chown(name string, uid, gid int) error
 	Chtimes(name string, atime, mtime time.Time) error
-	CreateTemp(dir, pattern string) (fs.File, error)
+	Create(name string) (File, error)
+	CreateTemp(dir, pattern string) (File, error)
 	DirFS(dir string) fs.FS
 	Lchown(name string, uid, gid int) error
 	Link(oldname, newname string) error
@@ -42,8 +54,9 @@ type Fs interface {
 	Mkdir(name string, mode FileMode) error
 	MkdirAll(path string, mode FileMode) error
 	MkdirTemp(dir, pattern string) (string, error)
-	Open(name string) (fs.File, error)
-	OpenInRoot(dir, name string) (fs.File, error)
+	Open(name string) (File, error)
+	OpenFile(name string, flag int, perm FileMode) (File, error)
+	OpenInRoot(dir, name string) (File, error)
 	OpenRoot(name string) (*Root, error)
 	ReadDir(name string) ([]DirEntry, error)
 	ReadFile(name string) ([]byte, error)
