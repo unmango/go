@@ -52,6 +52,7 @@
               gnumake
               go
               gomod2nix
+              gopls
               ginkgo
               nixfmt
             ];
