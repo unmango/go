@@ -27,12 +27,12 @@
         {
           inputs',
           pkgs,
+          lib,
           system,
           ...
         }:
         let
-          inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication mkGoEnv;
-          goEnv = mkGoEnv { pwd = ./.; };
+          inherit (inputs'.gomod2nix.legacyPackages) buildGoApplication;
         in
         {
           _module.args.pkgs = import inputs.nixpkgs {
@@ -40,16 +40,10 @@
             overlays = [ inputs.gomod2nix.overlays.default ];
           };
 
-          packages.default = buildGoApplication {
+          packages.default = pkgs.callPackage ./nix {
+            inherit buildGoApplication;
             pname = "go";
-            version = "0.13.0";
-            src = ./.;
-            modules = ./gomod2nix.toml;
-            nativeBuildInputs = [ pkgs.ginkgo ];
-
-            checkPhase = ''
-              ginkgo -r --label-filter="Dependency: isEmpty"
-            '';
+            version = "0.15.1";
           };
 
           devShells.default = pkgs.mkShell {
@@ -57,7 +51,6 @@
               git
               gnumake
               go
-              goEnv
               gomod2nix
               ginkgo
               nixfmt
@@ -69,6 +62,7 @@
           };
 
           treefmt = {
+            programs.actionlint.enable = true;
             programs.nixfmt.enable = true;
             programs.gofmt.enable = true;
           };
