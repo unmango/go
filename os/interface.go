@@ -33,6 +33,7 @@ type File interface {
 	fs.File
 	io.Closer
 	io.ReaderAt
+	io.Seeker
 	io.Writer
 	io.WriterAt
 	io.WriterTo
