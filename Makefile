@@ -1,18 +1,13 @@
 _ := $(shell mkdir -p .make bin)
 
-REPO := github.com/unmango/go
 PKGS := iter maps result iter/seqs slices rx rx/observable option maybe
 
-WORKING_DIR := $(shell pwd)
-LOCALBIN    := ${WORKING_DIR}/bin
-
-export GOBIN := ${LOCALBIN}
-
 GO        ?= go
-DEVCTL    ?= $(GO) tool devctl
 GINKGO    ?= $(GO) tool ginkgo
-GOMOD2NIX ?= $(GO) tool gomod2nix
+GOMOD2NIX ?= gomod2nix
 NIX       ?= nix
+
+GO_SRC := $(shell find . -name '*.go')
 
 ifeq ($(CI),)
 TEST_FLAGS := --label-filter !E2E
@@ -20,41 +15,32 @@ else
 TEST_FLAGS := --github-output --race --trace --coverprofile=cover.profile
 endif
 
-build: .make/build bin/nix
-test: .make/test
-tidy: go.sum
+build:
+	$(NIX) build --no-substitute
 
-test_all:
-	$(GINKGO) run -r ./
+test:
+	$(GINKGO) run -r ${TEST_FLAGS}
+
+check:
+	$(NIX) flake check
+
+update:
+	$(NIX) flake update
+
+tidy: go.sum
 
 clean:
 	find . -name report.json -delete
 
-bin/nix:
-	$(NIX) build --out-link $@
-
-go.sum: go.mod $(shell find . -name '*.go')
+go.sum: go.mod ${GO_SRC}
 	go mod tidy
+	@touch $@
 
-gomod2nix.toml: go.mod
-	$(GOMOD2NIX)
+nix/gomod2nix.toml: go.mod go.sum
+	$(GOMOD2NIX) generate --outdir nix
 
 %_suite_test.go:
 	cd $(dir $@) && $(GINKGO) bootstrap
 
 %_test.go:
 	cd $(dir $@) && $(GINKGO) generate $(notdir $*)
-
-.envrc: hack/example.envrc
-	cp $< $@
-
-.make/build: $(shell find . -name '*.go')
-	go build ./...
-	@touch $@
-
-.make/nix-build:
-	$(NIX) build
-
-.make/test: $(shell find . -name '*.go')
-	$(GINKGO) run ${TEST_FLAGS} $(sort $(dir $?))
-	@touch $@
