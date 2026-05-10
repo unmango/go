@@ -9,7 +9,7 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/unmango/go)
 
 Dumping ground for Go packages.
-Some experiments with functional programming in packages like `iter`, `result`, and `rx`.
+Some experiments with functional programming in packages like `iter`, `fp`, and `rx`.
 Some moderately useful abstractions in `codec` and `os`
 
 ## iter
@@ -64,7 +64,7 @@ seq := maps.All(map[string]string{"foo": "bar"})
 seq = maps.AppendSeq(seq, map[string]string{"bin": "baz"})
 ```
 
-## either
+## fp/either
 
 The `either` package adds the `Either` type representing exactly one of two possible values.
 It also adds various operations such as `Map` and `Bind`.
@@ -82,9 +82,9 @@ func main() {
 }
 ```
 
-## either/result
+## fp/either/result
 
-The `result` pakcage adds the `Result` type representing either success or error.
+The `result` package adds the `Result` type representing either success or error.
 It also adds various result operations such as `Map` and `Bind`.
 
 ```go
@@ -100,9 +100,9 @@ func main() {
 }
 ```
 
-## either/maybe
+## fp/either/maybe
 
-The `maybe` pakcage adds the `Maybe` type representing either some value, or none.
+The `maybe` package adds the `Maybe` type representing either some value, or none.
 It also adds various operations such as `Map` and `Bind`.
 
 ```go

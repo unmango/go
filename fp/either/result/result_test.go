@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/unmango/go/either/result"
+	"github.com/unmango/go/fp/either/result"
 )
 
 var _ = Describe("Result", func() {

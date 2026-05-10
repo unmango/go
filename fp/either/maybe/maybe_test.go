@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/unmango/go/either/maybe"
+	"github.com/unmango/go/fp/either/maybe"
 )
 
 var _ = Describe("Maybe", func() {
