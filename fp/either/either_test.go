@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/unmango/go/either"
+	"github.com/unmango/go/fp/either"
 )
 
 // Comprehensive tests for Either[L,R] type with pointer semantics
