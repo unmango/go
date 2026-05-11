@@ -51,13 +51,13 @@ var (
 	ErrProcessDone      = os.ErrProcessDone
 	NewSyscallError     = os.NewSyscallError
 
-	Chdir       = os.Chdir
-	Clearenv    = os.Clearenv
-	Environ     = os.Environ
-	Executable  = os.Executable
-	Exit        = os.Exit
-	Expand      = os.Expand
-	ExpandEnv   = os.ExpandEnv
+	Chdir         = os.Chdir
+	Clearenv      = os.Clearenv
+	Environ       = os.Environ
+	Executable    = os.Executable
+	Exit          = os.Exit
+	Expand        = os.Expand
+	ExpandEnv     = os.ExpandEnv
 	Getenv        = os.Getenv
 	Getgroups     = os.Getgroups
 	Getpagesize   = os.Getpagesize
