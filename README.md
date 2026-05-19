@@ -8,9 +8,10 @@
 ![GitHub Release](https://img.shields.io/github/v/release/unmango/go)
 ![GitHub Release Date](https://img.shields.io/github/release-date/unmango/go)
 
-Dumping ground for Go packages.
+A personal standard library for Go.
+In other words, a dumping ground for Go packages.
 Some experiments with functional programming in packages like `iter`, `fp`, and `rx`.
-Some moderately useful abstractions in `codec` and `os`
+Some moderately useful abstractions in `codec` and `os`.
 
 ## iter
 
