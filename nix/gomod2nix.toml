@@ -26,12 +26,12 @@ schema = 3
     hash = 'sha256-DBaCmfVLei1HComa+xJN76IpPFTUaDfUEhc1U9gmW8g='
 
   [mod.'github.com/onsi/ginkgo/v2']
-    version = 'v2.28.3'
-    hash = 'sha256-HD+3cXtEz+3vWn/D5tBUa2nwwBjf/MxMrlBMxyGEGB8='
+    version = 'v2.29.0'
+    hash = 'sha256-MLTachXRpWLD9614nLSR8xHw3iC0dxphcJ3gm6F2Reg='
 
   [mod.'github.com/onsi/gomega']
-    version = 'v1.40.0'
-    hash = 'sha256-FbdhUXLOJrEmiUOJqkWr9TT0ci8pJQBhGtBmRCsvR7U='
+    version = 'v1.41.0'
+    hash = 'sha256-6jMNrk7lrDHbu4mE5TaIuzhnl8oIAWwURVjENujwl1M='
 
   [mod.'github.com/rogpeppe/go-internal']
     version = 'v1.14.1'
