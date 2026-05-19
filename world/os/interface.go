@@ -1,0 +1,113 @@
+package os
+
+import (
+	"io"
+	"io/fs"
+	"os"
+	"time"
+)
+
+type (
+	DirEntry     = os.DirEntry
+	OsFile       = os.File
+	FileInfo     = os.FileInfo
+	FileMode     = os.FileMode
+	LinkError    = os.LinkError
+	PathError    = os.PathError
+	ProcAttr     = os.ProcAttr
+	Process      = os.Process
+	ProcessState = os.ProcessState
+	Root         = os.Root
+	Signal       = os.Signal
+	SyscallError = os.SyscallError
+)
+
+type Cmd interface {
+	Args() []string
+	Executable() (string, error)
+	Exit(code int)
+	Getwd() (string, error)
+}
+
+type Env interface {
+	Clearenv()
+	Environ() []string
+	Expand(s string, mapping func(string) string) string
+	ExpandEnv(s string) string
+	Getenv(key string) string
+	IsPathSeparator(c uint8) bool
+	LookupEnv(key string) (string, bool)
+	Setenv(key, value string) error
+	TempDir() string
+	Unsetenv(key string) error
+	UserCacheDir() (string, error)
+	UserConfigDir() (string, error)
+	UserHomeDir() (string, error)
+}
+
+type File interface {
+	fs.File
+	io.Closer
+	io.ReaderAt
+	io.Seeker
+	io.Writer
+	io.WriterAt
+	io.WriterTo
+}
+
+type Fs interface {
+	CopyFS(dir string, fsys fs.FS) error
+	Chdir(dir string) error
+	Chmod(name string, mode FileMode) error
+	Chown(name string, uid, gid int) error
+	Chtimes(name string, atime, mtime time.Time) error
+	Create(name string) (File, error)
+	CreateTemp(dir, pattern string) (File, error)
+	DirFS(dir string) fs.FS
+	Lchown(name string, uid, gid int) error
+	Link(oldname, newname string) error
+	Lstat(name string) (FileInfo, error)
+	Mkdir(name string, mode FileMode) error
+	MkdirAll(path string, mode FileMode) error
+	MkdirTemp(dir, pattern string) (string, error)
+	Open(name string) (File, error)
+	OpenFile(name string, flag int, perm FileMode) (File, error)
+	OpenInRoot(dir, name string) (File, error)
+	OpenRoot(name string) (*Root, error)
+	ReadDir(name string) ([]DirEntry, error)
+	ReadFile(name string) ([]byte, error)
+	Readlink(name string) (string, error)
+	Remove(name string) error
+	RemoveAll(path string) error
+	Rename(oldpath, newpath string) error
+	SameFile(fi1, fi2 FileInfo) bool
+	Stat(name string) (FileInfo, error)
+	Symlink(oldname, newname string) error
+	Truncate(name string, size int64) error
+	WriteFile(name string, data []byte, perm FileMode) error
+}
+
+type Id interface {
+	Getegid() int
+	Geteuid() int
+	Getgid() int
+	Getgroups() ([]int, error)
+	Getuid() int
+}
+
+type Net interface {
+	Hostname() (name string, err error)
+}
+
+type Stdio interface {
+	Stderr() io.Writer
+	Stdin() io.Reader
+	Stdout() io.Writer
+	Pipe() (r io.Reader, w io.Writer, err error)
+}
+
+type Sys interface {
+	Getpagesize() int
+	Getpid() int
+	Getppid() int
+}

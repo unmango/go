@@ -1,9 +1,5 @@
-_ := $(shell mkdir -p .make bin)
-
-PKGS := iter maps result iter/seqs slices rx rx/observable option maybe
-
 GO        ?= go
-GINKGO    ?= $(GO) tool ginkgo
+GINKGO    ?= ginkgo
 GOMOD2NIX ?= gomod2nix
 NIX       ?= nix
 
@@ -27,7 +23,7 @@ check:
 update:
 	$(NIX) flake update
 
-tidy: go.sum
+tidy: go.sum nix/gomod2nix.toml
 
 clean:
 	find . -name report.json -delete
@@ -40,7 +36,7 @@ nix/gomod2nix.toml: go.mod go.sum
 	$(GOMOD2NIX) generate --outdir nix
 
 %_suite_test.go:
-	cd $(dir $@) && $(GINKGO) bootstrap
+	cd ${@D} && $(GINKGO) bootstrap
 
 %_test.go:
-	cd $(dir $@) && $(GINKGO) generate $(notdir $*)
+	cd ${@D} && $(GINKGO) generate $(notdir $*)
