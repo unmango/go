@@ -4,6 +4,8 @@ import "github.com/unmango/go/world/os"
 
 var System = system{os.System}
 
+type File = os.File
+
 type IO interface {
 	Os() Os
 }
