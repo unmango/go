@@ -63,16 +63,16 @@ func (c cast[T]) Unmarshal(b []byte, v T) error {
 }
 
 type mtransform[T any] struct {
-	Codec[T]
+	Marshaler[T]
 	t func([]byte) []byte
 }
 
-func MarshalWith[T any](c Codec[T], t func([]byte) []byte) Codec[T] {
+func MarshalWith[T any](c Marshaler[T], t func([]byte) []byte) Marshaler[T] {
 	return mtransform[T]{c, t}
 }
 
 func (m mtransform[T]) Marshal(v T) ([]byte, error) {
-	data, err := m.Codec.Marshal(v)
+	data, err := m.Marshaler.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
@@ -80,14 +80,14 @@ func (m mtransform[T]) Marshal(v T) ([]byte, error) {
 }
 
 type utransform[T any] struct {
-	Codec[T]
+	Marshaler[T]
 	t func([]byte) []byte
 }
 
-func UnmarshalWith[T any](c Codec[T], t func([]byte) []byte) Codec[T] {
+func UnmarshalWith[T any](c Marshaler[T], t func([]byte) []byte) Marshaler[T] {
 	return utransform[T]{c, t}
 }
 
 func (u utransform[T]) Unmarshal(b []byte, v T) error {
-	return u.Codec.Unmarshal(u.t(b), v)
+	return u.Marshaler.Unmarshal(u.t(b), v)
 }
