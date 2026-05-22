@@ -61,3 +61,33 @@ func (c cast[T]) NewEncoder(w io.Writer) Encoder[T] {
 func (c cast[T]) Unmarshal(b []byte, v T) error {
 	return c.c.Unmarshal(b, v)
 }
+
+type mtransform[T any] struct {
+	Marshaler[T]
+	t func([]byte) []byte
+}
+
+func MarshalWith[T any](c Marshaler[T], t func([]byte) []byte) Marshaler[T] {
+	return mtransform[T]{c, t}
+}
+
+func (m mtransform[T]) Marshal(v T) ([]byte, error) {
+	data, err := m.Marshaler.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return m.t(data), nil
+}
+
+type utransform[T any] struct {
+	Marshaler[T]
+	t func([]byte) []byte
+}
+
+func UnmarshalWith[T any](c Marshaler[T], t func([]byte) []byte) Marshaler[T] {
+	return utransform[T]{c, t}
+}
+
+func (u utransform[T]) Unmarshal(b []byte, v T) error {
+	return u.Marshaler.Unmarshal(u.t(b), v)
+}
