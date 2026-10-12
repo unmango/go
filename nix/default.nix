@@ -2,11 +2,12 @@
   pname,
   buildGoApplication,
   ginkgo,
+  go,
   lib,
   version,
 }:
 buildGoApplication {
-  inherit pname version;
+  inherit go pname version;
 
   src = lib.cleanSource ../.;
   modules = ./gomod2nix.toml;
