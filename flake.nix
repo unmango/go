@@ -42,6 +42,7 @@
 
           packages.default = pkgs.callPackage ./nix {
             inherit buildGoApplication;
+            go = pkgs.go_1_27;
             pname = "go";
             version = "0.15.1";
           };
@@ -50,7 +51,7 @@
             buildInputs = with pkgs; [
               git
               gnumake
-              go
+              go_1_27
               gomod2nix
               gopls
               ginkgo
@@ -58,7 +59,7 @@
             ];
 
             GINKGO = "${pkgs.ginkgo}/bin/ginkgo";
-            GO = "${pkgs.go}/bin/go";
+            GO = "${pkgs.go_1_27}/bin/go";
             GOMOD2NIX = "${pkgs.gomod2nix}/bin/gomod2nix";
           };
 
