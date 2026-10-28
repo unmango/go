@@ -37,11 +37,15 @@
         {
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
-            overlays = [ inputs.gomod2nix.overlays.default ];
+            overlays = [
+              inputs.gomod2nix.overlays.default
+              (final: prev: { gomod2nix = prev.gomod2nix.override { go = final.go_1_27; }; })
+            ];
           };
 
           packages.default = pkgs.callPackage ./nix {
             inherit buildGoApplication;
+            go = pkgs.go_1_27;
             pname = "go";
             version = "0.15.1";
           };
@@ -50,7 +54,7 @@
             buildInputs = with pkgs; [
               git
               gnumake
-              go
+              go_1_27
               gomod2nix
               gopls
               ginkgo
@@ -58,7 +62,7 @@
             ];
 
             GINKGO = "${pkgs.ginkgo}/bin/ginkgo";
-            GO = "${pkgs.go}/bin/go";
+            GO = "${pkgs.go_1_27}/bin/go";
             GOMOD2NIX = "${pkgs.gomod2nix}/bin/gomod2nix";
           };
 
