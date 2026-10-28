@@ -37,7 +37,10 @@
         {
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
-            overlays = [ inputs.gomod2nix.overlays.default ];
+            overlays = [
+              inputs.gomod2nix.overlays.default
+              (final: prev: { gomod2nix = prev.gomod2nix.override { go = final.go_1_27; }; })
+            ];
           };
 
           packages.default = pkgs.callPackage ./nix {
