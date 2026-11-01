@@ -7,6 +7,7 @@
 ![Codecov](https://img.shields.io/codecov/c/github/unmango/go)
 ![GitHub Release](https://img.shields.io/github/v/release/unmango/go)
 ![GitHub Release Date](https://img.shields.io/github/release-date/unmango/go)
+[![Hercules CI](https://hercules-ci.com/api/v1/site/github/account/unmango/project/go/badge)](https://hercules-ci.com/github/unmango/go)
 
 A personal standard library for Go.
 In other words, a dumping ground for Go packages.
